@@ -9,7 +9,7 @@ router.get('/login', async function(req, res, next) {
 });
 
 /* Endpoint de connexion utilisateur */
-router.post('/auth', async function(req, res, next) {
+router.post('/login', async function(req, res, next) {
   try {
     //Erreur en cas de champs non remplis
     if (!req.body.mail || !req.body.pass)
@@ -32,7 +32,11 @@ router.get('/logout', async function(req, res, next) {
   res.redirect("/user/login");
 });
 
-router.post('/reset', async function(req, res, next) {
+router.get('/recovery', async function(req, res, next) {
+  res.render('recovery');
+});
+
+router.post('/recovery', async function(req, res, next) {
   try {
     console.log(req.body)
     //Erreur en cas de champs non remplis
@@ -43,8 +47,55 @@ router.post('/reset', async function(req, res, next) {
     }
     var resetToken = await userService.addResetToken(req.body.mail);
     //Reset réussis
-    console.log(resetToken);
     res.redirect("/");
+} catch (e) {
+  next(e);
+}
+});
+
+router.get('/passreset', async function(req, res, next) {
+  if (!req.query.token)
+    {
+      console.log("no reset token")
+      //CustomError.testError();
+      res.send('The password recovery session has expired');
+    }
+  try{
+  var resetTokenValid = await userService.checkResetToken(req.query.token)
+  }
+  catch(e)
+  {
+    console.log(e);
+    res.send(e.message);
+  }
+
+  res.locals.token = req.query.token;
+  return res.render('passreset');
+  res.send('The password recovery session has expired');
+});
+
+router.post('/passreset', async function(req, res, next) {
+  try {
+    //Erreur en cas de champs non remplis
+    if (!req.body.pass || !req.body.confirmpass)
+    {
+      console.log("missing pass")
+      CustomError.testError();
+    }
+    if (req.body.pass !== req.body.confirmpass)
+      {
+        console.log("different pass")
+        CustomError.testError();
+      }
+    try
+    {
+    await userService.resetPass(req.query.token, req.body.pass);
+    res.redirect("/user/login");
+    }
+    catch(e)
+    {
+      res.render(e.message);
+    }
 } catch (e) {
   next(e);
 }

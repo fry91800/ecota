@@ -1,0 +1,10 @@
+h1 Password reset
+form(action=`/user/passreset?token=${token}` method="POST")
+  div
+    label(for="pass") New Password:
+    input(type="text" id="pass" name="pass" required)
+  div
+    label(for="confirmpass") Confirm New Password:
+    input(type="text" id="confirmpass" name="confirmpass" required)
+  div
+    button(type="submit") Submit

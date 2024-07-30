@@ -8,15 +8,23 @@ var indexRouter = require('./routes/index');
 var userRouter = require('./routes/user');
 const db = require("./data/database.js");
 const sessionRepository = require("./data/sessionRepository");
+const i18n = require('i18n');
 
 var app = express();
 
-
+// Configure i18n
+i18n.configure({
+  locales: ['en', 'fr'],
+  directory: __dirname + '/locales',
+  defaultLocale: 'en',
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+
+app.use(i18n.init);
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
