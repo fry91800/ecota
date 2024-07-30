@@ -1,0 +1,10 @@
+h1 Login
+form(action="/user/auth" method="POST")
+  div
+    label(for="email") Email:
+    input(type="text" id="mail" name="mail" required)
+  div
+    label(for="password") Password:
+    input(type="text" id="pass" name="pass" required)
+  div
+    button(type="submit") Submit
