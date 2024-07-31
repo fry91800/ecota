@@ -13,6 +13,8 @@ const accepts = require('accepts')
 
 var app = express();
 
+var supportedLanguages = ['en', 'fr'];
+
 // Configuration de i18n : Package multilangue
 i18n.configure({
   locales: ['en', 'fr'],
