@@ -9,10 +9,11 @@ var userRouter = require('./routes/user');
 const db = require("./data/database.js");
 const sessionRepository = require("./data/sessionRepository");
 const i18n = require('i18n');
+const accepts = require('accepts')
 
 var app = express();
 
-// Configure i18n
+// Configuration de i18n : Package multilangue
 i18n.configure({
   locales: ['en', 'fr'],
   directory: __dirname + '/locales',
@@ -25,11 +26,47 @@ app.set('view engine', 'jade');
 
 
 app.use(i18n.init);
+
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+//Définition de la langue
+const setLanguage = function(req, res, next) {
+  //Vérification de cookie de langue en premier
+  var languageCookie = req.cookies.lang;
+  if (languageCookie)
+  {
+    console.log(languageCookie)
+    if (req.params.lang !== languageCookie)
+    {
+      const newUrl = req.originalUrl.replace("/"+req.params.lang+"/", "/"+languageCookie+"/");
+      return res.redirect(newUrl);
+    }
+  }
+  //Si aucun cookie, on trouve la langue depuis le language header
+  else
+  {
+    const supportedLanguages = ['en', 'fr']; // Langues supportées
+    const accept = accepts(req);
+    const bestLang = accept.language(supportedLanguages) || 'en'; // anglais par défaut
+    if (req.params.lang !== bestLang)
+      {
+        const newUrl = req.originalUrl.replace("/"+req.params.lang+"/", "/"+bestLang+"/");
+        return res.redirect(newUrl);
+      }
+  }
+  const lang = req.params.lang;
+  if (['en', 'fr'].includes(lang)) {
+    res.setLocale(lang);
+  } else {
+    return res.status(404).send('Language not supported');
+  }
+  next();
+};
+app.use('/:lang', setLanguage);
 //Auth middleware
 app.use(async function(req, res, next) {
   var sessionid = req.cookies.session
@@ -46,8 +83,8 @@ app.use(async function(req, res, next) {
 }
 )
 
-app.use('/', indexRouter);
-app.use('/user', userRouter);
+app.use('/:lang', indexRouter);
+indexRouter.use('/user', userRouter);
 
 
 

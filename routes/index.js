@@ -15,13 +15,8 @@ router.get('/', function(req, res, next) {
 
 /* GET home page. */
 router.get('/:lang/test', function(req, res, next) {
-  let lang = req.params.lang;
-  if (['en', 'fr'].includes(lang)) {
-      res.setLocale(lang);
-      res.render('langtest', { greeting: res.__('Hello') });
-  } else {
-      res.status(404).send('Language not supported');
-  }
+      res.locals.supertest = "test";
+      res.render('langtest');
 });
 
 module.exports = router;

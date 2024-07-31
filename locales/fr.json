@@ -1,3 +1,8 @@
 {
-    "Hello": "Bonjour"
-}  
+	"Hello": "Bonjour",
+	"test": "test en Français",
+	"#{supertest}": "#{supertest}",
+	"/#{supertest}": "/#{supertest}",
+	"!{supertest}": "!{supertest}",
+	"'+#{supertest}": "'+#{supertest}"
+}
