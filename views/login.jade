@@ -1,5 +1,5 @@
 h1 Login
-form(action="/user/login" method="POST")
+form(action="/#{lang}/user/login" method="POST")
   div
     label(for="email") Email:
     input(type="text" id="mail" name="mail" required)
@@ -7,6 +7,6 @@ form(action="/user/login" method="POST")
     label(for="password") Password:
     input(type="text" id="pass" name="pass" required)
   div
-    a(href="/user/recovery") Forgot password?
+    a(href="/#{lang}/user/recovery") Forgot password?
   div  
     button(type="submit") Submit

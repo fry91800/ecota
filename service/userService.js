@@ -16,16 +16,13 @@ async function auth(mail, pass)
     //Vérifie l'existance du mail
     if (!record)
     {
-        console.log("pas de record");
-        CustomError.testError();
+        CustomError.mailNoExistError();
     }
     //Vérifie le mot de passe
     const match = await bcrypt.compare(pass, record.pass);
     if (!match)
     {
-        console.log(record);
-        console.log("mauvais pass");
-        CustomError.testError();
+        CustomError.wrongPassError();
     }
     //Tout est ok, Création de la session
     var session = await db.Session.create({orgaid: record.id}).catch(err => {
@@ -37,7 +34,6 @@ async function auth(mail, pass)
 async function addResetToken(mail)
 {
   var resetToken = uuidv4();
-  console.log("http://localhost:3000/user/passreset?token="+resetToken)
   await db.Orga.update(
     { resettoken: resetToken },
     {
@@ -45,7 +41,13 @@ async function addResetToken(mail)
         mail: mail,
       },
     },
-  );
+  )
+  .then(res => {
+    return resetToken
+  })
+  .catch(err => {
+    console.error(err)
+  });
 }
 
 async function checkResetToken(token)

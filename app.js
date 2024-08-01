@@ -4,20 +4,24 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const {CustomError}= require('./error/CustomError');
-var indexRouter = require('./routes/index');
-var userRouter = require('./routes/user');
 const db = require("./data/database.js");
 const sessionRepository = require("./data/sessionRepository");
 const i18n = require('i18n');
-const accepts = require('accepts')
+const accepts = require('accepts');
+
+//Getting the routers
+var indexRouter = require('./routes/index');
+var userRouter = require('./routes/user');
+var selectionRouter = require('./routes/selection');
 
 var app = express();
 
-var supportedLanguages = ['en', 'fr'];
+//Définition de la liste des langues
+const supportedLanguages = ['en', 'fr'];
 
-// Configuration de i18n : Package multilangue
+// Configuration de i18n : Package pour le multilangue
 i18n.configure({
-  locales: ['en', 'fr'],
+  locales: supportedLanguages,
   directory: __dirname + '/locales',
   defaultLocale: 'en',
 });
@@ -26,17 +30,18 @@ i18n.configure({
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-
+//Middlewares
 app.use(i18n.init);
-
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-//Définition de la langue
-const setLanguage = function(req, res, next) {
+
+
+
+//Language middleware
+app.use('/:lang', function(req, res, next) {
   //Vérification de cookie de langue en premier
   var languageCookie = req.cookies.lang;
   if (languageCookie)
@@ -51,7 +56,7 @@ const setLanguage = function(req, res, next) {
   //Si aucun cookie, on trouve la langue depuis le language header
   else
   {
-    const supportedLanguages = ['en', 'fr']; // Langues supportées
+    //const supportedLanguages = supportedLanguages; // Langues supportées
     const accept = accepts(req);
     const bestLang = accept.language(supportedLanguages) || 'en'; // anglais par défaut
     if (req.params.lang !== bestLang)
@@ -61,14 +66,15 @@ const setLanguage = function(req, res, next) {
       }
   }
   const lang = req.params.lang;
-  if (['en', 'fr'].includes(lang)) {
+  if (supportedLanguages.includes(lang)) {
     res.setLocale(lang);
+    res.locals.lang = lang;
   } else {
     return res.status(404).send('Language not supported');
   }
   next();
-};
-app.use('/:lang', setLanguage);
+});
+
 //Auth middleware
 app.use(async function(req, res, next) {
   var sessionid = req.cookies.session
@@ -85,8 +91,10 @@ app.use(async function(req, res, next) {
 }
 )
 
-app.use('/:lang', indexRouter);
-indexRouter.use('/user', userRouter);
+
+app.use('/', indexRouter);
+app.use('/:lang/user', userRouter);
+app.use('/:lang/selection', selectionRouter);
 
 
 
@@ -98,23 +106,6 @@ app.use(function(req, res, next) {
 
 //error handler
 app.use(function(err, req, res, next) {
-  /*
-  Default error handler
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-  */
- /* Other random way
-  if (err.customError) {
-    res.status(err.status).json({ error: err.message });
-  } else {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-    */
   if (err instanceof CustomError) {
     console.log("customError detected")
     res.status(err.status).json({ error: err.message });

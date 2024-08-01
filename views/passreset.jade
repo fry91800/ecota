@@ -1,5 +1,5 @@
 h1 Password reset
-form(action=`/user/passreset?token=${token}` method="POST")
+form(action="/#{lang}/user/passreset?token=#{token}" method="POST")
   div
     label(for="pass") New Password:
     input(type="text" id="pass" name="pass" required)

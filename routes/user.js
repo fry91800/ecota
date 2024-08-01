@@ -3,8 +3,15 @@ var router = express.Router();
 const CustomError = require('../error/CustomError');
 const userService = require("../service/userService");
 
-/* Page de connexion utilisateur */
+/*
+Page de connexion utilisateur 
+Renvoie vers la racine si l'utilisateur est connecté
+*/
 router.get('/login', async function(req, res, next) {
+  if (res.locals.session)
+  {
+    return res.redirect("/");
+  }
   res.render('login');
 });
 
@@ -14,22 +21,22 @@ router.post('/login', async function(req, res, next) {
     //Erreur en cas de champs non remplis
     if (!req.body.mail || !req.body.pass)
     {
-      console.log("no auth")
-      CustomError.testError();
+      CustomError.missingFieldError();
     }
     var session = await userService.auth(req.body.mail, req.body.pass);
     //Authentification réussis
-    res.cookie('session', session.id, { maxAge: 900000000, httpOnly: true });
-    console.log(session.id);
+    sessionTime = 365 * 10 * 24 * 60 * 60 * 1000 // 10 years
+    res.cookie('session', session.id, { maxAge: sessionTime, httpOnly: true });
     res.redirect("/");
 } catch (e) {
   next(e);
 }
 });
 
+/* Endpoint de deconnexion */
 router.get('/logout', async function(req, res, next) {
   res.clearCookie('session');
-  res.redirect("/user/login");
+  res.redirect("/");
 });
 
 router.get('/recovery', async function(req, res, next) {
@@ -42,10 +49,10 @@ router.post('/recovery', async function(req, res, next) {
     //Erreur en cas de champs non remplis
     if (!req.body.mail)
     {
-      console.log("no mail reset")
-      CustomError.testError();
+      CustomError.missingFieldError();
     }
     var resetToken = await userService.addResetToken(req.body.mail);
+    console.log("http://localhost:3000/fr/user/passreset?token="+resetToken)
     //Reset réussis
     res.redirect("/");
 } catch (e) {
@@ -90,7 +97,7 @@ router.post('/passreset', async function(req, res, next) {
     try
     {
     await userService.resetPass(req.query.token, req.body.pass);
-    res.redirect("/user/login");
+    res.redirect("/");
     }
     catch(e)
     {
