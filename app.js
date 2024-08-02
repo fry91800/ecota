@@ -14,6 +14,7 @@ var indexRouter = require('./routes/index');
 var userRouter = require('./routes/user');
 var selectionRouter = require('./routes/selection');
 var langswitchRouter = require('./routes/langswitch');
+var statsRouter = require('./routes/stats');
 
 var app = express();
 
@@ -85,7 +86,6 @@ app.use(async function(req, res, next) {
         {
           res.locals.session = session
         }
-        console.log(res.locals.session)
   }
   next();
 }
@@ -96,6 +96,7 @@ app.use('/', indexRouter);
 app.use('/:lang/user', userRouter);
 app.use('/:lang/selection', selectionRouter);
 app.use('/:lang/langswitch', langswitchRouter);
+app.use('/:lang/stats', statsRouter);
 
 
 

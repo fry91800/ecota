@@ -36,6 +36,10 @@ router.post('/login', async function(req, res, next) {
 
 /* Endpoint de deconnexion */
 router.get('/logout', async function(req, res, next) {
+  if (!res.locals.session)
+  {
+    return res.redirect("/");
+  }
   try {
     console.log()
     var sessionid = res.locals.session.sessionid

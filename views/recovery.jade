@@ -1,5 +1,6 @@
-extends header
+extends layout
 block content
+  include subviews/mainBar.jade
   h1 #{__("pass_recovery")}
   form(action="/#{lang}/user/recovery" method="POST")
     div

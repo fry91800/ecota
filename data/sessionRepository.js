@@ -18,6 +18,19 @@ async function getSessionData(sessionId)
   return results
 }
 
+async function getSessionStats()
+{
+  const [results, metadata] = await sequelize.query(
+    `SELECT session.id as sessionid, orga.id as orgaid, orga.mail as mail, orga.role as role
+    FROM session
+    JOIN orga on session.orgaid = orga.id`,
+    {
+        type: sequelize.QueryTypes.RAW
+    }
+  );
+  return results
+}
 module.exports = {
-    getSessionData
+    getSessionData,
+    getSessionStats
 }

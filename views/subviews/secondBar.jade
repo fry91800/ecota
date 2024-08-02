@@ -1,0 +1,5 @@
+div(style="background-color: #555555")
+    if session && (session.role === 1 || session.role === 2)
+        a(href="/#{lang}/selection") #{__("selection")} 
+    if session && (session.role === 1)
+        a(href="/#{lang}/stats") #{__("stats")}

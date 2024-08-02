@@ -2,11 +2,14 @@
 	"Hello": "Hello",
 	"test": "english test",
 	"supertest": "supertest",
-	"log_in" : "Log in",
+	"log_in": "Log in",
+	"log_out": "Log out",
 	"mail": "Email",
 	"password": "Password",
 	"forgot_pass": "Forgot Password?",
 	"pass_recovery": "Password recovery",
 	"new_pass": "New password",
-	"confirm_new_pass": "Confirm new password"
+	"confirm_new_pass": "Confirm new password",
+	"selection": "selection",
+	"stats": "stats"
 }

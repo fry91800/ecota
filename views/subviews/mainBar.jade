@@ -1,0 +1,5 @@
+div(style="background-color: black")
+    a(href="/#{lang}/langswitch/en") English 
+    a(href="/#{lang}/langswitch/fr") Francais 
+    if session
+        a(href="/#{lang}/user/logout") #{__("log_out")}

@@ -1,5 +1,6 @@
-extends header
+extends layout
 block content
+  include subviews/mainBar.jade
   h1 #{__("new_pass")}
   form(action="/#{lang}/user/passreset?token=#{token}" method="POST")
     div

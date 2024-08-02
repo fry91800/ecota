@@ -1,5 +1,6 @@
-extends header
+extends layout
 block content
+  include subviews/mainBar.jade
   h1 #{__("log_in")}
   form(action="/#{lang}/user/login" method="POST")
     div
