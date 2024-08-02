@@ -1,7 +1,9 @@
-h1 Recovery
-form(action="/#{lang}/user/recovery" method="POST")
-  div
-    label(for="email") Email:
-    input(type="text" id="mail" name="mail" required)
-  div
-    button(type="submit") Submit
+extends header
+block content
+  h1 #{__("pass_recovery")}
+  form(action="/#{lang}/user/recovery" method="POST")
+    div
+      label(for="email") #{__("mail")}:
+      input(type="text" id="mail" name="mail" required)
+    div
+      button(type="submit") Submit

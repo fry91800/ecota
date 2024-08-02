@@ -13,6 +13,7 @@ const accepts = require('accepts');
 var indexRouter = require('./routes/index');
 var userRouter = require('./routes/user');
 var selectionRouter = require('./routes/selection');
+var langswitchRouter = require('./routes/langswitch');
 
 var app = express();
 
@@ -46,7 +47,6 @@ app.use('/:lang', function(req, res, next) {
   var languageCookie = req.cookies.lang;
   if (languageCookie)
   {
-    console.log(languageCookie)
     if (req.params.lang !== languageCookie)
     {
       const newUrl = req.originalUrl.replace("/"+req.params.lang+"/", "/"+languageCookie+"/");
@@ -95,6 +95,7 @@ app.use(async function(req, res, next) {
 app.use('/', indexRouter);
 app.use('/:lang/user', userRouter);
 app.use('/:lang/selection', selectionRouter);
+app.use('/:lang/langswitch', langswitchRouter);
 
 
 

@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const db = require("../data/database.js");
 const CustomError = require('../error/CustomError');
 const userService = require("../service/userService");
 
@@ -25,7 +26,7 @@ router.post('/login', async function(req, res, next) {
     }
     var session = await userService.auth(req.body.mail, req.body.pass);
     //Authentification réussis
-    sessionTime = 365 * 10 * 24 * 60 * 60 * 1000 // 10 years
+    sessionTime = 10 * 365 * 24 * 60 * 60 * 1000 // 10 years
     res.cookie('session', session.id, { maxAge: sessionTime, httpOnly: true });
     res.redirect("/");
 } catch (e) {
@@ -35,8 +36,24 @@ router.post('/login', async function(req, res, next) {
 
 /* Endpoint de deconnexion */
 router.get('/logout', async function(req, res, next) {
-  res.clearCookie('session');
-  res.redirect("/");
+  try {
+    console.log()
+    var sessionid = res.locals.session.sessionid
+    var now = Date();
+    await db.Session.update(
+      { endtime: now },
+      {
+        where: {
+          id: sessionid,
+        },
+      },
+    );
+    res.clearCookie('session');
+    res.redirect("/");
+  }
+  catch(e){
+    next(e);
+  }
 });
 
 router.get('/recovery', async function(req, res, next) {
@@ -45,7 +62,6 @@ router.get('/recovery', async function(req, res, next) {
 
 router.post('/recovery', async function(req, res, next) {
   try {
-    console.log(req.body)
     //Erreur en cas de champs non remplis
     if (!req.body.mail)
     {
@@ -63,22 +79,17 @@ router.post('/recovery', async function(req, res, next) {
 router.get('/passreset', async function(req, res, next) {
   if (!req.query.token)
     {
-      console.log("no reset token")
-      //CustomError.testError();
-      res.send('The password recovery session has expired');
+      CustomError.defaultError();
     }
   try{
-  var resetTokenValid = await userService.checkResetToken(req.query.token)
+  await userService.checkResetToken(req.query.token);
+  res.locals.token = req.query.token;
+  return res.render('passreset');
   }
   catch(e)
   {
-    console.log(e);
-    res.send(e.message);
+    next(e);
   }
-
-  res.locals.token = req.query.token;
-  return res.render('passreset');
-  res.send('The password recovery session has expired');
 });
 
 router.post('/passreset', async function(req, res, next) {
@@ -86,8 +97,7 @@ router.post('/passreset', async function(req, res, next) {
     //Erreur en cas de champs non remplis
     if (!req.body.pass || !req.body.confirmpass)
     {
-      console.log("missing pass")
-      CustomError.testError();
+      CustomError.missingFieldError();
     }
     if (req.body.pass !== req.body.confirmpass)
       {
@@ -101,7 +111,7 @@ router.post('/passreset', async function(req, res, next) {
     }
     catch(e)
     {
-      res.render(e.message);
+      next(e);
     }
 } catch (e) {
   next(e);

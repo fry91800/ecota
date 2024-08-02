@@ -9,6 +9,10 @@ function testError()
 {
     throw new CustomError("testError", 400);
 }
+function defaultError()
+{
+    throw new CustomError("defaultError", 400);
+}
 
 function missingFieldError()
 {
@@ -23,11 +27,22 @@ function wrongPassError()
 {
     throw new CustomError("wrongPassError", 400);
 }
+function differentPassError()
+{
+    throw new CustomError("differentPassError", 400);
+}
+function tokenExpiredError()
+{
+    throw new CustomError("tokenExpiredError", 400);
+}
 
 module.exports = {
     CustomError,
     testError,
+    defaultError,
     missingFieldError,
     mailNoExistError,
-    wrongPassError
+    wrongPassError,
+    tokenExpiredError,
+    differentPassError
 }

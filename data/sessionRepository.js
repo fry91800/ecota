@@ -8,7 +8,8 @@ async function getSessionData(sessionId)
     `SELECT session.id as sessionid, orga.id as orgaid, orga.mail as mail, orga.role as role
     FROM session
     JOIN orga on session.orgaid = orga.id
-    WHERE session.id = :var`,
+    WHERE session.id = :var
+    AND session.endtime IS NULL`,
     {
         replacements: { var: sessionId },
         type: sequelize.QueryTypes.SELECT

@@ -11,5 +11,4 @@ router.get('/', function(req, res, next) {
     res.redirect("/en/user/login");
   }
 });
-
 module.exports = router;
