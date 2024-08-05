@@ -60,7 +60,7 @@ router.get('/logout', async function(req, res, next) {
   }
 });
 
-router.get('/recovery', async function(req, res, next) {
+router.get('/recovery',  async function(req, res, next) {
   res.render('recovery');
 });
 

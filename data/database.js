@@ -37,11 +37,12 @@ const Orga = sequelize.define('Orga', {
 
 const Session = sequelize.define('session',
     {
-          id: {
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
-            primaryKey: true,
-          },
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
+
         orgaid: {
             type: Sequelize.INTEGER,
             references: {
@@ -63,6 +64,224 @@ const Session = sequelize.define('session',
     }
 );
 
+const Country = sequelize.define('country',
+  {
+    code: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    desc: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+      freezeTableName: true
+  }
+);
+
+const Team = sequelize.define('team',
+  {
+    code: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    desc: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+      freezeTableName: true
+  }
+);
+
+const Intensity = sequelize.define('intensity',
+  {
+    desc: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+      freezeTableName: true
+  }
+);
+
+const Supplier1 = sequelize.define('supplier1',
+  {
+    erp: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    mdm: {
+      type: DataTypes.STRING,
+    },
+    name: {
+      type: DataTypes.STRING,
+    },
+    revenue: {
+      type: Sequelize.INTEGER
+    },
+    team: {
+        type: DataTypes.STRING,
+        references: {
+            model: 'team',
+            key: 'code',
+        }
+      }
+  },
+
+  {
+      freezeTableName: true
+  }
+);
+
+const Supplier2 = sequelize.define('supplier2',
+  {
+    erp: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    mdm: {
+      type: DataTypes.STRING,
+    },
+    country: {
+        type: DataTypes.STRING,
+        references: {
+            model: 'country',
+            key: 'code',
+        }
+      }
+  },
+
+  {
+      freezeTableName: true
+  }
+);
+
+const Campaign = sequelize.define('campaign',
+  {
+    year: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+    },
+    revenue: {
+      type: Sequelize.INTEGER,
+    },
+    intensity: {
+        type: Sequelize.INTEGER,
+        references: {
+            model: 'intensity',
+            key: 'id',
+        }
+      }
+  },
+
+  {
+      freezeTableName: true
+  }
+);
+
+const SupplierSelection = sequelize.define('supplierselection',
+  {
+    year: {
+      type: Sequelize.INTEGER,
+      references: {
+          model: 'campaign',
+          key: 'year',
+      }
+    },
+    erp: {
+      type: DataTypes.STRING,
+      references: {
+          model: 'supplier1',
+          key: 'erp',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+    name: {
+        type: DataTypes.STRING,
+      },
+    reason1:
+    { 
+      type: DataTypes.BOOLEAN,
+      defaultValue: false 
+    },
+    reason2:
+    { 
+      type: DataTypes.BOOLEAN,
+      defaultValue: false 
+    },
+    reason3:
+    { 
+      type: DataTypes.BOOLEAN,
+      defaultValue: false 
+    },
+    reason4:
+    { 
+      type: DataTypes.BOOLEAN,
+      defaultValue: false 
+    },
+    reason5:
+    { 
+      type: DataTypes.BOOLEAN,
+      defaultValue: false 
+    },
+    selected:
+    { 
+      type: DataTypes.BOOLEAN,
+      defaultValue: false 
+    },
+    force:
+    { 
+      type: DataTypes.BOOLEAN,
+      defaultValue: false 
+    },
+    comment:
+    { 
+      type: Sequelize.TEXT
+    }
+  },
+
+  {
+      freezeTableName: true
+  }
+);
+
+const SupplierCotaData = sequelize.define('suppliercotadata',
+  {
+    year: {
+      type: Sequelize.INTEGER,
+      references: {
+          model: 'campaign',
+          key: 'year',
+      }
+    },
+    erp: {
+      type: DataTypes.STRING,
+      references: {
+          model: 'supplier1',
+          key: 'erp',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+    intensity: {
+      type: Sequelize.INTEGER,
+      references: {
+          model: 'intensity',
+          key: 'id',
+      }
+    }
+  })
+
 Orga.hasMany(Session, { foreignKey: 'orgaid' });
 Session.belongsTo(Orga, { foreignKey: 'orgaid' });
 
@@ -82,5 +301,13 @@ sequelize.sync()
 module.exports = {
   sequelize,
   Orga,
-  Session
+  Session,
+  Country,
+  Team,
+  Intensity,
+  Supplier1,
+  Supplier2,
+  Campaign,
+  SupplierSelection,
+  SupplierCotaData
 }

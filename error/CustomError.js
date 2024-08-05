@@ -35,6 +35,10 @@ function tokenExpiredError()
 {
     throw new CustomError("tokenExpiredError", 400);
 }
+function wrongParam()
+{
+    throw new CustomError("wrongParam", 400);
+}
 
 module.exports = {
     CustomError,
@@ -44,5 +48,6 @@ module.exports = {
     mailNoExistError,
     wrongPassError,
     tokenExpiredError,
-    differentPassError
+    differentPassError,
+    wrongParam
 }

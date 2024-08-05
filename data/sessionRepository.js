@@ -1,10 +1,10 @@
 //const db = require("./database")
-const {sequelize} = require("./database")
+const db = require("./database")
 
 async function getSessionData(sessionId)
 {
     console.log("id: "+sessionId)
-  const [results, metadata] = await sequelize.query(
+  const [results, metadata] = await db.sequelize.query(
     `SELECT session.id as sessionid, orga.id as orgaid, orga.mail as mail, orga.role as role
     FROM session
     JOIN orga on session.orgaid = orga.id
@@ -12,7 +12,7 @@ async function getSessionData(sessionId)
     AND session.endtime IS NULL`,
     {
         replacements: { var: sessionId },
-        type: sequelize.QueryTypes.SELECT
+        type: db.sequelize.QueryTypes.SELECT
     }
   );
   return results
@@ -20,12 +20,12 @@ async function getSessionData(sessionId)
 
 async function getSessionStats()
 {
-  const [results, metadata] = await sequelize.query(
+  const [results, metadata] = await db.sequelize.query(
     `SELECT session.id as sessionid, orga.id as orgaid, orga.mail as mail, orga.role as role
     FROM session
     JOIN orga on session.orgaid = orga.id`,
     {
-        type: sequelize.QueryTypes.RAW
+        type: db.sequelize.QueryTypes.RAW
     }
   );
   return results
