@@ -1,7 +1,7 @@
 var express = require('express');
 const CustomError = require('../error/CustomError');
 const db = require('../data/database');
-const selectionService = require('../service/selectionService')
+const selectionService = require('../service/preselectionService')
 var router = express.Router();
 
 router.get('/', function(req, res, next) {
