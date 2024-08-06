@@ -3,11 +3,13 @@ const sessionRepository = require("../data/sessionRepository.js");
 const db = require('../data/database.js');
 
 async function addCurrentCampaign(){
+  // Step 1: Check si la campagne de l'année courante existe déjà
   var currentYear = new Date().getFullYear();
   var currentCampaign = await db.Campaign.findOne({
     where: {year: currentYear},
     raw: true
   })
+  // Step 2: Si la campagne n'existe pas, on la crée
   if (!currentCampaign)
   {
     await db.Campaign.create({
@@ -15,67 +17,77 @@ async function addCurrentCampaign(){
     })
   }
 }
+
 async function addPreselectionParams(revenue, intensity){
   try{
-        //Check des parametres de preselection
-        var intensities = await db.Intensity.findAll({
-          attributes: ['id'],
-          raw: true
-        })
-        var possibleIntensities = []
-        for (var elt of intensities)
-        {
-          possibleIntensities.push(elt.id)
-        }
-        if (!possibleIntensities.includes(intensity) || revenue<0 || revenue>100)
-        {
-          console.log(possibleIntensities.includes(intensity))
-          CustomError.wrongParam();
-        }
-        //Ajout des parametres dans la base de données
-        await db.Campaign.update(
-          {revenue: revenue,
-          intensity: intensity
-          },
-          {
-          where: {year: new Date().getFullYear()}
-          }
-        )
+    // Step 1: Obtiens la liste des intensités possible depuis la bdd
+    var intensities = await db.Intensity.findAll({
+      attributes: ['id'],
+      raw: true
+    })
+    var possibleIntensities = []
+    for (var elt of intensities)
+    {
+      possibleIntensities.push(elt.id)
+    }
+    // Step 2: Check validité intensity
+    if (!possibleIntensities.includes(intensity))
+    {
+      CustomError.wrongParam();
+    }
+    // Step 3: Check validité revenue
+    if (revenue<0 || revenue>100)
+    {
+      CustomError.wrongParam();
+    }
+    // Step 4: Ajout dans la base de données
+    await db.Campaign.update(
+      {
+      revenue: revenue,
+      intensity: intensity
+      },
+      {
+      where: {year: new Date().getFullYear()}
+      }
+    )
   }
   catch(e)
   {
     console.error(e)
   }
 }
-//Ajoute les supplier de la liste courante dans la campagne courrante
+//Synchronise la table supplierSelection par rapport à la table maîtresse de suppliers
 async function syncSuppliers()
 {
   try{
-    var suppliers = await db.Supplier1.findAll({
+    // Step 1: Selection des suppliers de la table supplier principale
+    const suppliers = await db.Supplier1.findAll({
       attributes: ["erp", "name"],
       raw: true
     })
-    var currentCampaignSuppliers = await db.SupplierSelection.findAll({
+    // Step 2: Selection des suppliers de la table maîtresse
+    const currentCampaignSuppliers = await db.SupplierSelection.findAll({
       attributes: ["erp", "name"],
       raw: true
     })
-    var suppliersDic = suppliers.reduce((acc, supplier) => {
+    // Step 3: Transformation en dictionnaire pour un accès rapide
+    const suppliersDic = suppliers.reduce((acc, supplier) => {
       acc[supplier.erp] = {
         name: supplier.name,
       };
       return acc;
     }, {});
-    var campaignDic = currentCampaignSuppliers.reduce((acc, supplier) => {
+    const campaignDic = currentCampaignSuppliers.reduce((acc, supplier) => {
       acc[supplier.erp] = {
         name: supplier.name,
       };
       return acc;
     }, {});
-    var suppliersErps = suppliers.map(obj => obj.erp);
-    var campaignErps = currentCampaignSuppliers.map(obj => obj.erp);
-    console.log(suppliersErps)
-    console.log(campaignErps)
-    //Ajoute les manquants
+    // Step 4: Obtention des listes des erps
+    const suppliersErps = new Set(suppliers.map(({ erp }) => erp));
+    const campaignErps = new Set(currentCampaignSuppliers.map(({ erp }) => erp));
+    /*
+    // Step 5: Ajout des suppliers manquants
     for (var erp of suppliersErps)
     {
       if (!campaignErps.includes(erp))
@@ -87,7 +99,7 @@ async function syncSuppliers()
         })
       }
     }
-    //Supprime ceux en trop
+    // Step 6: Suppression des suppliers en trop
     for (var erp of campaignErps)
       {
         if (!suppliersErps.includes(erp))
@@ -99,7 +111,7 @@ async function syncSuppliers()
           })
         }
       }
-      //Synchronise les noms
+      // Step 7: Synchronisation des noms
       for (var erp of campaignErps)
         {
           if (campaignDic[erp].name !== suppliersDic[erp].name)
@@ -112,7 +124,40 @@ async function syncSuppliers()
             })
           }
         }
+  */
+     // Step 5: Ajout des suppliers manquants
+     const suppliersToAdd = Array.from(suppliersErps).filter(erp => !campaignErps.has(erp));
+     if (suppliersToAdd.length > 0) {
+       const newSuppliers = suppliersToAdd.map(erp => ({
+         year: new Date().getFullYear(),
+         erp,
+         name: suppliersDic[erp].name
+       }));
+       console.log(newSuppliers);
+       await db.SupplierSelection.bulkCreate(newSuppliers);
+     }
+ 
+     // Step 6: Suppression des suppliers en trop
+     const suppliersToDelete = Array.from(campaignErps).filter(erp => !suppliersErps.has(erp));
+     if (suppliersToDelete.length > 0) {
+       await db.SupplierSelection.destroy({
+         where: {
+           erp: suppliersToDelete
+         }
+       });
+     }
+ 
+     // Step 7: Synchronisation des noms
+     for (const erp of campaignErps) {
+       if (suppliersDic[erp] && campaignDic[erp].name !== suppliersDic[erp].name) {
+         await db.SupplierSelection.update(
+           { name: suppliersDic[erp].name },
+           { where: { erp } }
+         );
+       }
+     }
   }
+
   catch(e){
     console.error(e);
   }
@@ -175,12 +220,13 @@ async function autoCheck()
 async function preselect(revenuePercentage, intensity)
 {
   try{
+    //Ajoute la campagne de l'année courrante dans la base de données
     await addCurrentCampaign();
-    //Ajoute les parametres de preselection dans la table campaign
+    //Ajoute les parametres revenue et intensity dans la table campaign
     await addPreselectionParams(revenuePercentage, intensity)
     //Synchronise la liste des suppliers avec la liste de selection
     await syncSuppliers();
-    await autoCheck();
+    //await autoCheck();
   }
   catch(e)
   {
