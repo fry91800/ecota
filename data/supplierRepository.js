@@ -229,6 +229,29 @@ async function deselect(erp)
         console.error("Could not select supplier", e);
     }
 }
+
+async function addComment(orgaid, year, erp, comment)
+{
+    try {
+        await db.SupplierSelection.update(
+            { comment: comment, commenter: orgaid },
+            { where: { erp: erp, year: year } }
+        );
+    } catch (e) {
+        console.log("Could not add Comment to the database: ", e)
+    }
+}
+async function forceSelect(orgaid, bool, erp, comment)
+{
+    try {
+        await db.SupplierSelection.update(
+            { force: bool, comment: comment, commenter: orgaid },
+            { where: { erp: erp} }
+        );
+    } catch (e) {
+        console.log("Could not force selection to the database: ", e)
+    }
+}
 module.exports = {
     getSupplierSelectionDataByErp,
     getMasterData,
@@ -248,5 +271,7 @@ module.exports = {
     checkReason,
     uncheckReason,
     select,
-    deselect
+    deselect,
+    addComment,
+    forceSelect
 }

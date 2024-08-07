@@ -44,11 +44,6 @@ async function addPreselectionParams(revenue, intensity) {
 //Synchronise la table supplierSelection par rapport à la table maîtresse de suppliers
 async function syncSuppliers() {
   try {
-    // Step 1: Selection des suppliers de la table supplier principale
-    /*const suppliers = await db.Supplier1.findAll({
-      attributes: ["erp", "name"],
-      raw: true
-    })*/
     const suppliers = await supplierRepository.getMasterData(["erp", "name"]); // [ {erp, name} ... ]
     // Step 2: Selection des suppliers de la table maîtresse
     const currentCampaignSuppliers = await supplierRepository.getCurrentCampaignSuppliers(["erp", "name"]); // [ {erp, name} ... ]
@@ -61,6 +56,7 @@ async function syncSuppliers() {
     // Step 5: Ajout des suppliers manquants
     const suppliersToAdd = Array.from(suppliersErps).filter(erp => !campaignErps.has(erp));
     if (suppliersToAdd.length > 0) {
+      const currentYear = new Date().getFullYear();
       const newSuppliers = suppliersToAdd.map(erp => ({
         year: currentYear,
         erp,

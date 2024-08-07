@@ -242,11 +242,21 @@ const SupplierSelection = sequelize.define('supplierselection',
     force:
     { 
       type: DataTypes.BOOLEAN,
-      defaultValue: false 
+      defaultValue: null
     },
     comment:
     { 
       type: Sequelize.TEXT
+    },
+    commenter:
+    { 
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'orga',
+        key: 'id',
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE'
     }
   },
 
