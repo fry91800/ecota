@@ -129,12 +129,10 @@ async function getSelectedByIntensity() {
     // Step 1: Obtention de l'intensity de la campagne actuelle
     const campaign = await campaignRepository.getCurrentCampain(); // [ { "intensity", * } ]
     const campaignIntensity = campaign.intensity;
-    // Step 2: Obtention de la liste des id intensités possible
-    const possibleIntensities = await intensityRepository.getIntensityLevels(); // [1, 2, 3, ...]
-    // Step 3: Obtention des data relatives aux intensité des suppliers de l'année passée
+    // Step 2: Obtention des data relatives aux intensité des suppliers de l'année passée
     const suppliersIntensities = await supplierRepository.getLastYearIntensities(); // [ {erp, intensity}, ...]
     const selectedErps = [];
-    // Step 4 Selection des Erps avec aux moins le niveau d'intensité année-1 requis
+    // Step 3 Selection des Erps avec aux moins le niveau d'intensité année-1 requis
     for (const { erp, intensity } of suppliersIntensities) {
       if (intensity >= campaignIntensity) {
         selectedErps.push(erp);

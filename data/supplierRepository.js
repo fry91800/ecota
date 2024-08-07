@@ -1,5 +1,13 @@
 const db = require('../data/database.js');
 const { Op } = require('sequelize');
+async function getSupplierSelectionDataByErp(erp, attributes){
+    const currentYear = new Date().getFullYear();
+    return db.SupplierSelection.findOne({
+        attributes: attributes,
+        where: {erp: erp, year: currentYear},
+        raw: true
+    })
+}
 async function getMasterData(attributes) {
     return db.Supplier1.findAll({
         attributes: attributes,
@@ -42,6 +50,16 @@ async function getRevenueData() {
         }
     )
 }
+async function getRevenueDataByTeam(teamCode) {
+    return db.Supplier1.findAll(
+        {
+            attributes: ["erp", "revenue"],
+            where: {team: teamCode},
+            order: [['revenue', 'DESC']],
+            raw: true
+        }
+    )
+}
 
 async function getLastYearIntensities() {
     const lastYear = new Date().getFullYear() - 1;
@@ -52,6 +70,22 @@ async function getLastYearIntensities() {
             raw: true
         }
     )
+}
+
+async function getLastYearIntensityByErp(erp) {
+    const lastYear = new Date().getFullYear() - 1;
+    const record =  await db.SupplierCotaData.findOne(
+        {
+            attributes: ["erp", "intensity"],
+            where: {erp: erp, year: lastYear },
+            raw: true
+        }
+    )
+    if (!record)
+    {
+        return null;
+    }
+    return record.intensity;
 }
 
 async function getErpWithReason()
@@ -114,16 +148,105 @@ async function deselectFromErps(erpsToDeselect)
         }
       );
 }
+async function getTeamFromErp(erp)
+{
+    const record = await db.Supplier1.findOne({
+        attributes: ["team"],
+        where: {erp: erp},
+        raw: true
+    });
+    return record.team;
+}
+async function checkReason(erp, reason)
+{
+    try {
+        const currentYear = new Date().getFullYear();
+        const updateData = {};
+        updateData[reason] = true;
+        await db.SupplierSelection.update(
+            updateData,
+            {
+                where: {erp: erp, year: currentYear}
+            }
+        )
+    }
+    catch(e)
+    {
+        console.error("Could not select supplier", e);
+    }
+}
+async function uncheckReason(erp, reason)
+{
+    try {
+        const currentYear = new Date().getFullYear();
+        const updateData = {};
+        updateData[reason] = false;
+        await db.SupplierSelection.update(
+            updateData,
+            {
+                where: {erp: erp, year: currentYear}
+            }
+        )
+    }
+    catch(e)
+    {
+        console.error("Could not select supplier", e);
+    }
+}
+async function select(erp)
+{
+    try {
+        const currentYear = new Date().getFullYear();
+        await db.SupplierSelection.update(
+            {
+                selected: true
+            },
+            {
+                where: { erp: erp, year: currentYear }
+            }
+        );
+    }
+    catch(e)
+    {
+        console.error("Could not select supplier", e);
+    }
+}
+async function deselect(erp)
+{
+    try {
+        const currentYear = new Date().getFullYear();
+        await db.SupplierSelection.update(
+            {
+                selected: false
+            },
+            {
+                where: { erp: erp, year: currentYear }
+            }
+        );
+    }
+    catch(e)
+    {
+        console.error("Could not select supplier", e);
+    }
+}
 module.exports = {
+    getSupplierSelectionDataByErp,
     getMasterData,
     getCurrentCampaignSuppliers,
     supplierSelectionBulkCreate,
     supplierSelectionDestroy,
     currentSupplierSelectionUpdateName,
     getRevenueData,
+    getRevenueDataByTeam,
     getLastYearIntensities,
+    getLastYearIntensityByErp,
     getErpWithReason,
     getCurrentYearSelectedErps,
     selectFromErps,
-    deselectFromErps
+    deselectFromErps,
+    getTeamFromErp,
+    checkReason,
+    uncheckReason,
+    select,
+    deselect
 }

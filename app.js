@@ -1,13 +1,18 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+require('dotenv').config();
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+//const logger = require('morgan'); unused
+const logger = require('./config/logger');
 const {CustomError}= require('./error/CustomError');
 const db = require("./data/database.js");
 const sessionRepository = require("./data/sessionRepository");
 const i18n = require('i18n');
 const accepts = require('accepts');
+
+logger.info("let's go !");
+logger.debug("let's go !");
 
 //Getting the routers
 var indexRouter = require('./routes/index');
@@ -34,7 +39,7 @@ app.set('view engine', 'jade');
 
 //Middlewares
 app.use(i18n.init);
-app.use(logger('dev'));
+//app.use(logger('dev')); unused
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

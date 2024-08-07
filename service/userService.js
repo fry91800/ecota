@@ -3,32 +3,25 @@ const db = require("../data/database.js");
 const { DataTypes } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
+const orgaRepository = require('../data/orgaRepository')
+const sessionRepository = require('../data/sessionRepository')
 async function auth(mail, pass)
 {
-    //Récupère le mail et le pass de la base de données
-    var record = await db.Orga.findOne({
-        where: { mail: mail },
-        raw: true
-      })
-      .catch(err => {
-        console.error(err)
-      });
-    //Vérifie l'existance du mail
+    // Step 1: Récupération du record posédant le mail envoyé
+    const record = await orgaRepository.getOrgaFromMail(mail); // [{mail, pass, *}]
+    // Step 2: Vérification de l'existance du mail dans la base
     if (!record)
     {
         CustomError.mailNoExistError();
     }
-    //Vérifie le mot de passe
+    // Step 3: Vérification du mot de passe
     const match = await bcrypt.compare(pass, record.pass);
     if (!match)
     {
         CustomError.wrongPassError();
     }
-    //Tout est ok, Création de la session
-    var session = await db.Session.create({orgaid: record.id}).catch(err => {
-      console.error(err)
-      });
-    return session;
+    //Step 4: Création de la session
+    return sessionRepository.newSession(record.id);
 }
 
 async function addResetToken(mail)
@@ -39,39 +32,14 @@ async function addResetToken(mail)
     CustomError.missingFieldError();
   }
   //Récupère le mail et le pass de la base de données
-  var record = await db.Orga.findOne({
-    where: { mail: mail },
-    raw: true
-  })
-  .catch(err => {
-    console.error(err)
-  });
+  const record = await orgaRepository.getOrgaFromMail(mail); // [{mail, pass, *}]
   //Vérifie l'existance du mail
   if (!record)
   {
       CustomError.mailNoExistError();
   }
-  var resetToken = uuidv4();
   try{
-  await db.Orga.update(
-    { resettoken: resetToken },
-    {
-      where: {
-        mail: mail,
-      },
-    },
-  )
-  var tokenExpire = new Date();
-  tokenExpire.setMinutes(tokenExpire.getMinutes() + 15);
-  await db.Orga.update(
-    { resetdeadline: tokenExpire},
-    {
-      where: {
-        mail: mail,
-      },
-    },
-  )
-  return resetToken;
+    return orgaRepository.addResetToken(mail);
   }
   catch(e)
   {
@@ -81,15 +49,12 @@ async function addResetToken(mail)
 
 async function checkResetToken(token)
 {
-  var record = await db.Orga.findOne({
-    where: { resettoken: token },
-    raw: true
-  })
+  const record = await orgaRepository.findByToken(token);
   if (!record)
   {
     CustomError.defaultError();
   }
-  var now = new Date();
+  const now = new Date();
   if(now>record.resetdeadline)
   {
     CustomError.tokenExpiredError();
@@ -109,14 +74,7 @@ async function resetPass(token, plainPassword)
   const saltRounds = 10;
   const salt = await bcrypt.genSalt(saltRounds);
   const hashedPassword = await bcrypt.hash(plainPassword, salt);
-  await db.Orga.update(
-    { pass: hashedPassword },
-    {
-      where: {
-        resettoken: token,
-      },
-    },
-  );
+  await orgaRepository.resetPass(hashedPassword, token);
 }
 
 module.exports = {
