@@ -1,8 +1,12 @@
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, printf, colorize } = format;
 
+let indentLevel = 0;
+const indentChar = '  ';
+
 const logFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} ${level}: ${message}`;
+  const indent = indentChar.repeat(indentLevel);
+  return `${indent}${level}: ${message}`;
 });
 
 const logger = createLogger({
@@ -18,4 +22,20 @@ const logger = createLogger({
   ]
 });
 
-module.exports = logger;
+// Function to increment the indent level
+function logEnter(part) {
+  //logger.debug(part);
+  indentLevel++;
+}
+
+// Function to decrement the indent level
+function logExit(funcName) {
+  indentLevel--;
+  //logger.debug(`Exiting ${funcName} function`);
+}
+
+module.exports = {
+  logger,
+  logEnter,
+  logExit
+};

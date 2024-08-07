@@ -3,6 +3,7 @@ const sessionRepository = require("../data/sessionRepository.js");
 const db = require('../data/database.js');
 const datastruct = require("../utility/datastruct.js");
 const { Op } = require('sequelize');
+const { logger, logEnter, logExit } = require('../config/logger');
 const campaignRepository = require("../data/campaignRepository.js");
 const intensityRepository = require("../data/intensityRepository.js");
 const supplierRepository = require("../data/supplierRepository.js");
@@ -175,10 +176,16 @@ async function autoCheck() {
 }
 async function preselect(revenuePercentage, intensity) {
   try {
+    logEnter();
+    logger.debug("Adding the campaign of "+ new Date().getFullYear());
     await addCurrentCampaign();
+    logger.debug("Adding the preselection params");
     await addPreselectionParams(revenuePercentage, intensity)
+    logger.debug("Sync suppliers");
     await syncSuppliers();
+    logger.debug("AutoCheck suppliers");
     await autoCheck();
+    logExit();
   }
   catch (e) {
     console.error(e);

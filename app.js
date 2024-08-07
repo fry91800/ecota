@@ -4,15 +4,12 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 //const logger = require('morgan'); unused
-const logger = require('./config/logger');
-const {CustomError}= require('./error/CustomError');
+const { logger, logEnter, logExit } = require('./config/logger');
+const { CustomError } = require('./error/CustomError');
 const db = require("./data/database.js");
 const sessionRepository = require("./data/sessionRepository");
 const i18n = require('i18n');
 const accepts = require('accepts');
-
-logger.info("let's go !");
-logger.debug("let's go !");
 
 //Getting the routers
 var indexRouter = require('./routes/index');
@@ -48,28 +45,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 //Language middleware
-app.use('/:lang', function(req, res, next) {
-  //Vérification de cookie de langue en premier
+app.use('/:lang', function (req, res, next) {
+  // Step 1: Vérification du cookie de langue en premier
   var languageCookie = req.cookies.lang;
-  if (languageCookie)
-  {
-    if (req.params.lang !== languageCookie)
-    {
-      const newUrl = req.originalUrl.replace("/"+req.params.lang+"/", "/"+languageCookie+"/");
+  if (languageCookie) {
+    if (req.params.lang !== languageCookie) {
+      const newUrl = req.originalUrl.replace("/" + req.params.lang + "/", "/" + languageCookie + "/");
       return res.redirect(newUrl);
     }
   }
-  //Si aucun cookie, on trouve la langue depuis le language header
-  else
-  {
-    //const supportedLanguages = supportedLanguages; // Langues supportées
+  //Step 2: Si cookie inexistant, Vérification du header Accept-Language
+  else {
     const accept = accepts(req);
     const bestLang = accept.language(supportedLanguages) || 'en'; // anglais par défaut
-    if (req.params.lang !== bestLang)
-      {
-        const newUrl = req.originalUrl.replace("/"+req.params.lang+"/", "/"+bestLang+"/");
-        return res.redirect(newUrl);
-      }
+    if (req.params.lang !== bestLang) {
+      const newUrl = req.originalUrl.replace("/" + req.params.lang + "/", "/" + bestLang + "/");
+      return res.redirect(newUrl);
+    }
   }
   const lang = req.params.lang;
   if (supportedLanguages.includes(lang)) {
@@ -82,15 +74,17 @@ app.use('/:lang', function(req, res, next) {
 });
 
 //Auth middleware
-app.use(async function(req, res, next) {
-  var sessionid = req.cookies.session
-  if (sessionid)
-  {
-    var session = await sessionRepository.getSessionData(sessionid)
-      if (session)
-        {
-          res.locals.session = session
-        }
+app.use(async function (req, res, next) {
+  const sessionid = req.cookies.session
+  if (sessionid) {
+    const session = await sessionRepository.getSessionData(sessionid)
+    if (session) {
+      logger.debug("Auth Middleware: Current session: " + JSON.stringify(session));
+      res.locals.session = session
+    }
+  }
+  else {
+    logger.debug("Auth Middleware: No current session")
   }
   next();
 }
@@ -112,15 +106,16 @@ app.use(function(req, res, next) {
 */
 
 //error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
+  console.error(err);
   if (err instanceof CustomError) {
     console.log("customError detected")
     res.status(err.status).json({ error: err.message });
   } else {
     console.log("other error detected")
     console.log(err)
-  res.status(500).json({ error: 'Internal Server Error' });
-}
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 module.exports = app;

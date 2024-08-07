@@ -3,6 +3,7 @@ const sql = require('sql');
 const sequelize = new Sequelize('ecota', 'postgres', 'posert', {
   host: 'localhost',
   dialect: 'postgres',  // Change this according to your database
+  logging: process.env.SEQUELIZE_LOGGING === 'true' ? console.log : false
 });
 
 

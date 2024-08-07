@@ -6,7 +6,6 @@ async function newSession(id) {
 }
 
 async function getSessionData(sessionId) {
-  console.log("id: " + sessionId)
   const [results, metadata] = await db.sequelize.query(
     `SELECT session.id as sessionid, orga.id as orgaid, orga.mail as mail, orga.role as role
     FROM session

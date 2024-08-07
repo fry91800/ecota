@@ -1,6 +1,6 @@
 var express = require('express');
 const CustomError = require('../error/CustomError');
-const db = require('../data/database');
+const { logger, logEnter, logExit } = require('../config/logger');
 const preselectionService = require('../service/preselectionService');
 const selectionService = require('../service/selectionService');
 const commentService = require('../service/commentService');
@@ -12,12 +12,15 @@ router.get('/', function(req, res, next) {
   });
 
   router.post('/preselection', async function(req, res, next) {
-    if (!req.body.revenue || !req.body.intensity)
-    {
-      CustomError.missingFieldError();
-    }
     try{
-    await preselectionService.preselect(Number(req.body.revenue), Number(req.body.intensity));
+    const revenue = Number(req.body.revenue);
+    const intensity = Number(req.body.intensity);
+    if (isNaN(revenue) || isNaN(intensity))
+    {
+      CustomError.wrongParam();
+    }
+    logger.debug("Calling Selection service preselect: revenue: "+revenue+", intensity: "+intensity);
+    await preselectionService.preselect(revenue, intensity);
     res.redirect("/en/selection")
     }
     catch(e) {
@@ -33,6 +36,7 @@ router.get('/', function(req, res, next) {
     try{
       if (req.params.action === "check")
       {
+        logger.debug("Calling preselection service: revenue: "+revenue+", intensity: "+intensity);
         await selectionService.checkReason(req.body.erp , req.body.reason);
       }
       else if (req.params.action === "uncheck")

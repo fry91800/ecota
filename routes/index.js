@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-/* Redirection*/
+// Redirection depuis la racine
 router.get('/', function(req, res, next) {
   if (res.locals.session)
   {
