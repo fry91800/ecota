@@ -84,11 +84,15 @@ router.get('/test', (req, res) => {
 });
 router.get('/data', (req, res) => {
   const data = [
-    {"selected":true,erp: "erp1", "supplier":"Aerostar", "revenue": 1000000, "intensity": "Intensive", "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null},
-    {"selected":true,erp: "erp2", "supplier":"Buckwild", "revenue": 2000000, "intensity": "Tightened", "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null},
-    {"selected":true,erp: "erp3", "supplier":"Cmoney", "revenue": 3000000, "intensity": "Nominale", "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null}
+    { "selected": true, erp: "erp1", "supplier": "Aerostar", "revenue": 1000000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "Buckwild", "revenue": 2000000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp3", "supplier": "Cmoney", "revenue": 3000000, "intensity": "Nominale", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": "Supplier particulièrement efficace durant l'hivers et pendant les jours de pluie", history: true }
   ]
-  const { page = 1, selected = false, notSelected = false, supplier = '', sortField = '', sortOrder = 'asc' } = req.query;
+  const { page = 1, selected = false, notSelected = false, supplier = '',
+    revenueSign = ">", revenue = 0, intensity1 = false, intensity2 = false, intensity3 = false, intensity4 = false,
+    reason1Selected = false, reason1NotSelected = false, reason2Selected = false, reason2NotSelected = false,
+    reason3Selected = false, reason3NotSelected = false, reason4Selected = false, reason4NotSelected = false,
+    sortField = '', sortOrder = 'asc' } = req.query;
   const limit = 20;
   const offset = (page - 1) * limit;
 
@@ -103,24 +107,83 @@ router.get('/data', (req, res) => {
   if (notSelected === 'true') {
     filteredData = filteredData.filter(entry => entry.selected === false);
   }
+  if (revenueSign === ">") {
+    filteredData = filteredData.filter(entry => entry.revenue > revenue);
+  }
+  if (revenueSign === "<") {
+    filteredData = filteredData.filter(entry => entry.revenue < revenue);
+  }
+  if (intensity1 === 'true' || intensity2 === 'true' || intensity3 === 'true' || intensity4 === 'true')
+  {
+    if (intensity1 === 'false') {
+      filteredData = filteredData.filter(entry => entry.intensityCode !== 1);
+    }
+    if (intensity2 === 'false') {
+      filteredData = filteredData.filter(entry => entry.intensityCode !== 2);
+    }
+    if (intensity3 === 'false') {
+      filteredData = filteredData.filter(entry => entry.intensityCode !== 3);
+    }
+    if (intensity4 === 'false') {
+      filteredData = filteredData.filter(entry => entry.intensityCode !== 4);
+    }
+  }
+  /*
+  if (intensity1 === 'true') {
+    filteredData = filteredData.filter(entry => entry.intensityCode === 1);
+  }
+  if (intensity2 === 'true') {
+    filteredData = filteredData.filter(entry => entry.intensityCode === 2);
+  }
+  if (intensity3 === 'true') {
+    filteredData = filteredData.filter(entry => entry.intensityCode === 3);
+  }
+  if (intensity4 === 'true') {
+    filteredData = filteredData.filter(entry => entry.intensityCode === 4);
+  }
+    */
+  if (reason1Selected === 'true') {
+    filteredData = filteredData.filter(entry => entry.reason1 === true);
+  }
+  if (reason1NotSelected === 'true') {
+    filteredData = filteredData.filter(entry => entry.reason1 === false);
+  }
+  if (reason2Selected === 'true') {
+    filteredData = filteredData.filter(entry => entry.reason2 === true);
+  }
+  if (reason2NotSelected === 'true') {
+    filteredData = filteredData.filter(entry => entry.reason2 === false);
+  }
+  if (reason3Selected === 'true') {
+    filteredData = filteredData.filter(entry => entry.reason3 === true);
+  }
+  if (reason3NotSelected === 'true') {
+    filteredData = filteredData.filter(entry => entry.reason3 === false);
+  }
+  if (reason4Selected === 'true') {
+    filteredData = filteredData.filter(entry => entry.reason4 === true);
+  }
+  if (reason4NotSelected === 'true') {
+    filteredData = filteredData.filter(entry => entry.reason4 === false);
+  }
 
   /*if (city) {
     filteredData = filteredData.filter(entry => entry.city.toLowerCase().includes(city.toLowerCase()));
   }*/
-    function customCompare(a, b, sortField, sortOrder) {
-      const valueA = a[sortField];
-      const valueB = b[sortField];
-    
-      if (typeof valueA === 'string' && typeof valueB === 'string') {
-        return sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-      } else if (typeof valueA === 'number' && typeof valueB === 'number') {
-        return sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
-      } else {
-        // Handle cases where the values are of different types or other types
-        // This is optional and can be customized based on your requirements
-        return 0;
-      }
+  function customCompare(a, b, sortField, sortOrder) {
+    const valueA = a[sortField];
+    const valueB = b[sortField];
+
+    if (typeof valueA === 'string' && typeof valueB === 'string') {
+      return sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+    } else if (typeof valueA === 'number' && typeof valueB === 'number') {
+      return sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
+    } else {
+      // Handle cases where the values are of different types or other types
+      // This is optional and can be customized based on your requirements
+      return 0;
     }
+  }
   if (sortField) {
     filteredData.sort((a, b) => customCompare(a, b, sortField, sortOrder));
   }

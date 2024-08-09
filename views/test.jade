@@ -1,26 +1,39 @@
 extends layout
 block content
-    button#filter-selected selected
-    button#filter-not-selected not selected
-    input#search-supplier(type="text" placeholder="Search by supplier")
-    button#sort-supplier(data-sort="asc") Sort by Supplier
-    button#filter-revenue-sign >
-    input(type="range", id="rangeSlider", min="0", max="100", step="1", value="50")
-    input(type="text", id="textInput", value="50")
-    button#sort-revenue(data-sort="asc") Sort by Revenue
-    button#sort-intensity(data-sort="asc") Sort by Intensity
+
+
+
+
     table#data-table
         thead
             tr
                 th Selected
+                    br
+                    button#filter-selected.filter-button <i class="fas fa-check-square ticked-checkbox"></i>
+                    button#filter-not-selected.filter-button <i class="far fa-square"></i>
                 th Supplier
+                    button#sort-supplier.sort-button(data-sort="asc") <i class="fas fa-sort"></i>
+                    br
+                    input#search-supplier(type="text" placeholder="Search")
                 th Revenue
+                    button#sort-revenue.sort-button(data-sort="asc") <i class="fas fa-sort"></i>
+                    br
+                    input#revenue-slider(type="range" min="0" max="10000000" step="100000" value="0")
+                    br
+                    button#filter-revenue-sign >
+                    input#filter-revenue(type="text" value="0")
                 th Intensity
+                    br
+                    button#filter-intensity1.filter-button 1
+                    button#filter-intensity2.filter-button 2
+                    button#filter-intensity3.filter-button 3
+                    button#filter-intensity4.filter-button 4
                 th Reason1
                 th Reason2
                 th Reason3
                 th Reason4
                 th Comment
+                th History
         tbody
             // Data will be loaded here
     div#load-more Load More
