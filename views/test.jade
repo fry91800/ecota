@@ -1,0 +1,26 @@
+extends layout
+block content
+    button#filter-selected selected
+    button#filter-not-selected not selected
+    input#search-supplier(type="text" placeholder="Search by supplier")
+    button#sort-supplier(data-sort="asc") Sort by Supplier
+    button#filter-revenue-sign >
+    input(type="range", id="rangeSlider", min="0", max="100", step="1", value="50")
+    input(type="text", id="textInput", value="50")
+    button#sort-revenue(data-sort="asc") Sort by Revenue
+    button#sort-intensity(data-sort="asc") Sort by Intensity
+    table#data-table
+        thead
+            tr
+                th Selected
+                th Supplier
+                th Revenue
+                th Intensity
+                th Reason1
+                th Reason2
+                th Reason3
+                th Reason4
+                th Comment
+        tbody
+            // Data will be loaded here
+    div#load-more Load More
