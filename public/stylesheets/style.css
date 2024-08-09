@@ -1,3 +1,6 @@
+* {
+  font-family: Arial, Helvetica, sans-serif;
+}
 body {
   font: 20px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -5,6 +8,7 @@ body {
 a {
   color: #00B7FF;
 }
+
 #data-table {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
@@ -12,15 +16,20 @@ a {
   table-layout: fixed;
 }
 
-#data-table td, #data-table th {
+#data-table td,
+#data-table th {
   border: 1px solid #000000;
   padding: 8px;
   text-align: center;
 }
 
-#data-table tr:nth-child(even){background-color: #f2f2f2;}
+#data-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
 
-#data-table tr:hover {background-color: #ddd;}
+#data-table tr:hover {
+  background-color: #ddd;
+}
 
 #data-table th {
   background-color: #bdbdbd;
@@ -30,8 +39,9 @@ a {
   color: black;
 }
 
-#data-table th input{
-  max-width: 100px;
+#data-table th input {
+  max-width: 130px;
+  height: 20px;
 }
 
 
@@ -40,7 +50,8 @@ a {
 
 /* Set the maximum height for table cells and allow wrapping */
 #data-table td {
-  max-height: 50px; /* Adjust the height as needed */
+  max-height: 50px;
+  /* Adjust the height as needed */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -48,36 +59,102 @@ a {
 
 
 
+th button {
+  font-size: 16px;
+  /* Increase font size */
+  cursor: pointer;
+}
 
 .sort-button {
   border: none;
   background-color: transparent;
-  font-size: 18px; /* Increase font size */
-  cursor:pointer;
+  font-size: 18px;
+  /* Increase font size */
+  cursor: pointer;
 }
 
 .filter-button {
-  font-size: 20px; /* Increase font size */
-  cursor:pointer;
+  font-size: 20px;
+  /* Increase font size */
+  cursor: pointer;
 }
-.filter-button.active{
-  background-color: #94bfff;
+
+.filter-button.active {
+  background-color: #3d77ce;
   border-color: #000000;
 }
 
-td.intensity4{
+td.intensity4 {
   background-color: red;
 }
-td.intensity3{
+
+td.intensity3 {
   background-color: orange;
 }
-td.intensity2{
+
+td.intensity2 {
   background-color: greenyellow;
 }
-td.intensity1{
+
+td.intensity1 {
   background-color: green;
 }
 
-td input{
-  height: 100%;
+td input[type="checkbox"] {
+  transform: scale(1.5);
+  /* Scale up the checkbox by 1.5 times */
+  margin: 10px;
+  /* Adjust margin if needed */
+}
+
+/*Overlays*/
+.overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  transition: opacity 500ms;
+  visibility: hidden;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.overlay:target {
+  visibility: visible;
+  opacity: 1;
+}
+
+#commentPopup {
+  height: 400px;
+  width: 900px;
+  background-color: #5c5c5c;
+  margin-top: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border: 1px solid grey;
+}
+
+#commentPopup .content {
+  display: flex;
+  justify-content: center;
+}
+
+#commentPopup .content button{
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+#commentPopup textarea{
+  font-size: 26px;
+}
+
+#commentPopup button{
+  font-size: 26px;
 }

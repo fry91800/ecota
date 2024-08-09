@@ -2,7 +2,15 @@ extends layout
 block content
 
 
-
+    #newCommentPopup.overlay
+        #commentPopup
+            .content
+                h1 Add a comment
+            .content
+                textarea#comment(placeholder="Comment" rows="6" cols="50") 
+            .content
+                button#cancel-comment cancel
+                button#submit-comment submit
 
     table#data-table
         thead
@@ -17,8 +25,8 @@ block content
                     input#search-supplier(type="text" placeholder="Search")
                 th Revenue
                     button#sort-revenue.sort-button(data-sort="asc") <i class="fas fa-sort"></i>
-                    br
-                    input#revenue-slider(type="range" min="0" max="10000000" step="100000" value="0")
+                        //br
+                        //input#revenue-slider(type="range" min="0" max="10000000" step="100000" value="0")
                     br
                     button#filter-revenue-sign >
                     input#filter-revenue(type="text" value="0")

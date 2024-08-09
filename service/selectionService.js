@@ -83,9 +83,11 @@ async function updateSelectionStatus(erp) {
         console.log("shouldReason: ", shouldReason);
         if (shouldRevenue || shouldIntensity || shouldReason) {
             await supplierRepository.select(erp);
+            return {selected: true}
         }
         else {
             await supplierRepository.deselect(erp);
+            return {selected: false}
         }
     } catch (e) {
         console.error('Could not update selection status: ', e);
@@ -94,7 +96,7 @@ async function updateSelectionStatus(erp) {
 async function checkReason(erp, reason) {
     try {
         await supplierRepository.checkReason(erp, reason);
-        await updateSelectionStatus(erp);
+        return updateSelectionStatus(erp);
     }
     catch (e) {
         console.error('Could not select a reason: ', e);
@@ -104,7 +106,7 @@ async function checkReason(erp, reason) {
 async function uncheckReason(erp, reason) {
     try {
         await supplierRepository.uncheckReason(erp, reason);
-        await updateSelectionStatus(erp);
+        return updateSelectionStatus(erp);
     }
     catch (e) {
         console.error('Could not deselect a reason: ', e);

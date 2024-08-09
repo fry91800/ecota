@@ -32,18 +32,19 @@ router.post('/reason/:action', async function (req, res, next) {
     CustomError.missingFieldError();
   }
   try {
+    let response = {selected: false};
     if (req.params.action === "check") {
-      logger.debug("Calling preselection service: revenue: " + revenue + ", intensity: " + intensity);
-      await selectionService.checkReason(req.body.erp, req.body.reason);
+      response = await selectionService.checkReason(req.body.erp, req.body.reason);
     }
     else if (req.params.action === "uncheck") {
-      await selectionService.uncheckReason(req.body.erp, req.body.reason);
+      response = await selectionService.uncheckReason(req.body.erp, req.body.reason);
     }
     else {
       CustomError.defaultError();
     }
-
-    res.redirect("/en/selection")
+    console.log(response)
+    res.json(response);
+    //res.redirect("/en/selection")
   }
   catch (e) {
     next(e)
@@ -83,10 +84,40 @@ router.get('/test', (req, res) => {
   res.render("test");
 });
 router.get('/data', (req, res) => {
+  res.locals.formatNumber = (number) => {
+    return new Intl.NumberFormat().format(number);
+  };
   const data = [
     { "selected": true, erp: "erp1", "supplier": "Aerostar", "revenue": 1000000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
     { "selected": true, erp: "erp2", "supplier": "Buckwild", "revenue": 2000000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp3", "supplier": "Cmoney", "revenue": 3000000, "intensity": "Nominale", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": "Supplier particulièrement efficace durant l'hivers et pendant les jours de pluie", history: true }
+    { "selected": false, erp: "erp3", "supplier": "Cmoney", "revenue": 3000000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": "Supplier particulièrement efficace durant l'hivers et pendant les jours de pluie", history: true },
+    /*{ "selected": true, erp: "erp1", "supplier": "Quantum Synergy", "revenue": 1600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "NexGen Innovations", "revenue": 4600000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Pinnacle Dynamics", "revenue": 1200000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": false, erp: "erp2", "supplier": "Eclipse Enterprises", "revenue": 2700000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Vertex Solutions", "revenue": 1800000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "EchoWave Technologies", "revenue": 2900000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Zenith Ventures", "revenue": 1600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "Fusion Labs", "revenue": 12300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Vanguard Horizons", "revenue": 1300000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": false, erp: "erp2", "supplier": "Celestial Solutions", "revenue": 2400000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Titanium Strategies", "revenue": 4500000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "Apex Creations", "revenue": 7600000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "NovaLink Systems", "revenue": 5600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "Luminary Networks", "revenue": 4400000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": false, erp: "erp1", "supplier": "Stellar Solutions", "revenue": 3400000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "OmniTech Innovations", "revenue": 2300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Infinity Dynamics", "revenue": 9800000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": false, erp: "erp2", "supplier": "PrimePulse Technologies", "revenue": 7200000, "intensity": "Reduce", "intensityCode": 1, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Elevate Enterprises", "revenue": 6500000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "Radiant Edge", "revenue": 4300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Stratosphere Solutions", "revenue": 2100000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": false, erp: "erp2", "supplier": "Catalyst Creations", "revenue": 5400000, "intensity": "Reduce", "intensityCode": 1, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Horizon Nexus", "revenue": 6600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "Ascend Technologies", "revenue": 4300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+    { "selected": true, erp: "erp1", "supplier": "Zenova Systems", "revenue": 1000000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp2", "supplier": "PulsePoint Ventures", "revenue": 2200000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
+*/
   ]
   const { page = 1, selected = false, notSelected = false, supplier = '',
     revenueSign = ">", revenue = 0, intensity1 = false, intensity2 = false, intensity3 = false, intensity4 = false,

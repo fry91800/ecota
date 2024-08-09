@@ -15,9 +15,30 @@ $(document).ready(function () {
     let sortField = '';
     let sortOrder = 'asc';
 
+
+    // check Reason
+    let currentErp = "";
+    let reason = "";
+    let action = "check";
+
+    //Comment
+    let comment = "";
+
     // Slide and Revenue values
-    var $slider = $('#revenue-slider');
+    //var $slider = $('#revenue-slider');
     var $filterRevenue = $('#filter-revenue');
+
+    function reasonAction() {
+        $.post(`/fr/selection/reason/${encodeURIComponent(action)}`, { erp: currentErp, reason: reason }, function (data) {
+            if (data.selected === true) {
+                $(`#selected-${currentErp}`).prop('checked', true);
+            }
+            if (data.selected === false) {
+                $(`#selected-${currentErp}`).prop('checked', false);
+            }
+        });
+    }
+
 
     function loadData() {
         $.get('/fr/selection/data', { page, selected, notSelected, supplier, revenueSign, revenue, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
@@ -27,17 +48,30 @@ $(document).ready(function () {
             data.forEach(entry => {
                 $('#data-table tbody').append(`
             <tr>
-            <td><input type="checkbox" ${entry.selected ? 'checked' : ''}></td>
+            <td><input id="selected-${entry.erp}" type="checkbox" ${entry.selected ? 'checked' : ''}></td>
             <td>${entry.supplier}</td>
-            <td>${entry.revenue}</td>
+            <td>${Intl.NumberFormat().format(entry.revenue)}</td>
             <td class="intensity${entry.intensityCode}" data-intensityCode="${entry.intensityCode}">${entry.intensity}</td>
-            <td><input type="checkbox" ${entry.reason1 ? 'checked' : ''}></td>
-            <td><input type="checkbox" ${entry.reason2 ? 'checked' : ''}></td>
-            <td><input type="checkbox" ${entry.reason3 ? 'checked' : ''}></td>
-            <td><input type="checkbox" ${entry.reason4 ? 'checked' : ''}></td>
-            <td title="${entry.comment ? entry.comment : ''}">${entry.comment ? entry.comment : ''}</td>
+            <td><input id="reason1-${entry.erp}" type="checkbox" ${entry.reason1 ? 'checked' : ''}></td>
+            <td><input id="reason2-${entry.erp}" type="checkbox" ${entry.reason2 ? 'checked' : ''}></td>
+            <td><input id="reason3-${entry.erp}" type="checkbox" ${entry.reason3 ? 'checked' : ''}></td>
+            <td><input id="reason4-${entry.erp}" type="checkbox" ${entry.reason4 ? 'checked' : ''}></td>
+            <td id="comment-${entry.erp}" title="${entry.comment ? entry.comment : ''}">${entry.comment ? entry.comment : ''}</td>
             <td>${entry.history === true ? '...' : ''}</td>
             </tr>`);
+                $(`#reason1-${entry.erp}`).on('change', function () {
+                    currentErp = entry.erp;
+                    reason = "reason1"
+                    if ($(this).is(':checked')) {
+                        action = "check"
+                    } else {
+                        action = "uncheck"
+                    }
+                    reasonAction()
+                });
+                $(`#comment-${entry.erp}`).click(function () {
+                    location.hash = '#newCommentPopup';
+                });
             });
         });
     }
@@ -55,8 +89,7 @@ $(document).ready(function () {
     $('#filter-selected').click(function () {
         selected = !selected
         $(this).toggleClass('active');
-        if (selected === true && notSelected === true)
-        {
+        if (selected === true && notSelected === true) {
             notSelected = !notSelected
             $('#filter-not-selected').toggleClass('active');
         }
@@ -65,18 +98,22 @@ $(document).ready(function () {
     $('#filter-not-selected').click(function () {
         notSelected = !notSelected
         $(this).toggleClass('active');
-        if (selected === true && notSelected === true)
-            {
-                selected = !selected
-                $('#filter-selected').toggleClass('active');
-            }
+        if (selected === true && notSelected === true) {
+            selected = !selected
+            $('#filter-selected').toggleClass('active');
+        }
         resetAndLoad();
     });
-
-    $('#search-supplier').on('input', function () {
-        supplier = $(this).val();
-        resetAndLoad();
+    $('#search-supplier').on('keydown', function (event) {
+        // Check if the pressed key is Enter (key code 13)
+        if (event.which === 13) {
+            // Prevent the default action (optional)
+            event.preventDefault();
+            supplier = $(this).val();
+            resetAndLoad();
+        }
     });
+    
 
     $('#sort-supplier').click(function () {
         sortField = 'supplier';
@@ -94,14 +131,19 @@ $(document).ready(function () {
         revenueSign = $(this).text();
         resetAndLoad();
     });
-    $('#filter-revenue').on('input', function () {
-        revenue = $(this).val();
-        resetAndLoad();
+    $('#filter-revenue').on('keydown', function (event) {
+        // Check if the pressed key is Enter (key code 13)
+        if (event.which === 13) {
+            revenue = $(this).val();
+            resetAndLoad();
+        }
     });
+    /*
     $('#revenue-slider').on('input', function () {
         revenue = $(this).val();
         resetAndLoad();
     });
+    */
     $('#sort-revenue').click(function () {
         sortField = 'revenue';
         sortOrder = $(this).data('sort');
@@ -111,7 +153,7 @@ $(document).ready(function () {
     $('#filter-intensity1').click(function () {
         intensity1 = !intensity1
         $(this).toggleClass('active');
-        if (intensity1 && intensity2 && intensity3 && intensity4){
+        if (intensity1 && intensity2 && intensity3 && intensity4) {
             intensity1 = false
             intensity2 = false
             intensity3 = false
@@ -126,7 +168,7 @@ $(document).ready(function () {
     $('#filter-intensity2').click(function () {
         intensity2 = !intensity2
         $(this).toggleClass('active');
-        if (intensity1 && intensity2 && intensity3 && intensity4){
+        if (intensity1 && intensity2 && intensity3 && intensity4) {
             intensity1 = false
             intensity2 = false
             intensity3 = false
@@ -141,7 +183,7 @@ $(document).ready(function () {
     $('#filter-intensity3').click(function () {
         intensity3 = !intensity3
         $(this).toggleClass('active');
-        if (intensity1 && intensity2 && intensity3 && intensity4){
+        if (intensity1 && intensity2 && intensity3 && intensity4) {
             intensity1 = false
             intensity2 = false
             intensity3 = false
@@ -156,7 +198,7 @@ $(document).ready(function () {
     $('#filter-intensity4').click(function () {
         intensity4 = !intensity4
         $(this).toggleClass('active');
-        if (intensity1 && intensity2 && intensity3 && intensity4){
+        if (intensity1 && intensity2 && intensity3 && intensity4) {
             intensity1 = false
             intensity2 = false
             intensity3 = false
@@ -169,7 +211,7 @@ $(document).ready(function () {
         resetAndLoad();
     });
 
-
+    /*
     // Function to synchronize slider and text input
     function updateSliderFromInput() {
         var value = parseInt($filterRevenue.val(), 10);
@@ -201,5 +243,13 @@ $(document).ready(function () {
     $filterRevenue.on('input', function () {
         updateSliderFromInput();
     });
+    */
+    $('#cancel-comment').click(function () {
+        location.hash = '#';
+    });
+
+
+
+
     loadData();
 });
