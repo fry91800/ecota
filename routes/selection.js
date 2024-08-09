@@ -52,13 +52,20 @@ router.post('/reason/:action', async function (req, res, next) {
 });
 
 router.post('/comment', async function (req, res, next) {
-  if (!req.body.orgaid || !req.body.erp || !req.body.comment) {
+  if (!req.body.erp || !req.body.comment) {
     CustomError.missingFieldError();
   }
   const year = req.body.year ?? new Date().getFullYear();
   try {
-    await commentService.addComment(req.body.orgaid, year, req.body.erp, req.body.comment);
-    res.redirect("/en/selection")
+    var orgaid = 1;
+    if (res.locals.session)
+    {
+      orga = res.locals.session.orgaid
+    }
+    var response = await commentService.addComment(orgaid, year, req.body.erp, req.body.comment);
+    console.log(response);
+    res.json(response);
+    //res.redirect("/en/selection")
   }
   catch (e) {
     next(e)

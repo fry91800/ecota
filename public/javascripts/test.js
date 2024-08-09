@@ -39,6 +39,15 @@ $(document).ready(function () {
         });
     }
 
+    function sendComment() {
+        $.post(`/fr/selection/comment`, { erp: currentErp, comment: comment }, function (data) {
+            if (data.status === 200) {
+                console.log(currentErp);
+                $(`#comment-${currentErp}`).text(comment);
+            }
+        });
+    }
+
 
     function loadData() {
         $.get('/fr/selection/data', { page, selected, notSelected, supplier, revenueSign, revenue, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
@@ -71,6 +80,8 @@ $(document).ready(function () {
                 });
                 $(`#comment-${entry.erp}`).click(function () {
                     location.hash = '#newCommentPopup';
+                    $(`#comment`).val($(`#comment-${entry.erp}`).text());
+                    currentErp = entry.erp;
                 });
             });
         });
@@ -247,6 +258,12 @@ $(document).ready(function () {
     $('#cancel-comment').click(function () {
         location.hash = '#';
     });
+    $('#submit-comment').click(function () {
+        comment = $('#comment').val();
+        sendComment();
+        location.hash = '#';
+    });
+
 
 
 

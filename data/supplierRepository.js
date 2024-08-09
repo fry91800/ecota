@@ -237,6 +237,7 @@ async function addComment(orgaid, year, erp, comment)
             { comment: comment, commenter: orgaid },
             { where: { erp: erp, year: year } }
         );
+        return {status: 200};
     } catch (e) {
         console.log("Could not add Comment to the database: ", e)
     }
