@@ -84,12 +84,12 @@ async function updateSelectionStatus(erp) {
         const supplierForce = await supplierRepository.getSupplierSelectionDataByErp(erp, ["force"]);
         if (shouldRevenue || shouldIntensity || shouldReason) {
             await supplierRepository.select(erp);
-            var selected = supplierForce ? supplierForce.force : true;
+            var selected = supplierForce.force ? supplierForce.force : true;
             return {selected: selected}
         }
         else {
             await supplierRepository.deselect(erp);
-            var selected = supplierForce ? supplierForce.force : false;
+            var selected = supplierForce.force ? supplierForce.force : false;
             return {selected: false}
         }
     } catch (e) {
