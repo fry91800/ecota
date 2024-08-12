@@ -5,10 +5,19 @@ const preselectionService = require('../service/preselectionService');
 const selectionService = require('../service/selectionService');
 const commentService = require('../service/commentService');
 const forceSelectionService = require('../service/forceSelectionService');
+const campaignRepository = require('../data/campaignRepository');
 var router = express.Router();
 
-router.get('/', function (req, res, next) {
-  res.render("selection");
+router.get('/', async function (req, res, next) {
+  try {
+    const campaign = await campaignRepository.getCurrentCampain();
+    res.locals.campaignRevenue = campaign.revenue;
+    res.locals.campaignIntensity = campaign.intensity;
+    console.log("campaign intensity: "+res.locals.campaignIntensity);
+    res.render("selection");
+  } catch (error) {
+    next(error)
+  }
 });
 
 router.post('/preselection', async function (req, res, next) {
@@ -28,23 +37,26 @@ router.post('/preselection', async function (req, res, next) {
 });
 
 router.post('/reason/:action', async function (req, res, next) {
-  if (!req.body.erp || !req.body.reason) {
+  if (!req.body.erp || !req.body.reason || !req.body.comment) {
     CustomError.missingFieldError();
   }
   try {
     let response = {selected: false};
+    var orgaid = 1;
+    if (res.locals.session)
+    {
+      orgaid = res.locals.session.orgaid
+    }
     if (req.params.action === "check") {
-      response = await selectionService.checkReason(req.body.erp, req.body.reason);
+      response = await selectionService.checkReason(orgaid, req.body.erp, req.body.reason, req.body.comment);
     }
     else if (req.params.action === "uncheck") {
-      response = await selectionService.uncheckReason(req.body.erp, req.body.reason);
+      response = await selectionService.uncheckReason(orgaid, req.body.erp, req.body.reason, req.body.comment);
     }
     else {
       CustomError.defaultError();
     }
-    console.log(response)
     res.json(response);
-    //res.redirect("/en/selection")
   }
   catch (e) {
     next(e)
@@ -60,10 +72,9 @@ router.post('/comment', async function (req, res, next) {
     var orgaid = 1;
     if (res.locals.session)
     {
-      orga = res.locals.session.orgaid
+      orgaid = res.locals.session.orgaid
     }
     var response = await commentService.addComment(orgaid, year, req.body.erp, req.body.comment);
-    console.log(response);
     res.json(response);
     //res.redirect("/en/selection")
   }
@@ -73,12 +84,22 @@ router.post('/comment', async function (req, res, next) {
 });
 
 router.post('/force', async function (req, res, next) {
-  if (!req.body.orgaid || !req.body.erp || !req.body.comment) {
+  console.log(req.body.forceBool);
+  console.log(req.body.erp);
+  console.log(req.body.comment);
+  if (!req.body.forceBool || !req.body.erp || !req.body.comment) {
     CustomError.missingFieldError();
   }
+  var orgaid = 1;
+  if (res.locals.session)
+  {
+    orgaid = res.locals.session.orgaid
+  }
   try {
-    await forceSelectionService.forceSelect(req.body.orgaid, req.body.bool, req.body.erp, req.body.comment);
-    res.redirect("/en/selection")
+    const response = await forceSelectionService.forceSelect(orgaid, req.body.forceBool, req.body.erp, req.body.comment);
+    console.log(response);
+    res.json(response);
+    //res.redirect("/en/selection")
   }
   catch (e) {
     next(e)
@@ -90,15 +111,16 @@ router.post('/force', async function (req, res, next) {
 router.get('/test', (req, res) => {
   res.render("test");
 });
-router.get('/data', (req, res) => {
+router.get('/data', async (req, res) => {
   res.locals.formatNumber = (number) => {
     return new Intl.NumberFormat().format(number);
   };
+  /*
   const data = [
     { "selected": true, erp: "erp1", "supplier": "Aerostar", "revenue": 1000000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
     { "selected": true, erp: "erp2", "supplier": "Buckwild", "revenue": 2000000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
     { "selected": false, erp: "erp3", "supplier": "Cmoney", "revenue": 3000000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": "Supplier particulièrement efficace durant l'hivers et pendant les jours de pluie", history: true },
-    /*{ "selected": true, erp: "erp1", "supplier": "Quantum Synergy", "revenue": 1600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
+    { "selected": true, erp: "erp1", "supplier": "Quantum Synergy", "revenue": 1600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
     { "selected": true, erp: "erp2", "supplier": "NexGen Innovations", "revenue": 4600000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
     { "selected": true, erp: "erp1", "supplier": "Pinnacle Dynamics", "revenue": 1200000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
     { "selected": false, erp: "erp2", "supplier": "Eclipse Enterprises", "revenue": 2700000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
@@ -124,10 +146,11 @@ router.get('/data', (req, res) => {
     { "selected": true, erp: "erp2", "supplier": "Ascend Technologies", "revenue": 4300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
     { "selected": true, erp: "erp1", "supplier": "Zenova Systems", "revenue": 1000000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
     { "selected": true, erp: "erp2", "supplier": "PulsePoint Ventures", "revenue": 2200000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-*/
-  ]
+
+  ]*/
+  const data = await selectionService.getSelectionData();
   const { page = 1, selected = false, notSelected = false, supplier = '',
-    revenueSign = ">", revenue = 0, intensity1 = false, intensity2 = false, intensity3 = false, intensity4 = false,
+    revenueSign = ">", revenue = 0, intensity0 = false, intensity1 = false, intensity2 = false, intensity3 = false, intensity4 = false,
     reason1Selected = false, reason1NotSelected = false, reason2Selected = false, reason2NotSelected = false,
     reason3Selected = false, reason3NotSelected = false, reason4Selected = false, reason4NotSelected = false,
     sortField = '', sortOrder = 'asc' } = req.query;
@@ -151,8 +174,11 @@ router.get('/data', (req, res) => {
   if (revenueSign === "<") {
     filteredData = filteredData.filter(entry => entry.revenue < revenue);
   }
-  if (intensity1 === 'true' || intensity2 === 'true' || intensity3 === 'true' || intensity4 === 'true')
+  if (intensity0 === 'true' || intensity1 === 'true' || intensity2 === 'true' || intensity3 === 'true' || intensity4 === 'true')
   {
+    if (intensity0 === 'false') {
+      filteredData = filteredData.filter(entry => entry.intensityCode !== 0);
+    }
     if (intensity1 === 'false') {
       filteredData = filteredData.filter(entry => entry.intensityCode !== 1);
     }
@@ -167,6 +193,9 @@ router.get('/data', (req, res) => {
     }
   }
   /*
+    if (intensity0 === 'true') {
+    filteredData = filteredData.filter(entry => entry.intensityCode === 0);
+  }
   if (intensity1 === 'true') {
     filteredData = filteredData.filter(entry => entry.intensityCode === 1);
   }

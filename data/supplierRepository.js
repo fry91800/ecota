@@ -157,11 +157,11 @@ async function getTeamFromErp(erp)
     });
     return record.team;
 }
-async function checkReason(erp, reason)
+async function checkReason(orgaid, erp, reason, comment)
 {
     try {
         const currentYear = new Date().getFullYear();
-        const updateData = {};
+        const updateData = {commenter: orgaid, comment: comment};
         updateData[reason] = true;
         await db.SupplierSelection.update(
             updateData,
@@ -175,11 +175,11 @@ async function checkReason(erp, reason)
         console.error("Could not select supplier", e);
     }
 }
-async function uncheckReason(erp, reason)
+async function uncheckReason(orgaid, erp, reason, comment)
 {
     try {
         const currentYear = new Date().getFullYear();
-        const updateData = {};
+        const updateData = {commenter: orgaid, comment: comment};
         updateData[reason] = false;
         await db.SupplierSelection.update(
             updateData,
@@ -249,8 +249,47 @@ async function forceSelect(orgaid, bool, erp, comment)
             { force: bool, comment: comment, commenter: orgaid },
             { where: { erp: erp} }
         );
+        return {status: 200};
     } catch (e) {
         console.log("Could not force selection to the database: ", e)
+    }
+}
+
+async function getSelectionSupplierData(){
+    try {
+        const [results, metadata] = await db.sequelize.query(
+            `SELECT supplierselection.force as force, supplierselection.selected as selected, supplierselection.erp as erp,
+            supplierselection.name as supplier, supplier1.revenue as revenue, supplierselection.reason1 as reason1,
+            supplierselection.reason2 as reason2, supplierselection.reason3 as reason3, supplierselection.reason4 as reason4,
+            supplierselection.comment as comment
+            FROM supplierselection
+            LEFT JOIN supplier1 on supplierselection.erp = supplier1.erp`,
+            {
+              type: db.sequelize.QueryTypes.RAW
+            }
+          );
+
+          console.log("resultats: "+JSON.stringify(results));
+          return results
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function getSelectionSupplierIntensities(){
+    try {
+        const [results, metadata] = await db.sequelize.query(
+            `SELECT suppliercotadata.erp as erp, intensity.id as "intensityCode", intensity.desc as intensity
+            FROM suppliercotadata
+            JOIN intensity on suppliercotadata.intensity = intensity.id`,
+            {
+              type: db.sequelize.QueryTypes.RAW
+            }
+          );
+          console.log("resultats: "+JSON.stringify(results));
+          return results
+    } catch (error) {
+        console.log(error)
     }
 }
 module.exports = {
@@ -274,5 +313,7 @@ module.exports = {
     select,
     deselect,
     addComment,
-    forceSelect
+    forceSelect,
+    getSelectionSupplierData,
+    getSelectionSupplierIntensities
 }

@@ -1,5 +1,11 @@
-div(style="background-color: #555555")
+#secondBar
     if session && (session.role === 1 || session.role === 2)
-        a(href="/#{lang}/selection") #{__("selection")} 
+        .item
+            a(href="/#{lang}/selection")
+                button#selectionButton
+                    p #{__("selection")}
     if session && (session.role === 1 || session.role === 2)
-        a(href="/#{lang}/stats") #{__("stats")}
+        .item
+            a(href="/#{lang}/stats")
+                button#statsButton.noborder
+                    p #{__("stats")}

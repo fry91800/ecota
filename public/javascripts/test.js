@@ -1,10 +1,13 @@
 $(document).ready(function () {
     let page = 1;
+    let revenuePreselection = 0;
+    let intensityPreselection = 1;
     // Filters
     let selected = false;
     let notSelected = false;
     let revenueSign = ">";
     let revenue = 0;
+    let intensity0 = false;
     let intensity1 = false;
     let intensity2 = false;
     let intensity3 = false;
@@ -16,22 +19,31 @@ $(document).ready(function () {
     let sortOrder = 'asc';
 
 
-    // check Reason
+    // Tick Reason
     let currentErp = "";
     let reason = "";
     let action = "check";
 
-    //Comment
+    // Comment
     let comment = "";
 
+    // Force
+    let forceBool = true;
     // Slide and Revenue values
     //var $slider = $('#revenue-slider');
     var $filterRevenue = $('#filter-revenue');
 
+    function preselect() {
+        $.post(`/fr/selection/preselection`, { revenue: revenuePreselection, intensity: intensityPreselection }, function (data) {
+            resetAndLoad();
+        });
+    }
+
     function reasonAction() {
-        $.post(`/fr/selection/reason/${encodeURIComponent(action)}`, { erp: currentErp, reason: reason }, function (data) {
+        $.post(`/fr/selection/reason/${encodeURIComponent(action)}`, { erp: currentErp, reason: reason, comment: comment}, function (data) {
             if (data.selected === true) {
                 $(`#selected-${currentErp}`).prop('checked', true);
+                $(`#comment-${currentErp}`).text(comment);
             }
             if (data.selected === false) {
                 $(`#selected-${currentErp}`).prop('checked', false);
@@ -42,6 +54,14 @@ $(document).ready(function () {
     function sendComment() {
         $.post(`/fr/selection/comment`, { erp: currentErp, comment: comment }, function (data) {
             if (data.status === 200) {
+                $(`#comment-${currentErp}`).text(comment);
+            }
+        });
+    }
+
+    function forceSelection() {
+        $.post(`/fr/selection/force`, { forceBool: forceBool, erp: currentErp, comment: comment }, function (data) {
+            if (data.status === 200) {
                 console.log(currentErp);
                 $(`#comment-${currentErp}`).text(comment);
             }
@@ -50,7 +70,8 @@ $(document).ready(function () {
 
 
     function loadData() {
-        $.get('/fr/selection/data', { page, selected, notSelected, supplier, revenueSign, revenue, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
+        console.log("LAUNCHED")
+        $.get('/fr/selection/data', { page, selected, notSelected, supplier, revenueSign, revenue, intensity0, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
             if (page === 1) {
                 $('#data-table tbody').empty();
             }
@@ -68,19 +89,34 @@ $(document).ready(function () {
             <td id="comment-${entry.erp}" title="${entry.comment ? entry.comment : ''}">${entry.comment ? entry.comment : ''}</td>
             <td>${entry.history === true ? '...' : ''}</td>
             </tr>`);
-                $(`#reason1-${entry.erp}`).on('change', function () {
+            for (let i = 1; i <= 4; i++) {
+                $(`#reason${i}-${entry.erp}`).on('change', function () {
                     currentErp = entry.erp;
-                    reason = "reason1"
+                    $(`#reason-comment`).val($(`#comment-${entry.erp}`).text());
+                    reason = `reason${i}`
                     if ($(this).is(':checked')) {
                         action = "check"
                     } else {
                         action = "uncheck"
                     }
-                    reasonAction()
+                    location.hash = '#checkReasonPopup';
+                    //reasonAction()
                 });
+                
+            }
                 $(`#comment-${entry.erp}`).click(function () {
                     location.hash = '#newCommentPopup';
                     $(`#comment`).val($(`#comment-${entry.erp}`).text());
+                    currentErp = entry.erp;
+                });
+                $(`#selected-${entry.erp}`).click(function () {
+                    location.hash = '#addForcePopup';
+                    forceBool = false;
+                    if ($(`#selected-${entry.erp}`).is(':checked'))
+                    {
+                        forceBool = true;
+                    }
+                    $(`#force-comment`).val($(`#comment-${entry.erp}`).text());
                     currentErp = entry.erp;
                 });
             });
@@ -97,13 +133,24 @@ $(document).ready(function () {
         loadData();
     });
 
+    $('#preselection-submit').click(function () {
+        revenuePreselection = $('#revenue-input').val();
+        intensityPreselection = $('#intensity-input option:selected').data('code');
+        console.log(revenuePreselection)
+        console.log(intensityPreselection)
+
+        preselect();
+    });
+
     $('#filter-selected').click(function () {
         selected = !selected
         $(this).toggleClass('active');
+        console.log("non mais ça va pas !")
         if (selected === true && notSelected === true) {
             notSelected = !notSelected
             $('#filter-not-selected').toggleClass('active');
         }
+        console.log("load from filterselected")
         resetAndLoad();
     });
     $('#filter-not-selected').click(function () {
@@ -113,6 +160,7 @@ $(document).ready(function () {
             selected = !selected
             $('#filter-selected').toggleClass('active');
         }
+        console.log("load from filternotselected")
         resetAndLoad();
     });
     $('#search-supplier').on('keydown', function (event) {
@@ -121,6 +169,7 @@ $(document).ready(function () {
             // Prevent the default action (optional)
             event.preventDefault();
             supplier = $(this).val();
+            console.log("load from resetandload")
             resetAndLoad();
         }
     });
@@ -129,6 +178,7 @@ $(document).ready(function () {
     $('#sort-supplier').click(function () {
         sortField = 'supplier';
         sortOrder = $(this).data('sort');
+        console.log("load from resetandload")
         resetAndLoad();
         $(this).data('sort', sortOrder === 'asc' ? 'desc' : 'asc');
     });
@@ -140,12 +190,14 @@ $(document).ready(function () {
             $(this).text('>');
         }
         revenueSign = $(this).text();
+        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-revenue').on('keydown', function (event) {
         // Check if the pressed key is Enter (key code 13)
         if (event.which === 13) {
             revenue = $(this).val();
+            console.log("load from space")
             resetAndLoad();
         }
     });
@@ -158,69 +210,105 @@ $(document).ready(function () {
     $('#sort-revenue').click(function () {
         sortField = 'revenue';
         sortOrder = $(this).data('sort');
+        console.log("load from srtrev")
         resetAndLoad();
         $(this).data('sort', sortOrder === 'asc' ? 'desc' : 'asc');
     });
-    $('#filter-intensity1').click(function () {
-        intensity1 = !intensity1
+
+
+
+    $('#filter-intensity0').click(function () {
+        intensity0 = !intensity0
         $(this).toggleClass('active');
-        if (intensity1 && intensity2 && intensity3 && intensity4) {
+        if (intensity0 && intensity1 && intensity2 && intensity3 && intensity4) {
+            intensity0 = false
             intensity1 = false
             intensity2 = false
             intensity3 = false
             intensity4 = false
+            $('#filter-intensity0').toggleClass('active');
             $('#filter-intensity1').toggleClass('active');
             $('#filter-intensity2').toggleClass('active');
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
+        console.log("load from resetandload")
+        resetAndLoad();
+    });
+    $('#filter-intensity1').click(function () {
+        intensity1 = !intensity1
+        $(this).toggleClass('active');
+        if (intensity0 && intensity1 && intensity2 && intensity3 && intensity4) {
+            intensity0 = false
+            intensity1 = false
+            intensity2 = false
+            intensity3 = false
+            intensity4 = false
+            $('#filter-intensity0').toggleClass('active');
+            $('#filter-intensity1').toggleClass('active');
+            $('#filter-intensity2').toggleClass('active');
+            $('#filter-intensity3').toggleClass('active');
+            $('#filter-intensity4').toggleClass('active');
+        }
+        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-intensity2').click(function () {
         intensity2 = !intensity2
         $(this).toggleClass('active');
-        if (intensity1 && intensity2 && intensity3 && intensity4) {
+        if (intensity0 && intensity1 && intensity2 && intensity3 && intensity4) {
+            intensity0 = false
             intensity1 = false
             intensity2 = false
             intensity3 = false
             intensity4 = false
+            $('#filter-intensity0').toggleClass('active');
             $('#filter-intensity1').toggleClass('active');
             $('#filter-intensity2').toggleClass('active');
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
+        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-intensity3').click(function () {
         intensity3 = !intensity3
         $(this).toggleClass('active');
-        if (intensity1 && intensity2 && intensity3 && intensity4) {
+        if (intensity0 && intensity1 && intensity2 && intensity3 && intensity4) {
+            intensity0 = false
             intensity1 = false
             intensity2 = false
             intensity3 = false
             intensity4 = false
+            $('#filter-intensity0').toggleClass('active');
             $('#filter-intensity1').toggleClass('active');
             $('#filter-intensity2').toggleClass('active');
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
+        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-intensity4').click(function () {
         intensity4 = !intensity4
         $(this).toggleClass('active');
-        if (intensity1 && intensity2 && intensity3 && intensity4) {
+        if (intensity0 && intensity1 && intensity2 && intensity3 && intensity4) {
+            intensity0 = false
             intensity1 = false
             intensity2 = false
             intensity3 = false
             intensity4 = false
+            $('#filter-intensity0').toggleClass('active');
             $('#filter-intensity1').toggleClass('active');
             $('#filter-intensity2').toggleClass('active');
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
+        console.log("load from resetandload")
         resetAndLoad();
     });
+
+
 
     /*
     // Function to synchronize slider and text input
@@ -255,12 +343,34 @@ $(document).ready(function () {
         updateSliderFromInput();
     });
     */
+
+
     $('#cancel-comment').click(function () {
         location.hash = '#';
     });
     $('#submit-comment').click(function () {
         comment = $('#comment').val();
         sendComment();
+        location.hash = '#';
+    });
+    $('#cancel-force').click(function () {
+        const checkbox = $(`#selected-${currentErp}`);
+        checkbox.prop('checked', !checkbox.prop('checked'));
+        location.hash = '#';
+    });
+    $('#submit-force').click(function () {
+        comment = $('#force-comment').val();
+        forceSelection();
+        location.hash = '#';
+    });
+    $('#cancel-reason').click(function () {
+        const checkbox = $(`#${reason}-${currentErp}`);
+        checkbox.prop('checked', !checkbox.prop('checked'));
+        location.hash = '#';
+    });
+    $('#submit-reason').click(function () {
+        comment = $('#reason-comment').val();
+        reasonAction();
         location.hash = '#';
     });
 

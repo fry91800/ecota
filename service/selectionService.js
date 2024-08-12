@@ -81,21 +81,24 @@ async function updateSelectionStatus(erp) {
         console.log("shouldRevenue: ", shouldRevenue);
         console.log("shouldIntensity: ", shouldIntensity);
         console.log("shouldReason: ", shouldReason);
+        const supplierForce = await supplierRepository.getSupplierSelectionDataByErp(erp, ["force"]);
         if (shouldRevenue || shouldIntensity || shouldReason) {
             await supplierRepository.select(erp);
-            return {selected: true}
+            var selected = supplierForce ? supplierForce.force : true;
+            return {selected: selected}
         }
         else {
             await supplierRepository.deselect(erp);
+            var selected = supplierForce ? supplierForce.force : false;
             return {selected: false}
         }
     } catch (e) {
         console.error('Could not update selection status: ', e);
     }
 }
-async function checkReason(erp, reason) {
+async function checkReason(orgaid, erp, reason, comment) {
     try {
-        await supplierRepository.checkReason(erp, reason);
+        await supplierRepository.checkReason(orgaid, erp, reason, comment);
         return updateSelectionStatus(erp);
     }
     catch (e) {
@@ -103,9 +106,9 @@ async function checkReason(erp, reason) {
     }
 }
 
-async function uncheckReason(erp, reason) {
+async function uncheckReason(orgaid, erp, reason, comment) {
     try {
-        await supplierRepository.uncheckReason(erp, reason);
+        await supplierRepository.uncheckReason(orgaid, erp, reason, comment);
         return updateSelectionStatus(erp);
     }
     catch (e) {
@@ -113,7 +116,50 @@ async function uncheckReason(erp, reason) {
     }
 }
 
+async function getSelectionData()
+{
+    const response = await supplierRepository.getSelectionSupplierData();
+    // Update les intensity null à 0
+    response.forEach(obj => {
+        console.log("force: "+obj.force)
+        if (obj.intensity === null) {
+            obj.intensity = "";
+        }
+        if (obj.intensityCode === null) {
+            obj.intensityCode = 0;
+        }
+        if (obj.force !== null) {
+            obj.selected = obj.force;
+        }
+    });
+    const lastYearIntensities = await supplierRepository.getSelectionSupplierIntensities();
+
+    const mergedData = response.flatMap(resp => {
+        // Find the matching intensities for the current ERP
+        const matchingIntensities = lastYearIntensities.filter(intensity => intensity.erp === resp.erp);
+    
+        if (matchingIntensities.length > 0) {
+            // Return all matching intensities
+            return matchingIntensities.map(intensity => ({
+                ...resp, // Spread all fields from the response object
+                intensityCode: intensity.intensityCode,
+                intensity: intensity.intensity
+            }));
+        } else {
+            // If no matching intensities, return the response object with null or default values for intensity fields
+            return [{
+                ...resp,
+                intensityCode: 0,
+                intensity: ""
+            }];
+        }
+    });
+    console.log(mergedData)
+    return mergedData;
+}
+
 module.exports = {
     checkReason,
-    uncheckReason
+    uncheckReason,
+    getSelectionData
 }

@@ -4,28 +4,27 @@ const db = require("../data/database.js");
 const CustomError = require('../error/CustomError');
 const userService = require("../service/userService");
 
-/*
-Page de connexion utilisateur 
-Renvoie vers la racine si l'utilisateur est connecté
-*/
+
+// Endpoint de connexion utilisateur
 router.get('/login', async function(req, res, next) {
-  if (res.locals.session)
+if (res.locals.session)
   {
     return res.redirect("/");
   }
   res.render('login');
 });
 
-/* Endpoint de connexion utilisateur */
+// Endpoint de connexion utilisateur
 router.post('/login', async function(req, res, next) {
   try {
-    //Erreur en cas de champs non remplis
+    // Step 1: Vérifie l'existence des champs
     if (!req.body.mail || !req.body.pass)
     {
       CustomError.missingFieldError();
     }
+    // Step 2: Authentification
     var session = await userService.auth(req.body.mail, req.body.pass);
-    //Authentification réussis
+    // Step 3: Set le cookie de session
     sessionTime = 10 * 365 * 24 * 60 * 60 * 1000 // 10 years
     res.cookie('session', session.id, { maxAge: sessionTime, httpOnly: true });
     res.redirect("/");
@@ -34,14 +33,13 @@ router.post('/login', async function(req, res, next) {
 }
 });
 
-/* Endpoint de deconnexion */
+// Endpoint de deconnexion
 router.get('/logout', async function(req, res, next) {
   if (!res.locals.session)
   {
     return res.redirect("/");
   }
   try {
-    console.log()
     var sessionid = res.locals.session.sessionid
     var now = Date();
     await db.Session.update(

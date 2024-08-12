@@ -1,0 +1,15 @@
+#adminZone
+    #adminPanel
+        #revenuePanel.item
+            p Revenue
+            input#revenue-input(name="revenue" value=campaignRevenue)
+        #intensityPanel.item
+            p Intensity
+            select#intensity-input
+                option(data-code="1" selected= campaignIntensity === 1) Reduce
+                option(data-code="2" selected= campaignIntensity === 2) Nominal
+                option(data-code="3" selected= campaignIntensity === 3) Tightened
+                option(data-code="4" selected= campaignIntensity === 4) Intensive
+        #validPanel.item
+            button#preselection-submit
+                p submit

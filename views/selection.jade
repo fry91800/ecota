@@ -3,4 +3,6 @@ block content
     include subviews/mainBar.jade
     include subviews/secondBar.jade
     h1 Selection
-    p Supplier selection Page
+    if (session && session.role == 1)
+        include adminSelection.jade
+    include test.jade

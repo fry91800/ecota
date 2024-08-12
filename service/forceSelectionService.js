@@ -2,7 +2,7 @@ const supplierRepository = require("../data/supplierRepository");
 async function forceSelect(orgaid, bool, erp, comment)
 {
     try {
-        await supplierRepository.forceSelect(orgaid, bool, erp, comment);
+        return supplierRepository.forceSelect(orgaid, bool, erp, comment);
     } catch (e) {
         console.log("Error adding comment", e)
     }

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const logger = require('../config/logger');
+const { logger, logEnter, logExit } = require('../config/logger');
 
-/* Change le cookie de langue */
+// Change le cookie de langue 
 router.get('/:langswitch', function(req, res, next) {
     const sessionTime = 10 * 365 * 24 * 60 * 60 * 1000 // 10 years
     logger.debug("Language Cookie set to: "+req.params.langswitch)
