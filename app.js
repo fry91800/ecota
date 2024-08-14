@@ -51,6 +51,7 @@ app.use('/:lang', function (req, res, next) {
   if (languageCookie) {
     if (req.params.lang !== languageCookie) {
       const newUrl = req.originalUrl.replace("/" + req.params.lang + "/", "/" + languageCookie + "/");
+      logger.debug(newUrl)
       return res.redirect(newUrl);
     }
   }

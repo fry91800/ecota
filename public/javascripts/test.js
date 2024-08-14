@@ -18,7 +18,8 @@ $(document).ready(function () {
     let sortField = '';
     let sortOrder = 'asc';
 
-
+    // preselection Timeout
+    let timeout = null;
     // Tick Reason
     let currentErp = "";
     let reason = "";
@@ -34,13 +35,13 @@ $(document).ready(function () {
     var $filterRevenue = $('#filter-revenue');
 
     function preselect() {
-        $.post(`/fr/selection/preselection`, { revenue: revenuePreselection, intensity: intensityPreselection }, function (data) {
+        $.post(`/${currentLang}/selection/preselection`, { revenue: revenuePreselection, intensity: intensityPreselection }, function (data) {
             resetAndLoad();
         });
     }
 
     function reasonAction() {
-        $.post(`/fr/selection/reason/${encodeURIComponent(action)}`, { erp: currentErp, reason: reason, comment: comment}, function (data) {
+        $.post(`/${currentLang}/selection/reason/${encodeURIComponent(action)}`, { erp: currentErp, reason: reason, comment: comment}, function (data) {
             if (data.selected === true) {
                 $(`#selected-${currentErp}`).prop('checked', true);
                 $(`#comment-${currentErp}`).text(comment);
@@ -52,7 +53,7 @@ $(document).ready(function () {
     }
 
     function sendComment() {
-        $.post(`/fr/selection/comment`, { erp: currentErp, comment: comment }, function (data) {
+        $.post(`/${currentLang}/selection/comment`, { erp: currentErp, comment: comment }, function (data) {
             if (data.status === 200) {
                 $(`#comment-${currentErp}`).text(comment);
             }
@@ -60,7 +61,7 @@ $(document).ready(function () {
     }
 
     function forceSelection() {
-        $.post(`/fr/selection/force`, { forceBool: forceBool, erp: currentErp, comment: comment }, function (data) {
+        $.post(`/${currentLang}/selection/force`, { forceBool: forceBool, erp: currentErp, comment: comment }, function (data) {
             if (data.status === 200) {
                 console.log(currentErp);
                 $(`#comment-${currentErp}`).text(comment);
@@ -71,7 +72,7 @@ $(document).ready(function () {
 
     function loadData() {
         console.log("LAUNCHED")
-        $.get('/fr/selection/data', { page, selected, notSelected, supplier, revenueSign, revenue, intensity0, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
+        $.get(`/${currentLang}/selection/data`, { page, selected, notSelected, supplier, revenueSign, revenue, intensity0, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
             if (page === 1) {
                 $('#data-table tbody').empty();
             }
@@ -128,17 +129,31 @@ $(document).ready(function () {
         loadData();
     }
 
+    function handlePreselectionChange() {
+        clearTimeout(timeout); // Clear the previous timeout
+    
+        // Set a new timeout
+        timeout = setTimeout(() => {
+            console.log("Input has not changed for 1 second:");
+            revenuePreselection = $('#revenue-input').val();
+            intensityPreselection = $('#intensity-input option:selected').data('code');
+            preselect();
+            // You can put your custom logic here
+        }, 1000); // 1000ms = 1 second
+    }
+
     $('#load-more').click(function () {
         page++;
         loadData();
     });
 
-    $('#preselection-submit').click(function () {
+    $('#revenue-input').on('input', function () {
+        handlePreselectionChange();
+    });
+
+    $('#intensity-input').on('input', function () {
         revenuePreselection = $('#revenue-input').val();
         intensityPreselection = $('#intensity-input option:selected').data('code');
-        console.log(revenuePreselection)
-        console.log(intensityPreselection)
-
         preselect();
     });
 
@@ -373,10 +388,6 @@ $(document).ready(function () {
         reasonAction();
         location.hash = '#';
     });
-
-
-
-
 
     loadData();
 });

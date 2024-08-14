@@ -13,6 +13,7 @@ router.get('/', async function (req, res, next) {
     const campaign = await campaignRepository.getCurrentCampain();
     res.locals.campaignRevenue = campaign.revenue;
     res.locals.campaignIntensity = campaign.intensity;
+    console.log("campaign revenue: "+res.locals.campaignRevenue);
     console.log("campaign intensity: "+res.locals.campaignIntensity);
     res.render("selection");
   } catch (error) {

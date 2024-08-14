@@ -1,8 +1,9 @@
 extends layout
 block content
+    script.
+        var currentLang = !{JSON.stringify(lang)};
     include subviews/mainBar.jade
     include subviews/secondBar.jade
-    h1 Selection
     if (session && session.role == 1)
         include adminSelection.jade
     include test.jade
