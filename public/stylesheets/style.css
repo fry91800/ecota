@@ -74,6 +74,10 @@ margin-right: 5px;
   border-left:hidden;
   border-right: 1px solid;
   font-weight: bold;
+  transition: 0.3s;
+}
+#secondBar .item button:hover{
+  background-color: #00000011;
 }
 #secondBar .item .noborder{
   border-right:hidden;
@@ -99,7 +103,7 @@ margin-right: 5px;
 #adminPanel{
   width: 140px;
   height: 100%;
-  background-color: #f0f1ff;
+  background-color: #ececec;
   box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.15);
   border-radius: 1px;
   display: flex;
@@ -162,7 +166,7 @@ margin-right: 5px;
   border-collapse: collapse;
   width: 99%;
   table-layout: fixed;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px -4px 15px rgba(0, 0, 0, 0.5);
   margin: auto;
   border: 1px solid #000000;
 }
@@ -184,12 +188,12 @@ margin-right: 5px;
 }
 */
 #data-table th {
-  background: rgb(0,0,158);
-  background: linear-gradient(0deg, rgba(0,0,158,1) 0%, rgba(87,87,255,1) 100%);
+  /*background: rgb(0,0,158);
+  background: linear-gradient(0deg, rgba(0,0,158,1) 0%, rgba(87,87,255,1) 100%);*/
+  background-color: #c4c4c4;
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: center;
-  color: white;
 }
 
 #data-table th input {
@@ -373,4 +377,33 @@ input[type="number"]::-ms-reveal {
   display: none;
   width: 0;
   height: 0;
+}
+
+/* styles.css */
+#mainBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #070e1d;
+  height: 30px; /* Background color for visibility */
+  position: relative;
+}
+
+.left-space {
+  flex: 1;
+}
+
+#mainBar h1 {
+  top: 0;
+  color: white;
+  font-size: 25px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0; /* Remove default margin */
+}
+
+.right-items {
+  display: flex;
+  gap: 5px; /* Space between right items */
 }
