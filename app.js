@@ -3,7 +3,6 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-//const logger = require('morgan'); unused
 const { logger, logEnter, logExit } = require('./config/logger');
 const { CustomError } = require('./error/CustomError');
 const db = require("./data/database.js");
@@ -76,18 +75,23 @@ app.use('/:lang', function (req, res, next) {
 
 //Auth middleware
 app.use(async function (req, res, next) {
-  const sessionid = req.cookies.session
-  if (sessionid) {
-    const session = await sessionRepository.getSessionData(sessionid)
-    if (session) {
-      logger.debug("Auth Middleware: Current session: " + JSON.stringify(session));
-      res.locals.session = session
+  try {
+    const sessionid = req.cookies.session
+    if (sessionid) {
+      const session = await sessionRepository.getSessionData(sessionid)
+      if (session) {
+        logger.debug("Auth Middleware: Current session: " + JSON.stringify(session));
+        res.locals.session = session
+      }
     }
+    else {
+      logger.debug("Auth Middleware: No current session")
+    }
+    next();
   }
-  else {
-    logger.debug("Auth Middleware: No current session")
+  catch (e) {
+    logger.error("test: "+e.message);
   }
-  next();
 }
 )
 
@@ -110,11 +114,9 @@ app.use(function(req, res, next) {
 app.use(function (err, req, res, next) {
   console.error(err);
   if (err instanceof CustomError) {
-    console.log("customError detected")
     res.status(err.status).json({ error: err.message });
   } else {
-    console.log("other error detected")
-    console.log(err)
+    logger.error(err)
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

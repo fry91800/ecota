@@ -1,11 +1,18 @@
 //const db = require("./database")
 const db = require("./database")
 
-async function newSession(id) {
-  return db.Session.create({ orgaid: id });
+const { logger, logEnter, logExit } = require('../config/logger');
+
+async function insertOne(object){
+  return db.Session.create(object);
+}
+
+async function update(update, where){
+  return db.Session.update(update, {where: where});
 }
 
 async function getSessionData(sessionId) {
+  try{
   const [results, metadata] = await db.sequelize.query(
     `SELECT session.id as sessionid, orga.id as orgaid, orga.mail as mail, orga.role as role
     FROM session
@@ -18,6 +25,10 @@ async function getSessionData(sessionId) {
     }
   );
   return results
+}
+catch(e){
+  logger.error(e);
+}
 }
 
 async function getSessionStats() {
@@ -32,7 +43,8 @@ async function getSessionStats() {
   return results
 }
 module.exports = {
-  newSession,
+  insertOne,
+  update,
   getSessionData,
   getSessionStats
 }

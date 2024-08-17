@@ -6,7 +6,7 @@
         .content
             textarea#comment(placeholder="Comment" rows="6" cols="50") 
         .content
-            button#cancel-comment cancel
+            a#cancel-comment(href="#") cancel
             button#submit-comment submit
 
 #addForcePopup.overlay
@@ -28,7 +28,22 @@
         .content
             button#cancel-reason cancel
             button#submit-reason submit            
-
+#viewHistoryPopup.overlay
+    #historyPopup
+        table#history-table
+            thead
+                tr
+                    th Year
+                    th Selected
+                    th Supplier
+                    th Revenue
+                    th Intensity
+                    th Reason1
+                    th Reason2
+                    th Reason3
+                    th Reason4
+                    th Comment
+            tbody
 table#data-table
     thead
         tr

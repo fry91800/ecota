@@ -5,6 +5,7 @@ const sequelize = new Sequelize('ecota', 'postgres', 'posert', {
   dialect: 'postgres',  // Change this according to your database
   logging: process.env.SEQUELIZE_LOGGING === 'true' ? console.log : false
 });
+const { logger, logEnter, logExit } = require('../config/logger');
 
 
 const { DataTypes } = require('sequelize');
@@ -24,6 +25,13 @@ const Orga = sequelize.define('Orga', {
   pass: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  team: {
+    type: DataTypes.STRING,
+    references: {
+        model: 'team',
+        key: 'code',
+    }
   },
   resettoken: {
     type: DataTypes.UUID,
@@ -298,12 +306,7 @@ Session.belongsTo(Orga, { foreignKey: 'orgaid' });
 
 sequelize.sync()
   .then(() => {
-    console.log('Database synchronized');
-    /*
-    Session.findAll({ raw: true }).then(data => {
-        console.log(data);
-      });
-      */
+    logger.info('Database synchronized');
   })
   .catch(err => {
     console.error('Error synchronizing database:', err);

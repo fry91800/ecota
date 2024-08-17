@@ -1,10 +1,11 @@
 const db = require('../data/database.js');
 const { Op } = require('sequelize');
-async function getSupplierSelectionDataByErp(erp, attributes){
+const { logger, logEnter, logExit } = require('../config/logger');
+async function getSupplierSelectionDataByErp(erp, attributes) {
     const currentYear = new Date().getFullYear();
     return db.SupplierSelection.findOne({
         attributes: attributes,
-        where: {erp: erp, year: currentYear},
+        where: { erp: erp, year: currentYear },
         raw: true
     })
 }
@@ -54,7 +55,7 @@ async function getRevenueDataByTeam(teamCode) {
     return db.Supplier1.findAll(
         {
             attributes: ["erp", "revenue"],
-            where: {team: teamCode},
+            where: { team: teamCode },
             order: [['revenue', 'DESC']],
             raw: true
         }
@@ -74,127 +75,116 @@ async function getLastYearIntensities() {
 
 async function getLastYearIntensityByErp(erp) {
     const lastYear = new Date().getFullYear() - 1;
-    const record =  await db.SupplierCotaData.findOne(
+    const record = await db.SupplierCotaData.findOne(
         {
             attributes: ["erp", "intensity"],
-            where: {erp: erp, year: lastYear },
+            where: { erp: erp, year: lastYear },
             raw: true
         }
     )
-    if (!record)
-    {
+    if (!record) {
         return null;
     }
     return record.intensity;
 }
 
-async function getErpWithReason()
-{
+async function getErpWithReason() {
     const currentYear = new Date().getFullYear();
     const selectedByReasonData = await db.SupplierSelection.findAll({
         attributes: ['erp'],
         where: {
-          year: currentYear,
-          [Op.or]: [
-            { reason1: true },
-            { reason2: true },
-            { reason3: true },
-            { reason4: true },
-            { reason5: true },
-          ]
+            year: currentYear,
+            [Op.or]: [
+                { reason1: true },
+                { reason2: true },
+                { reason3: true },
+                { reason4: true },
+                { reason5: true },
+            ]
         },
         raw: true
-      });
-      return selectedByReasonData.map(obj => obj.erp)
+    });
+    return selectedByReasonData.map(obj => obj.erp)
 }
 
-async function getCurrentYearSelectedErps()
-{
+async function getCurrentYearSelectedErps() {
     const currentYear = new Date().getFullYear();
     const selected = await db.SupplierSelection.findAll({
         attributes: ['erp'],
         where: {
-          selected: true,
-          year: currentYear
+            selected: true,
+            year: currentYear
         },
         raw: true
-      });
-      return selected.map(obj => obj.erp);
+    });
+    return selected.map(obj => obj.erp);
 }
 
-async function selectFromErps(erpsToSelect)
-{
+async function selectFromErps(erpsToSelect) {
     await db.SupplierSelection.update(
         { selected: true },
         {
-          where: {
-            erp: {
-              [Op.in]: erpsToSelect
+            where: {
+                erp: {
+                    [Op.in]: erpsToSelect
+                }
             }
-          }
         }
-      );
+    );
 }
-async function deselectFromErps(erpsToDeselect)
-{
+async function deselectFromErps(erpsToDeselect) {
     await db.SupplierSelection.update(
         { selected: false },
         {
-          where: {
-            erp: {
-              [Op.in]: erpsToDeselect
+            where: {
+                erp: {
+                    [Op.in]: erpsToDeselect
+                }
             }
-          }
         }
-      );
+    );
 }
-async function getTeamFromErp(erp)
-{
+async function getTeamFromErp(erp) {
     const record = await db.Supplier1.findOne({
         attributes: ["team"],
-        where: {erp: erp},
+        where: { erp: erp },
         raw: true
     });
     return record.team;
 }
-async function checkReason(orgaid, erp, reason, comment)
-{
+async function checkReason(orgaid, erp, reason, comment) {
     try {
         const currentYear = new Date().getFullYear();
-        const updateData = {commenter: orgaid, comment: comment};
+        const updateData = { commenter: orgaid, comment: comment };
         updateData[reason] = true;
         await db.SupplierSelection.update(
             updateData,
             {
-                where: {erp: erp, year: currentYear}
+                where: { erp: erp, year: currentYear }
             }
         )
     }
-    catch(e)
-    {
+    catch (e) {
         console.error("Could not select supplier", e);
     }
 }
-async function uncheckReason(orgaid, erp, reason, comment)
-{
+async function uncheckReason(orgaid, erp, reason, comment) {
     try {
         const currentYear = new Date().getFullYear();
-        const updateData = {commenter: orgaid, comment: comment};
+        const updateData = { commenter: orgaid, comment: comment };
         updateData[reason] = false;
         await db.SupplierSelection.update(
             updateData,
             {
-                where: {erp: erp, year: currentYear}
+                where: { erp: erp, year: currentYear }
             }
         )
     }
-    catch(e)
-    {
+    catch (e) {
         console.error("Could not select supplier", e);
     }
 }
-async function select(erp)
-{
+async function select(erp) {
     try {
         const currentYear = new Date().getFullYear();
         await db.SupplierSelection.update(
@@ -206,13 +196,11 @@ async function select(erp)
             }
         );
     }
-    catch(e)
-    {
+    catch (e) {
         console.error("Could not select supplier", e);
     }
 }
-async function deselect(erp)
-{
+async function deselect(erp) {
     try {
         const currentYear = new Date().getFullYear();
         await db.SupplierSelection.update(
@@ -224,72 +212,76 @@ async function deselect(erp)
             }
         );
     }
-    catch(e)
-    {
+    catch (e) {
         console.error("Could not select supplier", e);
     }
 }
 
-async function addComment(orgaid, year, erp, comment)
-{
+async function addComment(orgaid, year, erp, comment) {
     try {
         await db.SupplierSelection.update(
             { comment: comment, commenter: orgaid },
             { where: { erp: erp, year: year } }
         );
-        return {status: 200};
+        return { status: 200 };
     } catch (e) {
-        console.log("Could not add Comment to the database: ", e)
+        logger.error("Could not add Comment to the database: "+e)
     }
 }
-async function forceSelect(orgaid, bool, erp, comment)
-{
+async function forceSelect(orgaid, bool, erp, comment) {
     try {
         await db.SupplierSelection.update(
             { force: bool, comment: comment, commenter: orgaid },
-            { where: { erp: erp} }
+            { where: { erp: erp } }
         );
-        return {status: 200};
+        return { status: 200 };
     } catch (e) {
-        console.log("Could not force selection to the database: ", e)
+        logger.error("Could not force selection to the database: "+e)
     }
 }
 
-async function getSelectionSupplierData(){
+async function getSelectionSupplierData(userTeam) {
     try {
+        let whereString = ``;
+        if (userTeam) {
+            whereString = `WHERE supplier1.team = '${userTeam}'`;
+        }
         const [results, metadata] = await db.sequelize.query(
             `SELECT supplierselection.force as force, supplierselection.selected as selected, supplierselection.erp as erp,
             supplierselection.name as supplier, supplier1.revenue as revenue, supplierselection.reason1 as reason1,
             supplierselection.reason2 as reason2, supplierselection.reason3 as reason3, supplierselection.reason4 as reason4,
             supplierselection.comment as comment
             FROM supplierselection
-            LEFT JOIN supplier1 on supplierselection.erp = supplier1.erp`,
+            LEFT JOIN supplier1 on supplierselection.erp = supplier1.erp
+            ${whereString}`,
             {
-              type: db.sequelize.QueryTypes.RAW
+                type: db.sequelize.QueryTypes.RAW
             }
-          );
-
-          console.log("resultats: "+JSON.stringify(results));
-          return results
-    } catch (error) {
-        console.log(error)
+        );
+        return results
+    } catch (e) {
+        logger.error("Could not get supplier data for selection: "+e)
     }
 }
+async function getSupplierSelection(query)
+{
+    query["raw"] = true;
+    return db.SupplierSelection.findAll(query);
+}
 
-async function getSelectionSupplierIntensities(){
+async function getSelectionSupplierIntensities() {
     try {
         const [results, metadata] = await db.sequelize.query(
             `SELECT suppliercotadata.erp as erp, intensity.id as "intensityCode", intensity.desc as intensity
             FROM suppliercotadata
             JOIN intensity on suppliercotadata.intensity = intensity.id`,
             {
-              type: db.sequelize.QueryTypes.RAW
+                type: db.sequelize.QueryTypes.RAW
             }
-          );
-          console.log("resultats: "+JSON.stringify(results));
-          return results
-    } catch (error) {
-        console.log(error)
+        );
+        return results
+    } catch (e) {
+        logger.error("Could not get supplier intensities for selection table: "+e)
     }
 }
 module.exports = {
@@ -315,5 +307,6 @@ module.exports = {
     addComment,
     forceSelect,
     getSelectionSupplierData,
-    getSelectionSupplierIntensities
+    getSelectionSupplierIntensities,
+    getSupplierSelection
 }

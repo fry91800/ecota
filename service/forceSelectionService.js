@@ -1,10 +1,11 @@
 const supplierRepository = require("../data/supplierRepository");
+const { logger, logEnter, logExit } = require('../config/logger');
 async function forceSelect(orgaid, bool, erp, comment)
 {
     try {
         return supplierRepository.forceSelect(orgaid, bool, erp, comment);
     } catch (e) {
-        console.log("Error adding comment", e)
+        logger.error("Error adding comment", e)
     }
 }
 

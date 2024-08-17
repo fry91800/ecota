@@ -63,15 +63,33 @@ $(document).ready(function () {
     function forceSelection() {
         $.post(`/${currentLang}/selection/force`, { forceBool: forceBool, erp: currentErp, comment: comment }, function (data) {
             if (data.status === 200) {
-                console.log(currentErp);
                 $(`#comment-${currentErp}`).text(comment);
             }
         });
     }
 
-
+    function loadHistory() {
+        $.get(`/${currentLang}/selection/history`, {}, function (data) {
+            $('#history-table tbody').empty();
+            data.forEach(entry => {
+            $('#history-table tbody').append(`
+                 <tr>
+                    <td>${entry.year}</td>
+                    <td>${entry.selected}</td>
+                    <td>${entry.supplier}</td>
+                    <td>${entry.revenue}</td>
+                    <td>${entry.intensity}</td>
+                    <td>${entry.reason1}</td>
+                    <td>${entry.reason2}</td>
+                    <td>${entry.reason3}</td>
+                    <td>${entry.reason4}</td>
+                    <td>${entry.comment}</td>
+                </tr>
+                `)
+            })
+        });
+    }
     function loadData() {
-        console.log("LAUNCHED")
         $.get(`/${currentLang}/selection/data`, { page, selected, notSelected, supplier, revenueSign, revenue, intensity0, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
             if (page === 1) {
                 $('#data-table tbody').empty();
@@ -88,7 +106,7 @@ $(document).ready(function () {
             <td><input id="reason3-${entry.erp}" type="checkbox" ${entry.reason3 ? 'checked' : ''}></td>
             <td><input id="reason4-${entry.erp}" type="checkbox" ${entry.reason4 ? 'checked' : ''}></td>
             <td id="comment-${entry.erp}" title="${entry.comment ? entry.comment : ''}">${entry.comment ? entry.comment : ''}</td>
-            <td>${entry.history === true ? '...' : ''}</td>
+            <td><span id="history-${entry.erp}">...</td>
             </tr>`);
             for (let i = 1; i <= 4; i++) {
                 $(`#reason${i}-${entry.erp}`).on('change', function () {
@@ -120,6 +138,10 @@ $(document).ready(function () {
                     $(`#force-comment`).val($(`#comment-${entry.erp}`).text());
                     currentErp = entry.erp;
                 });
+                $(`#history-${entry.erp}`).click(function () {
+                    loadHistory();
+                    location.hash = '#viewHistoryPopup';
+                });
             });
         });
     }
@@ -134,7 +156,6 @@ $(document).ready(function () {
     
         // Set a new timeout
         timeout = setTimeout(() => {
-            console.log("Input has not changed for 1 second:");
             revenuePreselection = $('#revenue-input').val();
             intensityPreselection = $('#intensity-input option:selected').data('code');
             preselect();
@@ -160,12 +181,10 @@ $(document).ready(function () {
     $('#filter-selected').click(function () {
         selected = !selected
         $(this).toggleClass('active');
-        console.log("non mais ça va pas !")
         if (selected === true && notSelected === true) {
             notSelected = !notSelected
             $('#filter-not-selected').toggleClass('active');
         }
-        console.log("load from filterselected")
         resetAndLoad();
     });
     $('#filter-not-selected').click(function () {
@@ -175,7 +194,6 @@ $(document).ready(function () {
             selected = !selected
             $('#filter-selected').toggleClass('active');
         }
-        console.log("load from filternotselected")
         resetAndLoad();
     });
     $('#search-supplier').on('keydown', function (event) {
@@ -184,7 +202,6 @@ $(document).ready(function () {
             // Prevent the default action (optional)
             event.preventDefault();
             supplier = $(this).val();
-            console.log("load from resetandload")
             resetAndLoad();
         }
     });
@@ -193,7 +210,6 @@ $(document).ready(function () {
     $('#sort-supplier').click(function () {
         sortField = 'supplier';
         sortOrder = $(this).data('sort');
-        console.log("load from resetandload")
         resetAndLoad();
         $(this).data('sort', sortOrder === 'asc' ? 'desc' : 'asc');
     });
@@ -205,14 +221,12 @@ $(document).ready(function () {
             $(this).text('>');
         }
         revenueSign = $(this).text();
-        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-revenue').on('keydown', function (event) {
         // Check if the pressed key is Enter (key code 13)
         if (event.which === 13) {
             revenue = $(this).val();
-            console.log("load from space")
             resetAndLoad();
         }
     });
@@ -225,7 +239,6 @@ $(document).ready(function () {
     $('#sort-revenue').click(function () {
         sortField = 'revenue';
         sortOrder = $(this).data('sort');
-        console.log("load from srtrev")
         resetAndLoad();
         $(this).data('sort', sortOrder === 'asc' ? 'desc' : 'asc');
     });
@@ -247,7 +260,6 @@ $(document).ready(function () {
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
-        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-intensity1').click(function () {
@@ -265,7 +277,6 @@ $(document).ready(function () {
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
-        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-intensity2').click(function () {
@@ -283,7 +294,6 @@ $(document).ready(function () {
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
-        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-intensity3').click(function () {
@@ -301,7 +311,6 @@ $(document).ready(function () {
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
-        console.log("load from resetandload")
         resetAndLoad();
     });
     $('#filter-intensity4').click(function () {
@@ -319,7 +328,6 @@ $(document).ready(function () {
             $('#filter-intensity3').toggleClass('active');
             $('#filter-intensity4').toggleClass('active');
         }
-        console.log("load from resetandload")
         resetAndLoad();
     });
 
@@ -360,8 +368,8 @@ $(document).ready(function () {
     */
 
 
-    $('#cancel-comment').click(function () {
-        location.hash = '#';
+    $('#cancel-comment').click(function (event) {
+        location.hash = '#test';
     });
     $('#submit-comment').click(function () {
         comment = $('#comment').val();

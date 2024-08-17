@@ -14,7 +14,6 @@ async function shouldSelectErpByRevenue(erp) {
         const campaignRevenue = campaign.revenue;
         // Step 1.5: Obtention de la team sur laquelle se pencher
         const teamCode = await supplierRepository.getTeamFromErp(erp);
-        console.log(teamCode);
         // Step 2: Obtention des data relatives aux CA par divisions
         //const suppliersRevenues = await supplierRepository.getRevenueData(); // [ {erp, revenue, team } ... ]
         const teamData = await supplierRepository.getRevenueDataByTeam(teamCode); // [ {erp, revenue } ... ]
@@ -51,10 +50,8 @@ async function shouldSelectErpByIntensity(erp) {
         const campaignIntensity = campaign.intensity;
         // Step 2: Obtention de l'intensité du supplier pour l'année passée
         const supplierIntensity = await supplierRepository.getLastYearIntensityByErp(erp);
-        console.log(supplierIntensity)
         if (!supplierIntensity) {
             return false }
-        console.log(supplierIntensity)
         // Step 3 Selection des Erps avec aux moins le niveau d'intensité année-1 requis
         if (supplierIntensity >= campaignIntensity) {
             return true
@@ -78,9 +75,6 @@ async function updateSelectionStatus(erp) {
         const shouldRevenue = await shouldSelectErpByRevenue(erp);
         const shouldIntensity = await shouldSelectErpByIntensity(erp);
         const shouldReason = await shouldSelectErpByReason(erp);
-        console.log("shouldRevenue: ", shouldRevenue);
-        console.log("shouldIntensity: ", shouldIntensity);
-        console.log("shouldReason: ", shouldReason);
         const supplierForce = await supplierRepository.getSupplierSelectionDataByErp(erp, ["force"]);
         if (shouldRevenue || shouldIntensity || shouldReason) {
             await supplierRepository.select(erp);
@@ -116,12 +110,11 @@ async function uncheckReason(orgaid, erp, reason, comment) {
     }
 }
 
-async function getSelectionData()
+async function getSelectionData(userTeam)
 {
-    const response = await supplierRepository.getSelectionSupplierData();
+    const response = await supplierRepository.getSelectionSupplierData(userTeam);
     // Update les intensity null à 0
     response.forEach(obj => {
-        console.log("force: "+obj.force)
         if (obj.intensity === null) {
             obj.intensity = "";
         }
@@ -154,7 +147,6 @@ async function getSelectionData()
             }];
         }
     });
-    console.log(mergedData)
     return mergedData;
 }
 

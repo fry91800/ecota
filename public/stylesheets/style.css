@@ -324,6 +324,9 @@ td input[type="checkbox"] {
   font-size: 26px;
 }
 
+#historyPopup{
+  background-color: red;
+}
 
 
 
@@ -405,5 +408,5 @@ input[type="number"]::-ms-reveal {
 
 .right-items {
   display: flex;
-  gap: 5px; /* Space between right items */
+  gap: 0px; /* Space between right items */
 }

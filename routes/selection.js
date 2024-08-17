@@ -6,6 +6,8 @@ const selectionService = require('../service/selectionService');
 const commentService = require('../service/commentService');
 const forceSelectionService = require('../service/forceSelectionService');
 const campaignRepository = require('../data/campaignRepository');
+const orgaRepository = require('../data/orgaRepository');
+const historyService = require("../service/historyService");
 var router = express.Router();
 
 router.get('/', async function (req, res, next) {
@@ -13,8 +15,6 @@ router.get('/', async function (req, res, next) {
     const campaign = await campaignRepository.getCurrentCampain();
     res.locals.campaignRevenue = campaign.revenue;
     res.locals.campaignIntensity = campaign.intensity;
-    console.log("campaign revenue: "+res.locals.campaignRevenue);
-    console.log("campaign intensity: "+res.locals.campaignIntensity);
     res.render("selection");
   } catch (error) {
     next(error)
@@ -85,9 +85,6 @@ router.post('/comment', async function (req, res, next) {
 });
 
 router.post('/force', async function (req, res, next) {
-  console.log(req.body.forceBool);
-  console.log(req.body.erp);
-  console.log(req.body.comment);
   if (!req.body.forceBool || !req.body.erp || !req.body.comment) {
     CustomError.missingFieldError();
   }
@@ -98,7 +95,6 @@ router.post('/force', async function (req, res, next) {
   }
   try {
     const response = await forceSelectionService.forceSelect(orgaid, req.body.forceBool, req.body.erp, req.body.comment);
-    console.log(response);
     res.json(response);
     //res.redirect("/en/selection")
   }
@@ -116,40 +112,13 @@ router.get('/data', async (req, res) => {
   res.locals.formatNumber = (number) => {
     return new Intl.NumberFormat().format(number);
   };
-  /*
-  const data = [
-    { "selected": true, erp: "erp1", "supplier": "Aerostar", "revenue": 1000000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "Buckwild", "revenue": 2000000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": false, erp: "erp3", "supplier": "Cmoney", "revenue": 3000000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": "Supplier particulièrement efficace durant l'hivers et pendant les jours de pluie", history: true },
-    { "selected": true, erp: "erp1", "supplier": "Quantum Synergy", "revenue": 1600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "NexGen Innovations", "revenue": 4600000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Pinnacle Dynamics", "revenue": 1200000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": false, erp: "erp2", "supplier": "Eclipse Enterprises", "revenue": 2700000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Vertex Solutions", "revenue": 1800000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "EchoWave Technologies", "revenue": 2900000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Zenith Ventures", "revenue": 1600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "Fusion Labs", "revenue": 12300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Vanguard Horizons", "revenue": 1300000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": false, erp: "erp2", "supplier": "Celestial Solutions", "revenue": 2400000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Titanium Strategies", "revenue": 4500000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "Apex Creations", "revenue": 7600000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "NovaLink Systems", "revenue": 5600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "Luminary Networks", "revenue": 4400000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": false, erp: "erp1", "supplier": "Stellar Solutions", "revenue": 3400000, "intensity": "Nominal", "intensityCode": 2, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "OmniTech Innovations", "revenue": 2300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Infinity Dynamics", "revenue": 9800000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": false, erp: "erp2", "supplier": "PrimePulse Technologies", "revenue": 7200000, "intensity": "Reduce", "intensityCode": 1, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Elevate Enterprises", "revenue": 6500000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "Radiant Edge", "revenue": 4300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Stratosphere Solutions", "revenue": 2100000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": false, erp: "erp2", "supplier": "Catalyst Creations", "revenue": 5400000, "intensity": "Reduce", "intensityCode": 1, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Horizon Nexus", "revenue": 6600000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "Ascend Technologies", "revenue": 4300000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-    { "selected": true, erp: "erp1", "supplier": "Zenova Systems", "revenue": 1000000, "intensity": "Intensive", "intensityCode": 4, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true},
-    { "selected": true, erp: "erp2", "supplier": "PulsePoint Ventures", "revenue": 2200000, "intensity": "Tightened", "intensityCode": 3, "reason1": false, "reason2": false, "reason3": false, "reason4": false, "comment": null, history: true },
-
-  ]*/
-  const data = await selectionService.getSelectionData();
+  let userTeam = null;
+  if (res.locals.session && res.locals.session.role === 2)
+  {
+    const record = await orgaRepository.getOne({attributes: ["team"], where: {id: res.locals.session.orgaid}});
+    userTeam = record.team;
+  }
+  const data = await selectionService.getSelectionData(userTeam);
   const { page = 1, selected = false, notSelected = false, supplier = '',
     revenueSign = ">", revenue = 0, intensity0 = false, intensity1 = false, intensity2 = false, intensity3 = false, intensity4 = false,
     reason1Selected = false, reason1NotSelected = false, reason2Selected = false, reason2NotSelected = false,
@@ -259,6 +228,22 @@ router.get('/data', async (req, res) => {
   const paginatedData = filteredData.slice(offset, offset + limit);
 
   res.json(paginatedData);
+});
+
+router.get('/history', async (req, res, next) => {
+  try {
+    /*
+    res.json([
+      {year: "2023", selected: "true", supplier:"corp1", revenue: "1000000", intensity: 4, reason1: false, reason2: false, reason3: false, reason4: false, comment: "Bien"},
+      {year: "2022", selected: "true", supplier:"corp1Old", revenue: "2000000", intensity: 4, reason1: true, reason2: false, reason3: false, reason4: false, comment: "Mauvais"}
+    ])
+    */
+   const result = await historyService.getSupplierHistory("erp1", 2024);
+    res.json(result)
+  }
+  catch(e) {
+    next(e)
+  }
 });
 
 module.exports = router;
