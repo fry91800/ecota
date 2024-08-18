@@ -7,7 +7,6 @@ const commentService = require('../service/commentService');
 const forceSelectionService = require('../service/forceSelectionService');
 const campaignService = require('../service/campaignService');
 const orgaRepository = require('../data/orgaRepository');
-const commonRepository = require('../data/commonRepository');
 const historyService = require("../service/historyService");
 var router = express.Router();
 
@@ -15,14 +14,14 @@ router.get('/', async function (req, res, next) {
   try {
     // Step 1: Récupère la campagne la plus récente
     const campaign = await campaignService.getMostRecentCampaign();
-    logger.debug("Most recent campaign found: " + campaign.year)
+    logger.debug("Most recent campaign found: " + campaign.year);
     // Step 2: Ajoute les paramètres de la campagne à disposition du pug
     res.locals.campaignRevenue = campaign.revenue;
     res.locals.campaignIntensity = campaign.intensity;
-    logger.debug("Campaign Revenue: " + campaign.revenue+", Campaign Intensity: "+ campaign.intensity)
+    logger.debug("Campaign Revenue: " + campaign.revenue + ", Campaign Intensity: " + campaign.intensity);
     res.render("selection");
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
@@ -55,10 +54,10 @@ router.post('/reason/:action', async function (req, res, next) {
       orgaid = res.locals.session.orgaid
     }
     if (req.params.action === "check") {
-      response = await selectionService.checkReason(orgaid, req.body.erp, req.body.reason, req.body.comment);
+      response = await selectionService.checkReason(true, orgaid, req.body.erp, req.body.reason, req.body.comment);
     }
     else if (req.params.action === "uncheck") {
-      response = await selectionService.uncheckReason(orgaid, req.body.erp, req.body.reason, req.body.comment);
+      response = await selectionService.checkReason(false, orgaid, req.body.erp, req.body.reason, req.body.comment);
     }
     else {
       CustomError.defaultError();
@@ -71,11 +70,11 @@ router.post('/reason/:action', async function (req, res, next) {
 });
 
 router.post('/comment', async function (req, res, next) {
-  if (!req.body.erp || !req.body.comment) {
-    CustomError.missingFieldError();
-  }
-  const year = req.body.year ?? new Date().getFullYear();
   try {
+    if (!req.body.erp || !req.body.comment) {
+      CustomError.missingFieldError();
+    }
+    const year = req.body.year ?? new Date().getFullYear();
     var orgaid = 1;
     if (res.locals.session) {
       orgaid = res.locals.session.orgaid
@@ -113,8 +112,7 @@ router.get('/data', async (req, res) => {
   };
   let userTeam = null;
   if (res.locals.session && res.locals.session.role === 2) {
-    const record = await commonRepository.getOne("Orga", { attributes: ["team"], where: { id: res.locals.session.orgaid } });
-    userTeam = record.team;
+    userTeam = await orgaRepository.getTeamById(res.locals.session.orgaid);
   }
   const data = await selectionService.getSelectionData(userTeam);
   const { page = 1, selected = false, notSelected = false, supplier = '',

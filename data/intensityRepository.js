@@ -1,4 +1,5 @@
 const db = require('../data/database.js');
+const commonRepository = require("../data/commonRepository");
 async function getOne(query = {}) {
     query["raw"] = true;
     return db.Intensity.findOne(query);

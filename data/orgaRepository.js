@@ -20,7 +20,12 @@ async function startResetPassSession(mail, resetToken) {
     logger.debug("Adding token expiration date: " + tokenExpirationDate + " for user: " + mail);
     await commonRepository.update("Orga", updateResetDeadLine, whereMail)
 }
-
+async function getTeamById(id)
+{
+    const query = { attributes: ["team"], where: { id: id } }
+    const record = await commonRepository.getOne("Orga", query);
+    return record.team
+}
 async function checkResetToken(token) {
     // Step 1: Vérification de l'existence du token
     const query = { where: { resettoken: token } };
@@ -46,5 +51,6 @@ module.exports = {
     getLoginInfo,
     startResetPassSession,
     checkResetToken,
-    resetPass
+    resetPass,
+    getTeamById
 }

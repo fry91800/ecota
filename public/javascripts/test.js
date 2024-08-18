@@ -5,6 +5,14 @@ $(document).ready(function () {
     // Filters
     let selected = false;
     let notSelected = false;
+    let reason1Selected = false;
+    let reason1NotSelected = false;
+    let reason2Selected = false;
+    let reason2NotSelected = false;
+    let reason3Selected = false;
+    let reason3NotSelected = false;
+    let reason4Selected = false;
+    let reason4NotSelected = false;
     let revenueSign = ">";
     let revenue = 0;
     let intensity0 = false;
@@ -41,7 +49,7 @@ $(document).ready(function () {
     }
 
     function reasonAction() {
-        $.post(`/${currentLang}/selection/reason/${encodeURIComponent(action)}`, { erp: currentErp, reason: reason, comment: comment}, function (data) {
+        $.post(`/${currentLang}/selection/reason/${encodeURIComponent(action)}`, { erp: currentErp, reason: reason, comment: comment }, function (data) {
             if (data.selected === true) {
                 $(`#selected-${currentErp}`).prop('checked', true);
                 $(`#comment-${currentErp}`).text(comment);
@@ -69,10 +77,10 @@ $(document).ready(function () {
     }
 
     function loadHistory() {
-        $.get(`/${currentLang}/selection/history`, {erp: currentErp}, function (data) {
+        $.get(`/${currentLang}/selection/history`, { erp: currentErp }, function (data) {
             $('#history-table tbody').empty();
             data.forEach(entry => {
-            $('#history-table tbody').append(`
+                $('#history-table tbody').append(`
                  <tr>
                     <td>${entry.year}</td>
                     <td>${entry.selected}</td>
@@ -89,7 +97,7 @@ $(document).ready(function () {
         });
     }
     function loadData() {
-        $.get(`/${currentLang}/selection/data`, { page, selected, notSelected, supplier, revenueSign, revenue, intensity0, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
+        $.get(`/${currentLang}/selection/data`, { page, selected, notSelected, reason1Selected, reason1NotSelected, reason2Selected, reason2NotSelected, reason3Selected, reason3NotSelected, reason4Selected, reason4NotSelected, supplier, revenueSign, revenue, intensity0, intensity1, intensity2, intensity3, intensity4, sortField, sortOrder }, function (data) {
             if (page === 1) {
                 $('#data-table tbody').empty();
             }
@@ -107,21 +115,21 @@ $(document).ready(function () {
             <td id="comment-${entry.erp}" title="${entry.comment ? entry.comment : ''}">${entry.comment ? entry.comment : ''}</td>
             <td><span id="history-${entry.erp}">...</td>
             </tr>`);
-            for (let i = 1; i <= 4; i++) {
-                $(`#reason${i}-${entry.erp}`).on('change', function () {
-                    currentErp = entry.erp;
-                    $(`#reason-comment`).val($(`#comment-${entry.erp}`).text());
-                    reason = `reason${i}`
-                    if ($(this).is(':checked')) {
-                        action = "check"
-                    } else {
-                        action = "uncheck"
-                    }
-                    location.hash = '#checkReasonPopup';
-                    //reasonAction()
-                });
-                
-            }
+                for (let i = 1; i <= 4; i++) {
+                    $(`#reason${i}-${entry.erp}`).on('change', function () {
+                        currentErp = entry.erp;
+                        $(`#reason-comment`).val($(`#comment-${entry.erp}`).text());
+                        reason = `reason${i}`
+                        if ($(this).is(':checked')) {
+                            action = "check"
+                        } else {
+                            action = "uncheck"
+                        }
+                        location.hash = '#checkReasonPopup';
+                        //reasonAction()
+                    });
+
+                }
                 $(`#comment-${entry.erp}`).click(function () {
                     location.hash = '#newCommentPopup';
                     $(`#comment`).val($(`#comment-${entry.erp}`).text());
@@ -130,8 +138,7 @@ $(document).ready(function () {
                 $(`#selected-${entry.erp}`).click(function () {
                     location.hash = '#addForcePopup';
                     forceBool = false;
-                    if ($(`#selected-${entry.erp}`).is(':checked'))
-                    {
+                    if ($(`#selected-${entry.erp}`).is(':checked')) {
                         forceBool = true;
                     }
                     $(`#force-comment`).val($(`#comment-${entry.erp}`).text());
@@ -153,7 +160,7 @@ $(document).ready(function () {
 
     function handlePreselectionChange() {
         clearTimeout(timeout); // Clear the previous timeout
-    
+
         // Set a new timeout
         timeout = setTimeout(() => {
             revenuePreselection = $('#revenue-input').val();
@@ -196,6 +203,80 @@ $(document).ready(function () {
         }
         resetAndLoad();
     });
+
+    $('#filter-reason1').click(function () {
+        reason1Selected = !reason1Selected
+        $(this).toggleClass('active');
+        if (reason1Selected === true && reason1NotSelected === true) {
+            reason1NotSelected = !reason1NotSelected
+            $('#filter-not-reason1').toggleClass('active');
+        }
+        resetAndLoad();
+    });
+    $('#filter-not-reason1').click(function () {
+        reason1NotSelected = !reason1NotSelected
+        $(this).toggleClass('active');
+        if (reason1Selected === true && reason1NotSelected === true) {
+            reason1Selected = !reason1Selected
+            $('#filter-reason1').toggleClass('active');
+        }
+        resetAndLoad();
+    });
+    $('#filter-reason2').click(function () {
+        reason2Selected = !reason2Selected
+        $(this).toggleClass('active');
+        if (reason2Selected === true && reason2NotSelected === true) {
+            reason2NotSelected = !reason2NotSelected
+            $('#filter-not-reason2').toggleClass('active');
+        }
+        resetAndLoad();
+    });
+    $('#filter-not-reason2').click(function () {
+        reason2NotSelected = !reason2NotSelected
+        $(this).toggleClass('active');
+        if (reason2Selected === true && reason2NotSelected === true) {
+            reason2Selected = !reason2Selected
+            $('#filter-reason2').toggleClass('active');
+        }
+        resetAndLoad();
+    });
+    $('#filter-reason3').click(function () {
+        reason3Selected = !reason3Selected
+        $(this).toggleClass('active');
+        if (reason3Selected === true && reason3NotSelected === true) {
+            reason3NotSelected = !reason3NotSelected
+            $('#filter-not-reason3').toggleClass('active');
+        }
+        resetAndLoad();
+    });
+    $('#filter-not-reason3').click(function () {
+        reason3NotSelected = !reason3NotSelected
+        $(this).toggleClass('active');
+        if (reason3Selected === true && reason3NotSelected === true) {
+            reason3Selected = !reason3Selected
+            $('#filter-reason3').toggleClass('active');
+        }
+        resetAndLoad();
+    });
+    $('#filter-reason4').click(function () {
+        reason4Selected = !reason4Selected
+        $(this).toggleClass('active');
+        if (reason4Selected === true && reason4NotSelected === true) {
+            reason4NotSelected = !reason4NotSelected
+            $('#filter-not-reason4').toggleClass('active');
+        }
+        resetAndLoad();
+    });
+    $('#filter-not-reason4').click(function () {
+        reason4NotSelected = !reason4NotSelected
+        $(this).toggleClass('active');
+        if (reason4Selected === true && reason4NotSelected === true) {
+            reason4Selected = !reason4Selected
+            $('#filter-reason4').toggleClass('active');
+        }
+        resetAndLoad();
+    });
+
     $('#search-supplier').on('keydown', function (event) {
         // Check if the pressed key is Enter (key code 13)
         if (event.which === 13) {
@@ -205,7 +286,7 @@ $(document).ready(function () {
             resetAndLoad();
         }
     });
-    
+
 
     $('#sort-supplier').click(function () {
         sortField = 'supplier';
@@ -347,20 +428,20 @@ $(document).ready(function () {
         $slider.val(value);
         revenue = value;
     }
-
+    
     function updateInputFromSlider() {
         $filterRevenue.val($slider.val());
         revenue = $slider.val();
     }
-
+    
     // Initial synchronization
     updateSliderFromInput();
-
+    
     // Event handler for slider input
     $slider.on('input', function () {
         updateInputFromSlider();
     });
-
+    
     // Event handler for text input
     $filterRevenue.on('input', function () {
         updateSliderFromInput();
