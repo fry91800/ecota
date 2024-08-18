@@ -5,13 +5,14 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const orgaRepository = require('../data/orgaRepository')
 const sessionRepository = require('../data/sessionRepository')
+const commonRepository =  require("../data/commonRepository");
 const { logger, logEnter, logExit } = require('../config/logger');
 
 async function login(mail, pass) {
   logger.debug(`Log in: Mail: ${mail}, Pass: ${pass}`);
   // Step 1: Récupération du record posédant le mail envoyé
   const query = { where: { mail: mail } };
-  const record = await orgaRepository.getOne(query); // [{mail, pass, *}]
+  const record = await commonRepository.getOne("Orga", query); // [{mail, pass, *}]
   // Step 2: Vérification de l'existance du mail dans la base
   if (!record) {
     CustomError.mailNoExistError();
@@ -24,7 +25,7 @@ async function login(mail, pass) {
   // Step 4: Création de la session
   const object = { orgaid: record.id };
   logger.debug(`Log in: Inserting new session for user: ${record.id}`);
-  return sessionRepository.insertOne(object);
+  return commonRepository.insertOne("Session",object);
 }
 
 async function startResetPassSession(mail) {
@@ -35,13 +36,13 @@ async function startResetPassSession(mail) {
     const updateToken = { resettoken: resetToken }
     const whereMail = { where: { mail: mail } }
     logger.debug("Adding reset token: " + resetToken + " for user: " + mail);
-    await orgaRepository.update(updateToken, whereMail);
+    await commonRepository.update("Orga", updateToken, whereMail);
     // Step 3: Ajout de la date d'expiration pour la session de récupération de pass
     const tokenExpirationDate = new Date();
     tokenExpirationDate.setMinutes(tokenExpirationDate.getMinutes() + 15);
     const updateResetDeadLine = { resetdeadline: tokenExpirationDate }
     logger.debug("Adding token expiration date: " + tokenExpirationDate + " for user: " + mail);
-    await orgaRepository.update(updateResetDeadLine, whereMail)
+    await commonRepository.update("Orga", updateResetDeadLine, whereMail)
     return resetToken;
   }
   catch (e) {
@@ -52,7 +53,7 @@ async function startResetPassSession(mail) {
 async function checkResetToken(token) {
   // Step 1: Vérification de l'existence du token
   const query = { where: { resettoken: token } };
-  const record = await orgaRepository.getOne(query);
+  const record = await commonRepository.getOne("Orga", query);
   if (!record) {
     CustomError.defaultError();
   }
@@ -76,7 +77,7 @@ async function resetPass(token, plainPassword) {
     logger.debug("Updating password for token: "+token)
     const updatePass = {pass: hashedPassword};
     const whereToken = { where: { resettoken: token} }
-    await orgaRepository.update(updatePass, whereToken);
+    await commonRepository.update("Orga", updatePass, whereToken);
   }
   catch (e) {
     console.error(e)

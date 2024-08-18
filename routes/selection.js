@@ -5,16 +5,20 @@ const preselectionService = require('../service/preselectionService');
 const selectionService = require('../service/selectionService');
 const commentService = require('../service/commentService');
 const forceSelectionService = require('../service/forceSelectionService');
-const campaignRepository = require('../data/campaignRepository');
+const campaignService = require('../service/campaignService');
 const orgaRepository = require('../data/orgaRepository');
 const historyService = require("../service/historyService");
 var router = express.Router();
 
 router.get('/', async function (req, res, next) {
   try {
-    const campaign = await campaignRepository.getCurrentCampain();
+    // Step 1: Récupère la campagne la plus récente
+    const campaign = await campaignService.getMostRecentCampaign();
+    logger.debug("Most recent campaign found: " + campaign.year)
+    // Step 2: Ajoute les paramètres de la campagne à disposition du pug
     res.locals.campaignRevenue = campaign.revenue;
     res.locals.campaignIntensity = campaign.intensity;
+    logger.debug("Campaign Revenue: " + campaign.revenue+", Campaign Intensity: "+ campaign.intensity)
     res.render("selection");
   } catch (error) {
     next(error)
@@ -23,11 +27,13 @@ router.get('/', async function (req, res, next) {
 
 router.post('/preselection', async function (req, res, next) {
   try {
+    // Step 1: Vérification des paramètres saisies
     const revenue = Number(req.body.revenue);
     const intensity = Number(req.body.intensity);
     if (isNaN(revenue) || isNaN(intensity)) {
       CustomError.wrongParam();
     }
+    // Step 2: Ajouts ds paramètres dans la base
     logger.debug("Calling Selection service preselect: revenue: " + revenue + ", intensity: " + intensity);
     await preselectionService.preselect(revenue, intensity);
     res.redirect("/en/selection")
@@ -42,10 +48,9 @@ router.post('/reason/:action', async function (req, res, next) {
     CustomError.missingFieldError();
   }
   try {
-    let response = {selected: false};
+    let response = { selected: false };
     var orgaid = 1;
-    if (res.locals.session)
-    {
+    if (res.locals.session) {
       orgaid = res.locals.session.orgaid
     }
     if (req.params.action === "check") {
@@ -71,8 +76,7 @@ router.post('/comment', async function (req, res, next) {
   const year = req.body.year ?? new Date().getFullYear();
   try {
     var orgaid = 1;
-    if (res.locals.session)
-    {
+    if (res.locals.session) {
       orgaid = res.locals.session.orgaid
     }
     var response = await commentService.addComment(orgaid, year, req.body.erp, req.body.comment);
@@ -89,8 +93,7 @@ router.post('/force', async function (req, res, next) {
     CustomError.missingFieldError();
   }
   var orgaid = 1;
-  if (res.locals.session)
-  {
+  if (res.locals.session) {
     orgaid = res.locals.session.orgaid
   }
   try {
@@ -103,19 +106,13 @@ router.post('/force', async function (req, res, next) {
   }
 });
 
-
-// TEST
-router.get('/test', (req, res) => {
-  res.render("test");
-});
 router.get('/data', async (req, res) => {
   res.locals.formatNumber = (number) => {
     return new Intl.NumberFormat().format(number);
   };
   let userTeam = null;
-  if (res.locals.session && res.locals.session.role === 2)
-  {
-    const record = await orgaRepository.getOne({attributes: ["team"], where: {id: res.locals.session.orgaid}});
+  if (res.locals.session && res.locals.session.role === 2) {
+    const record = await orgaRepository.getOne({ attributes: ["team"], where: { id: res.locals.session.orgaid } });
     userTeam = record.team;
   }
   const data = await selectionService.getSelectionData(userTeam);
@@ -144,8 +141,7 @@ router.get('/data', async (req, res) => {
   if (revenueSign === "<") {
     filteredData = filteredData.filter(entry => entry.revenue < revenue);
   }
-  if (intensity0 === 'true' || intensity1 === 'true' || intensity2 === 'true' || intensity3 === 'true' || intensity4 === 'true')
-  {
+  if (intensity0 === 'true' || intensity1 === 'true' || intensity2 === 'true' || intensity3 === 'true' || intensity4 === 'true') {
     if (intensity0 === 'false') {
       filteredData = filteredData.filter(entry => entry.intensityCode !== 0);
     }
@@ -238,10 +234,10 @@ router.get('/history', async (req, res, next) => {
       {year: "2022", selected: "true", supplier:"corp1Old", revenue: "2000000", intensity: 4, reason1: true, reason2: false, reason3: false, reason4: false, comment: "Mauvais"}
     ])
     */
-   const result = await historyService.getSupplierHistory("erp1", 2024);
+    const result = await historyService.getSupplierHistory("erp1", 2024);
     res.json(result)
   }
-  catch(e) {
+  catch (e) {
     next(e)
   }
 });

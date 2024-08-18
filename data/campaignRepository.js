@@ -1,35 +1,48 @@
 const db = require('../data/database.js');
-async function getCurrentCampain()
-{
-    const currentYear = new Date().getFullYear();
-    return db.Campaign.findOne({
-        where: { year: currentYear },
-        raw: true
-      })
+
+async function getOne(query = {}) {
+  query["raw"] = true;
+  return db.Campaign.findOne(query);
 }
-async function addCurrentCampaign()
-{
-    const currentYear = new Date().getFullYear();
-    await db.Campaign.create({
-        year: currentYear
-      })
+async function getAll(query = {}) {
+  query["raw"] = true;
+  return db.Campaign.findAll(query);
 }
-async function updateParams(revenue, intensity)
+async function update(update, where)
 {
-    const currentYear = new Date().getFullYear();
-    await db.Campaign.update(
-        {
-          revenue: revenue,
-          intensity: intensity
-        },
-        {
-          where: { year: currentYear }
-        }
-      )
+  await db.Campaign.update(update, where)
 }
-module.exports = 
+async function getCurrentCampain() {
+  const currentYear = new Date().getFullYear();
+  return db.Campaign.findOne({
+    where: { year: currentYear },
+    raw: true
+  })
+}
+async function addCurrentCampaign() {
+  const currentYear = new Date().getFullYear();
+  await db.Campaign.create({
+    year: currentYear
+  })
+}
+async function updateParams(revenue, intensity) {
+  const currentYear = new Date().getFullYear();
+  await db.Campaign.update(
+    {
+      revenue: revenue,
+      intensity: intensity
+    },
+    {
+      where: { year: currentYear }
+    }
+  )
+}
+module.exports =
 {
-    getCurrentCampain,
-    addCurrentCampaign,
-    updateParams
+  getOne,
+  getAll,
+  update,
+  getCurrentCampain,
+  addCurrentCampaign,
+  updateParams
 }

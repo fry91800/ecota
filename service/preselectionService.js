@@ -9,6 +9,7 @@ const intensityRepository = require("../data/intensityRepository.js");
 const supplierRepository = require("../data/supplierRepository.js");
 const teamRepository = require("../data/teamRepository.js");
 
+/*
 async function addCurrentCampaign() {
   try {
     // Step 1: Check si la campagne de l'année courante existe déjà
@@ -22,11 +23,12 @@ async function addCurrentCampaign() {
     console.error("error trying to add the current campaign: ", e)
   }
 }
-
+*/
 async function addPreselectionParams(revenue, intensity) {
   try {
     // Step 1: Obtention de la liste des id intensités possible
-    const possibleIntensities = await intensityRepository.getIntensityLevels(); //[1, 2, 3...]
+    const possibleIntensitiesRecords = await intensityRepository.getAll();
+    const possibleIntensities = possibleIntensitiesRecords.map(row => row.id) //[1, 2, 3...]
     // Step 2: Check validité intensity
     if (!possibleIntensities.includes(intensity)) {
       CustomError.wrongParam();
@@ -35,8 +37,13 @@ async function addPreselectionParams(revenue, intensity) {
     if (revenue < 0 || revenue > 100) {
       CustomError.wrongParam();
     }
-    // Step 4: Ajout dans la base de données
-    await campaignRepository.updateParams(revenue, intensity);
+    // Step 4: Obtention de la campagne la plus récente
+    const query = { order: [["year", "DESC"]] };
+    const mostRecentCampaign = await campaignRepository.getOne(query);
+    // Step 5: Ajout dans la base de données
+    const updateCampaign = {revenue: revenue, intensity: intensity};
+    const where = {where: {year: mostRecentCampaign.year}};
+    await campaignRepository.update(updateCampaign, where);
   }
   catch (e) {
     console.error('Error adding preselection params:', e)
@@ -45,9 +52,14 @@ async function addPreselectionParams(revenue, intensity) {
 //Synchronise la table supplierSelection par rapport à la table maîtresse de suppliers
 async function syncSuppliers() {
   try {
-    const suppliers = await supplierRepository.getMasterData(["erp", "name"]); // [ {erp, name} ... ]
-    // Step 2: Selection des suppliers de la table maîtresse
-    const currentCampaignSuppliers = await supplierRepository.getCurrentCampaignSuppliers(["erp", "name"]); // [ {erp, name} ... ]
+    const queryMaster = {attributes: ["erp", "name"]};
+    const suppliers = await supplierRepository.getOneMaster(queryMaster); // [ {erp, name}, ... ]
+    // Step 2: Selection des suppliers de la campagne courante
+    const queryRecent = { order: [["year", "DESC"]] };
+    const mostRecentCampaign = await campaignRepository.getOne(queryRecent);
+    const campaignYear = mostRecentCampaign.year
+    const querySuppliers = {attributes: ["erp", "name"], where:{year: campaignYear}};
+    const currentCampaignSuppliers = await supplierRepository.getAllSupplierSelection(querySuppliers); // [ {erp, name} ... ]
     // Step 3: Transformation en dictionnaire pour un accès rapide
     const suppliersDic = datastruct.dictionarize(suppliers, "erp", ["name"]);
     const campaignDic = datastruct.dictionarize(currentCampaignSuppliers, "erp", ["name"])
@@ -177,8 +189,8 @@ async function autoCheck() {
 async function preselect(revenuePercentage, intensity) {
   try {
     logEnter();
-    logger.debug("Adding the campaign of "+ new Date().getFullYear());
-    await addCurrentCampaign();
+    //logger.debug("Adding the campaign of "+ new Date().getFullYear());
+    //await addCurrentCampaign();
     logger.debug("Adding the preselection params");
     await addPreselectionParams(revenuePercentage, intensity)
     logger.debug("Sync suppliers");

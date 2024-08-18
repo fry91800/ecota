@@ -9,6 +9,27 @@ async function getSupplierSelectionDataByErp(erp, attributes) {
         raw: true
     })
 }
+async function getOneMaster(query = {}) {
+    query["raw"] = true
+    return db.Supplier1.findAll(query);
+}
+async function getAllMaster(query = {}) {
+    query["raw"] = true
+    return db.Supplier1.findAll(query);
+}
+
+async function getOneSupplierSelection(query = {}) {
+    query["raw"] = true
+    return db.SupplierSelection.findAll(query);
+}
+async function getAllSupplierSelection(query = {}) {
+    query["raw"] = true
+    return db.SupplierSelection.findAll(query);
+}
+async function insertManySupplierSelection(suppliers) {
+    await db.SupplierSelection.bulkCreate(suppliers);
+}
+
 async function getMasterData(attributes) {
     return db.Supplier1.findAll({
         attributes: attributes,
@@ -22,10 +43,6 @@ async function getCurrentCampaignSuppliers(attributes) {
         where: { year: currentYear },
         raw: true
     })
-}
-
-async function supplierSelectionBulkCreate(suppliers) {
-    await db.SupplierSelection.bulkCreate(suppliers);
 }
 
 async function supplierSelectionDestroy(where) {
@@ -285,10 +302,14 @@ async function getSelectionSupplierIntensities() {
     }
 }
 module.exports = {
+    getOneMaster,
+    getAllMaster,
+    getOneSupplierSelection,
+    getAllSupplierSelection,
     getSupplierSelectionDataByErp,
     getMasterData,
     getCurrentCampaignSuppliers,
-    supplierSelectionBulkCreate,
+    insertManySupplierSelection,
     supplierSelectionDestroy,
     currentSupplierSelectionUpdateName,
     getRevenueData,

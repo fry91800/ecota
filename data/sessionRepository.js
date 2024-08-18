@@ -3,13 +3,13 @@ const db = require("./database")
 
 const { logger, logEnter, logExit } = require('../config/logger');
 
+async function update(update, where){
+  return db.Session.update(update, {where: where});
+}
 async function insertOne(object){
   return db.Session.create(object);
 }
 
-async function update(update, where){
-  return db.Session.update(update, {where: where});
-}
 
 async function getSessionData(sessionId) {
   try{
