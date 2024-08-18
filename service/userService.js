@@ -5,68 +5,40 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const orgaRepository = require('../data/orgaRepository')
 const sessionRepository = require('../data/sessionRepository')
-const commonRepository =  require("../data/commonRepository");
+const commonRepository = require("../data/commonRepository");
 const { logger, logEnter, logExit } = require('../config/logger');
 
 async function login(mail, pass) {
-  logger.debug(`Log in: Mail: ${mail}, Pass: ${pass}`);
-  // Step 1: Récupération du record posédant le mail envoyé
-  const query = { where: { mail: mail } };
-  const record = await commonRepository.getOne("Orga", query); // [{mail, pass, *}]
-  // Step 2: Vérification de l'existance du mail dans la base
-  if (!record) {
-    CustomError.mailNoExistError();
-  }
-  // Step 3: Vérification du mot de passe
-  const match = await bcrypt.compare(pass, record.pass);
-  if (!match) {
-    CustomError.wrongPassError();
-  }
-  // Step 4: Création de la session
-  const object = { orgaid: record.id };
-  logger.debug(`Log in: Inserting new session for user: ${record.id}`);
-  return commonRepository.insertOne("Session",object);
+    logger.debug(`Log in attempt: Mail: ${mail}, Pass: ${pass}`);
+    // Step 1: Récupération du record posédant le mail envoyé
+    const record = await orgaRepository.getLoginInfo(mail); // [{id, pass, *}]
+    // Step 2: Vérification de l'existance du mail dans la base
+    if (!record) {
+      CustomError.mailNoExistError();
+    }
+    // Step 3: Vérification du mot de passe
+    const match = await bcrypt.compare(pass, record.pass);
+    if (!match) {
+      CustomError.wrongPassError();
+    }
+    // Step 4: Création de la session
+    const orgaid = record.id
+    return sessionRepository.startSession(orgaid);
 }
 
 async function startResetPassSession(mail) {
-  try {
     // Step 1: Generation d'un token (uuid)
     var resetToken = uuidv4();
     // Step 2: Insertion du token dans la base de donnée
-    const updateToken = { resettoken: resetToken }
-    const whereMail = { where: { mail: mail } }
-    logger.debug("Adding reset token: " + resetToken + " for user: " + mail);
-    await commonRepository.update("Orga", updateToken, whereMail);
-    // Step 3: Ajout de la date d'expiration pour la session de récupération de pass
-    const tokenExpirationDate = new Date();
-    tokenExpirationDate.setMinutes(tokenExpirationDate.getMinutes() + 15);
-    const updateResetDeadLine = { resetdeadline: tokenExpirationDate }
-    logger.debug("Adding token expiration date: " + tokenExpirationDate + " for user: " + mail);
-    await commonRepository.update("Orga", updateResetDeadLine, whereMail)
+    await orgaRepository.startResetPassSession(mail, resetToken)
     return resetToken;
-  }
-  catch (e) {
-    console.error(e);
-  }
 }
 
 async function checkResetToken(token) {
-  // Step 1: Vérification de l'existence du token
-  const query = { where: { resettoken: token } };
-  const record = await commonRepository.getOne("Orga", query);
-  if (!record) {
-    CustomError.defaultError();
-  }
-  // Step 2: Vérification de la validité du token
-  const now = new Date();
-  if (now > record.resetdeadline) {
-    CustomError.tokenExpiredError();
-  }
-  return true;
+  return orgaRepository.checkResetToken(token);
 }
 
 async function resetPass(token, plainPassword) {
-  try {
     // Step 1: Vérification de la validité du token de changement de pass
     await checkResetToken(token);
     // Step 2: Ajout de couche de sécurité
@@ -74,14 +46,8 @@ async function resetPass(token, plainPassword) {
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(plainPassword, salt);
     // Step 2: Modification du pass
-    logger.debug("Updating password for token: "+token)
-    const updatePass = {pass: hashedPassword};
-    const whereToken = { where: { resettoken: token} }
-    await commonRepository.update("Orga", updatePass, whereToken);
-  }
-  catch (e) {
-    console.error(e)
-  }
+    logger.debug("Updating password for token: " + token)
+    await orgaRepository.resetPass(token, hashedPassword);
 }
 
 module.exports = {

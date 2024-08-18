@@ -7,6 +7,7 @@ const commentService = require('../service/commentService');
 const forceSelectionService = require('../service/forceSelectionService');
 const campaignService = require('../service/campaignService');
 const orgaRepository = require('../data/orgaRepository');
+const commonRepository = require('../data/commonRepository');
 const historyService = require("../service/historyService");
 var router = express.Router();
 
@@ -112,7 +113,7 @@ router.get('/data', async (req, res) => {
   };
   let userTeam = null;
   if (res.locals.session && res.locals.session.role === 2) {
-    const record = await orgaRepository.getOne({ attributes: ["team"], where: { id: res.locals.session.orgaid } });
+    const record = await commonRepository.getOne("Orga", { attributes: ["team"], where: { id: res.locals.session.orgaid } });
     userTeam = record.team;
   }
   const data = await selectionService.getSelectionData(userTeam);
@@ -158,23 +159,7 @@ router.get('/data', async (req, res) => {
       filteredData = filteredData.filter(entry => entry.intensityCode !== 4);
     }
   }
-  /*
-    if (intensity0 === 'true') {
-    filteredData = filteredData.filter(entry => entry.intensityCode === 0);
-  }
-  if (intensity1 === 'true') {
-    filteredData = filteredData.filter(entry => entry.intensityCode === 1);
-  }
-  if (intensity2 === 'true') {
-    filteredData = filteredData.filter(entry => entry.intensityCode === 2);
-  }
-  if (intensity3 === 'true') {
-    filteredData = filteredData.filter(entry => entry.intensityCode === 3);
-  }
-  if (intensity4 === 'true') {
-    filteredData = filteredData.filter(entry => entry.intensityCode === 4);
-  }
-    */
+
   if (reason1Selected === 'true') {
     filteredData = filteredData.filter(entry => entry.reason1 === true);
   }
@@ -200,9 +185,6 @@ router.get('/data', async (req, res) => {
     filteredData = filteredData.filter(entry => entry.reason4 === false);
   }
 
-  /*if (city) {
-    filteredData = filteredData.filter(entry => entry.city.toLowerCase().includes(city.toLowerCase()));
-  }*/
   function customCompare(a, b, sortField, sortOrder) {
     const valueA = a[sortField];
     const valueB = b[sortField];
@@ -212,8 +194,6 @@ router.get('/data', async (req, res) => {
     } else if (typeof valueA === 'number' && typeof valueB === 'number') {
       return sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
     } else {
-      // Handle cases where the values are of different types or other types
-      // This is optional and can be customized based on your requirements
       return 0;
     }
   }
@@ -234,7 +214,8 @@ router.get('/history', async (req, res, next) => {
       {year: "2022", selected: "true", supplier:"corp1Old", revenue: "2000000", intensity: 4, reason1: true, reason2: false, reason3: false, reason4: false, comment: "Mauvais"}
     ])
     */
-    const result = await historyService.getSupplierHistory("erp1", 2024);
+    const { erp } = req.query;
+    const result = await historyService.getSupplierHistory(erp);
     res.json(result)
   }
   catch (e) {

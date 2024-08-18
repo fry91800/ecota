@@ -95,20 +95,11 @@ app.use(async function (req, res, next) {
 }
 )
 
-
 app.use('/', indexRouter);
 app.use('/:lang/user', userRouter);
 app.use('/:lang/selection', selectionRouter);
 app.use('/:lang/langswitch', langswitchRouter);
 app.use('/:lang/stats', statsRouter);
-
-
-
-/* catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-*/
 
 //error handler
 app.use(function (err, req, res, next) {
@@ -116,7 +107,7 @@ app.use(function (err, req, res, next) {
   if (err instanceof CustomError) {
     res.status(err.status).json({ error: err.message });
   } else {
-    logger.error(err)
+    logger.error(err.message)
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

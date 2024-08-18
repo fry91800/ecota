@@ -8,6 +8,7 @@ const campaignRepository = require("../data/campaignRepository.js");
 const intensityRepository = require("../data/intensityRepository.js");
 const supplierRepository = require("../data/supplierRepository.js");
 const teamRepository = require("../data/teamRepository.js");
+const commonRepository =  require("../data/commonRepository");
 
 /*
 async function addCurrentCampaign() {
@@ -27,7 +28,7 @@ async function addCurrentCampaign() {
 async function addPreselectionParams(revenue, intensity) {
   try {
     // Step 1: Obtention de la liste des id intensités possible
-    const possibleIntensitiesRecords = await intensityRepository.getAll();
+    const possibleIntensitiesRecords = await commonRepository.getAll("Intensity");
     const possibleIntensities = possibleIntensitiesRecords.map(row => row.id) //[1, 2, 3...]
     // Step 2: Check validité intensity
     if (!possibleIntensities.includes(intensity)) {
@@ -39,11 +40,11 @@ async function addPreselectionParams(revenue, intensity) {
     }
     // Step 4: Obtention de la campagne la plus récente
     const query = { order: [["year", "DESC"]] };
-    const mostRecentCampaign = await campaignRepository.getOne(query);
+    const mostRecentCampaign = await commonRepository.getOne("Campaign", query);
     // Step 5: Ajout dans la base de données
     const updateCampaign = {revenue: revenue, intensity: intensity};
     const where = {where: {year: mostRecentCampaign.year}};
-    await campaignRepository.update(updateCampaign, where);
+    await commonRepository.update("Campaign", updateCampaign, where);
   }
   catch (e) {
     console.error('Error adding preselection params:', e)
@@ -53,13 +54,13 @@ async function addPreselectionParams(revenue, intensity) {
 async function syncSuppliers() {
   try {
     const queryMaster = {attributes: ["erp", "name"]};
-    const suppliers = await supplierRepository.getOneMaster(queryMaster); // [ {erp, name}, ... ]
+    const suppliers = await commonRepository.getAll("Supplier1", queryMaster); // [ {erp, name}, ... ]
     // Step 2: Selection des suppliers de la campagne courante
     const queryRecent = { order: [["year", "DESC"]] };
-    const mostRecentCampaign = await campaignRepository.getOne(queryRecent);
+    const mostRecentCampaign = await commonRepository.getOne("Campaign", queryRecent);
     const campaignYear = mostRecentCampaign.year
     const querySuppliers = {attributes: ["erp", "name"], where:{year: campaignYear}};
-    const currentCampaignSuppliers = await supplierRepository.getAllSupplierSelection(querySuppliers); // [ {erp, name} ... ]
+    const currentCampaignSuppliers = await commonRepository.getAll("SupplierSelection", querySuppliers); // [ {erp, name} ... ]
     // Step 3: Transformation en dictionnaire pour un accès rapide
     const suppliersDic = datastruct.dictionarize(suppliers, "erp", ["name"]);
     const campaignDic = datastruct.dictionarize(currentCampaignSuppliers, "erp", ["name"])
@@ -69,24 +70,25 @@ async function syncSuppliers() {
     // Step 5: Ajout des suppliers manquants
     const suppliersToAdd = Array.from(suppliersErps).filter(erp => !campaignErps.has(erp));
     if (suppliersToAdd.length > 0) {
-      const currentYear = new Date().getFullYear();
       const newSuppliers = suppliersToAdd.map(erp => ({
-        year: currentYear,
+        year: campaignYear,
         erp,
         name: suppliersDic[erp].name
       }));
-      await supplierRepository.supplierSelectionBulkCreate(newSuppliers);
+      await commonRepository.insertMany("SupplierSelection", newSuppliers);
     }
     // Step 6: Suppression des suppliers en trop
     const suppliersToDelete = Array.from(campaignErps).filter(erp => !suppliersErps.has(erp));
     if (suppliersToDelete.length > 0) {
-      await supplierRepository.supplierSelectionDestroy({ erp: suppliersToDelete, year: currentYear })
+      await commonRepository.destroy("SupplierSelection", { erp: suppliersToDelete, year: campaignYear })
     }
 
     // Step 7: Synchronisation des noms
     for (const erp of campaignErps) {
       if (suppliersDic[erp] && campaignDic[erp].name !== suppliersDic[erp].name) {
-        await supplierRepository.currentSupplierSelectionUpdateName(erp, suppliersDic[erp].name);
+        const updateName = { name: suppliersDic[erp].name }
+        const where = { where: { erp: erp, year: currentYear } }
+        await commonRepository.update("SupplierSelection", updateName, where);
       }
     }
   }
@@ -99,12 +101,15 @@ async function syncSuppliers() {
 async function getSelectedByRevenue() {
   try {
     // Step 1: Obtention du revenue % de la campagne actuelle
-    const campaign = await campaignRepository.getCurrentCampain();
+    const queryRecent = { order: [["year", "DESC"]] };
+    const campaign = await commonRepository.getOne("Campaign", queryRecent);
     const campaignRevenue = campaign.revenue;
     // Step 2: Obtention de la liste des teams
-    const teamsCodes = await teamRepository.getCodes(); // [ "MB02", "MB03" ... ]
+    const teams = await commonRepository.getAll("Team", {attributes: ["code"]});
+    const teamsCodes = teams.map(obj=>obj.code) // [ "MB02", "MB03" ... ]
     // Step 3: Obtention des data relatives aux CA par divisions
-    const suppliersRevenues = await supplierRepository.getRevenueData() // [ {erp, revenue, team } ... ]
+    const queryRevenue = { attributes: ["erp", "revenue", "team"],order: [['revenue', 'DESC']]};
+    const suppliersRevenues = await commonRepository.getAll("Supplier1", queryRevenue) // [ {erp, revenue, team } ... ]
     const selectedErps = [];
     // Step 4: Filtrage des erps
     teamsCodes.forEach(teamsCode => {
@@ -136,10 +141,13 @@ async function getSelectedByRevenue() {
 async function getSelectedByIntensity() {
   try {
     // Step 1: Obtention de l'intensity de la campagne actuelle
-    const campaign = await campaignRepository.getCurrentCampain(); // [ { "intensity", * } ]
+    const queryRecent = { order: [["year", "DESC"]] };
+    const campaign = await commonRepository.getOne("Campaign", queryRecent); // [ { "intensity", * } ]
     const campaignIntensity = campaign.intensity;
     // Step 2: Obtention des data relatives aux intensité des suppliers de l'année passée
-    const suppliersIntensities = await supplierRepository.getLastYearIntensities(); // [ {erp, intensity}, ...]
+    const lastYear = campaign.year - 1
+    const queryLastIntensities = {attributes: ["erp", "intensity"],where: { year: lastYear }}
+    const suppliersIntensities = await commonRepository.getAll("SupplierCotaData", queryLastIntensities); // [ {erp, intensity}, ...]
     const selectedErps = [];
     // Step 3 Selection des Erps avec aux moins le niveau d'intensité année-1 requis
     for (const { erp, intensity } of suppliersIntensities) {
@@ -156,7 +164,21 @@ async function getSelectedByIntensity() {
 
 async function getSelectedByReason() {
   try {
-    return supplierRepository.getErpWithReason(); // ["erp1", "erp2", ...]
+    const queryRecent = { order: [["year", "DESC"]] };
+    const campaign = await commonRepository.getOne("Campaign", queryRecent);
+    const currentYear = campaign.year
+    const query = {
+      attributes: ['erp'],where: {year: currentYear,
+          [Op.or]: [
+              { reason1: true },
+              { reason2: true },
+              { reason3: true },
+              { reason4: true },
+              { reason5: true },
+          ]}}
+    const rows = await commonRepository.getAll("SupplierSelection", query);
+    const erps = rows.map(row=>row.erp);
+    return erps; // ["erp1", "erp2", ...]
   }
   catch (e) {
     console.error("Error getting erps with reasons selected: ", e)
@@ -164,22 +186,32 @@ async function getSelectedByReason() {
 }
 async function autoCheck() {
   try {
+    // Step 0: Obtention de la data de l'année courante
+    const queryRecent = { order: [["year", "DESC"]] };
+    const campaign = await commonRepository.getOne("Campaign", queryRecent);
+    const currentYear = campaign.year
     // Step 1: Obtention de la liste des erps devant être sélectionnés
     const selectedByRevenue = await getSelectedByRevenue();
     const selectedByIntensity = await getSelectedByIntensity();
     const selectedByReasons = await getSelectedByReason();
     const should = [...new Set([...selectedByRevenue, ...selectedByIntensity, ...selectedByReasons])]; // ["erp1","erp2", ...]
     // Step 2: Obtention de la liste des erps sélectionnés cette année
-    const current = await supplierRepository.getCurrentYearSelectedErps() // ["erp1","erp2", ...]
+    const querySelected = {attributes: ['erp'], where: { selected: true,year: currentYear}}
+    const currentRows = await commonRepository.getAll("SupplierSelection", querySelected)
+    const current = currentRows.map(obj=>obj.erp) // ["erp1","erp2", ...]
     // Step 3: Selection des manquants
     const erpsToSelect = should.filter(erp => !current.includes(erp));
     if (erpsToSelect.length > 0) {
-      await supplierRepository.selectFromErps(erpsToSelect);
+      const updateSelect = { selected: true }
+      const whereErpToSelect = {where: {erp: {[Op.in]: erpsToSelect}}}
+      await commonRepository.update("SupplierSelection", updateSelect, whereErpToSelect);
     }
     // Step 4: Désélection des suppliers en trop
     const erpsToDeselect = current.filter(erp => !should.includes(erp));
     if (erpsToDeselect.length > 0) {
-      await supplierRepository.deselectFromErps(erpsToDeselect);
+      const updateSelect = { selected: false }
+      const whereErpToSelect = {where: {erp: {[Op.in]: erpsToDeselect}}}
+      await commonRepository.update("SupplierSelection", updateSelect, whereErpToSelect);
     }
   }
   catch (e) {
@@ -189,8 +221,6 @@ async function autoCheck() {
 async function preselect(revenuePercentage, intensity) {
   try {
     logEnter();
-    //logger.debug("Adding the campaign of "+ new Date().getFullYear());
-    //await addCurrentCampaign();
     logger.debug("Adding the preselection params");
     await addPreselectionParams(revenuePercentage, intensity)
     logger.debug("Sync suppliers");

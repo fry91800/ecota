@@ -1,18 +1,23 @@
 //const db = require("./database")
 const db = require("./database")
-
+const commonRepository =  require("../data/commonRepository");
 const { logger, logEnter, logExit } = require('../config/logger');
 
-async function update(update, where){
-  return db.Session.update(update, {where: where});
-}
-async function insertOne(object){
-  return db.Session.create(object);
+async function startSession(orgaid)
+{
+  const object = { orgaid: orgaid };
+  return commonRepository.insertOne("Session",object);
 }
 
+async function endSession(sessionid)
+{
+  var now = Date();
+  const update = { endtime: now }
+  const where = { where: {id: sessionid} };
+  await commonRepository.update("Session", update, where);
+}
 
 async function getSessionData(sessionId) {
-  try{
   const [results, metadata] = await db.sequelize.query(
     `SELECT session.id as sessionid, orga.id as orgaid, orga.mail as mail, orga.role as role
     FROM session
@@ -25,10 +30,6 @@ async function getSessionData(sessionId) {
     }
   );
   return results
-}
-catch(e){
-  logger.error(e);
-}
 }
 
 async function getSessionStats() {
@@ -43,8 +44,8 @@ async function getSessionStats() {
   return results
 }
 module.exports = {
-  insertOne,
-  update,
+  startSession,
+  endSession,
   getSessionData,
   getSessionStats
 }

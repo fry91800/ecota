@@ -6,19 +6,24 @@ const { Op } = require('sequelize');
 const campaignRepository = require("../data/campaignRepository.js");
 const intensityRepository = require("../data/intensityRepository.js");
 const supplierRepository = require("../data/supplierRepository.js");
-const teamRepository = require("../data/teamRepository.js");
+const commonRepository = require("../data/commonRepository.js");
 async function shouldSelectErpByRevenue(erp) {
     try {
         // Step 1: Obtention du revenue % de la campagne actuelle
-        const campaign = await campaignRepository.getCurrentCampain();
+        const query = { order: [["year", "DESC"]] };
+        const campaign = await commonRepository.getOne("Campaign", query);
         const campaignRevenue = campaign.revenue;
-        // Step 1.5: Obtention de la team sur laquelle se pencher
-        const teamCode = await supplierRepository.getTeamFromErp(erp);
-        // Step 2: Obtention des data relatives aux CA par divisions
-        //const suppliersRevenues = await supplierRepository.getRevenueData(); // [ {erp, revenue, team } ... ]
-        const teamData = await supplierRepository.getRevenueDataByTeam(teamCode); // [ {erp, revenue } ... ]
-        // Step 3: Filtrage des données sur la team courrante
-        //const teamData = suppliersRevenues.filter(item => item.team === teamCode);
+        // Step 2: Obtention de la team sur laquelle se pencher
+        const queryTeam = { attributes: ["team"], where: { erp: erp } }
+        const team = await commonRepository.getOne("Supplier1", queryTeam);
+        const teamCode = team.team;
+        // Step 3: Obtention des data relatives aux CA par divisions
+        const queryTeamData = {
+            attributes: ["erp", "revenue"],
+            where: { team: teamCode },
+            order: [['revenue', 'DESC']]
+        }
+        const teamData = await commonRepository.getAll("Supplier1", queryTeamData);
 
         // Step 4: Calcul du revenue totale pour la team courrante
         const totalRevenue = teamData.reduce((acc, { revenue }) => acc + revenue, 0);
@@ -46,12 +51,19 @@ async function shouldSelectErpByRevenue(erp) {
 async function shouldSelectErpByIntensity(erp) {
     try {
         // Step 1: Obtention de l'intensity de la campagne actuelle
-        const campaign = await campaignRepository.getCurrentCampain(); // [ { "intensity", * } ]
+        const query = { order: [["year", "DESC"]] };
+        const campaign = await commonRepository.getOne("Campaign", query);
         const campaignIntensity = campaign.intensity;
         // Step 2: Obtention de l'intensité du supplier pour l'année passée
-        const supplierIntensity = await supplierRepository.getLastYearIntensityByErp(erp);
+        const lastYear = campaign.year - 1;
+        const queryIntensity = {
+            attributes: ["erp", "intensity"],
+            where: { erp: erp, year: lastYear }
+        };
+        const supplierIntensity = await commonRepository.getOne("SupplierCotaData", queryIntensity);
         if (!supplierIntensity) {
-            return false }
+            return false
+        }
         // Step 3 Selection des Erps avec aux moins le niveau d'intensité année-1 requis
         if (supplierIntensity >= campaignIntensity) {
             return true
@@ -64,7 +76,15 @@ async function shouldSelectErpByIntensity(erp) {
     }
 }
 async function shouldSelectErpByReason(erp) {
-    const record = await supplierRepository.getSupplierSelectionDataByErp(erp, ["reason1", "reason2", "reason3", "reason4", "reason5"]);
+
+    const queryRecentCampaign = { order: [["year", "DESC"]] };
+    const campaign = await commonRepository.getOne("Campaign", queryRecentCampaign);
+    const currentYear = campaign.year;
+    const query = {
+        attributes: ["reason1", "reason2", "reason3", "reason4", "reason5"],
+        where: { erp: erp, year: currentYear }
+    }
+    const record = await commonRepository.getOne("SupplierSelection", query);
     if (Object.values(record).includes(true)) {
         return true;
     }
@@ -75,16 +95,34 @@ async function updateSelectionStatus(erp) {
         const shouldRevenue = await shouldSelectErpByRevenue(erp);
         const shouldIntensity = await shouldSelectErpByIntensity(erp);
         const shouldReason = await shouldSelectErpByReason(erp);
-        const supplierForce = await supplierRepository.getSupplierSelectionDataByErp(erp, ["force"]);
+        const query = {
+            attributes: ["force"],
+            where: {erp: erp}
+        }
+        const supplierForce = await commonRepository.getOne("SupplierSelection", query);
         if (shouldRevenue || shouldIntensity || shouldReason) {
-            await supplierRepository.select(erp);
+            // Get the current Campaign year
+            const queryRecentCampaign = { order: [["year", "DESC"]] };
+            const campaign = await commonRepository.getOne("Campaign", queryRecentCampaign);
+            const currentYear = campaign.year;
+            // Update
+            const updateSelect = {selected: true};
+            const whereSelect = {where: { erp: erp, year: currentYear }};
+            await commonRepository.update("SupplierSelection", updateSelect, whereSelect);
             var selected = supplierForce.force ? supplierForce.force : true;
-            return {selected: selected}
+            return { selected: selected }
         }
         else {
-            await supplierRepository.deselect(erp);
+            // Get the current Campaign year
+            const queryRecentCampaign = { order: [["year", "DESC"]] };
+            const campaign = await commonRepository.getOne("Campaign", queryRecentCampaign);
+            const currentYear = campaign.year;
+            // Update
+            const updateDeselect = {selected: false};
+            const whereDeselect = {where: { erp: erp, year: currentYear }};
+            await commonRepository.update("SupplierSelection", updateDeselect, whereDeselect);
             var selected = supplierForce.force ? supplierForce.force : false;
-            return {selected: false}
+            return { selected: false }
         }
     } catch (e) {
         console.error('Could not update selection status: ', e);
@@ -110,9 +148,11 @@ async function uncheckReason(orgaid, erp, reason, comment) {
     }
 }
 
-async function getSelectionData(userTeam)
-{
-    const response = await supplierRepository.getSelectionSupplierData(userTeam);
+async function getSelectionData(userTeam) {
+    const queryRecentCampaign = { order: [["year", "DESC"]] };
+    const campaign = await commonRepository.getOne("Campaign", queryRecentCampaign);
+    const currentCampaignYear = campaign.year;
+    const response = await supplierRepository.getSelectionSupplierData(currentCampaignYear, userTeam);
     // Update les intensity null à 0
     response.forEach(obj => {
         if (obj.intensity === null) {
@@ -130,7 +170,7 @@ async function getSelectionData(userTeam)
     const mergedData = response.flatMap(resp => {
         // Find the matching intensities for the current ERP
         const matchingIntensities = lastYearIntensities.filter(intensity => intensity.erp === resp.erp);
-    
+
         if (matchingIntensities.length > 0) {
             // Return all matching intensities
             return matchingIntensities.map(intensity => ({

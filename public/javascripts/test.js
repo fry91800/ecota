@@ -69,15 +69,14 @@ $(document).ready(function () {
     }
 
     function loadHistory() {
-        $.get(`/${currentLang}/selection/history`, {}, function (data) {
+        $.get(`/${currentLang}/selection/history`, {erp: currentErp}, function (data) {
             $('#history-table tbody').empty();
             data.forEach(entry => {
             $('#history-table tbody').append(`
                  <tr>
                     <td>${entry.year}</td>
                     <td>${entry.selected}</td>
-                    <td>${entry.supplier}</td>
-                    <td>${entry.revenue}</td>
+                    <td>${entry.name}</td>
                     <td>${entry.intensity}</td>
                     <td>${entry.reason1}</td>
                     <td>${entry.reason2}</td>
@@ -139,6 +138,7 @@ $(document).ready(function () {
                     currentErp = entry.erp;
                 });
                 $(`#history-${entry.erp}`).click(function () {
+                    currentErp = entry.erp;
                     loadHistory();
                     location.hash = '#viewHistoryPopup';
                 });
