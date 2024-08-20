@@ -11,11 +11,13 @@ const i18n = require('i18n');
 const accepts = require('accepts');
 
 //Getting the routers
-var indexRouter = require('./routes/index');
-var userRouter = require('./routes/user');
-var selectionRouter = require('./routes/selection');
-var langswitchRouter = require('./routes/langswitch');
-var statsRouter = require('./routes/stats');
+const indexRouter = require('./routes/index');
+const userRouter = require('./routes/user');
+const selectionRouter = require('./routes/selection');
+const cotaRouter = require('./routes/cota');
+const langswitchRouter = require('./routes/langswitch');
+const statsRouter = require('./routes/stats');
+const supplierRouter = require('./routes/supplier');
 
 var app = express();
 
@@ -98,8 +100,10 @@ app.use(async function (req, res, next) {
 app.use('/', indexRouter);
 app.use('/:lang/user', userRouter);
 app.use('/:lang/selection', selectionRouter);
+app.use('/:lang/cota', cotaRouter);
 app.use('/:lang/langswitch', langswitchRouter);
 app.use('/:lang/stats', statsRouter);
+app.use('/:lang/supplier', supplierRouter);
 
 //error handler
 app.use(function (err, req, res, next) {

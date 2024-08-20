@@ -205,6 +205,10 @@ margin-right: 5px;
 
 
 
+.cursorPointer{
+  cursor: pointer;
+}
+
 /* Set the maximum height for table cells and allow wrapping */
 #data-table td {
   max-height: 50px;
@@ -213,8 +217,6 @@ margin-right: 5px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-
 
 th button {
   font-size: 10px;
@@ -272,6 +274,159 @@ td input[type="checkbox"] {
   /* Adjust margin if needed */
 }
 
+
+#data-table {
+  font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
+  border-collapse: collapse;
+  width: 99%;
+  table-layout: fixed;
+  box-shadow: 0px -4px 15px rgba(0, 0, 0, 0.5);
+  margin: auto;
+  border: 1px solid #000000;
+}
+
+#data-table td,
+#data-table th {
+  border-top: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  padding: 8px;
+  text-align: center;
+}
+
+#data-table tr:nth-child(even) {
+  background-color: #f0f1ff
+}
+/*
+#data-table tr:hover {
+  background-color: rgba(242, 244, 255, 0.123)
+}
+*/
+#data-table th {
+  /*background: rgb(0,0,158);
+  background: linear-gradient(0deg, rgba(0,0,158,1) 0%, rgba(87,87,255,1) 100%);*/
+  background-color: #c4c4c4;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+}
+
+#data-table th input {
+  max-width: 70px;
+  height: 15px;
+}
+
+
+
+
+
+/* Set the maximum height for table cells and allow wrapping */
+.table1 td {
+  max-height: 50px;
+  /* Adjust the height as needed */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table1 th button {
+  font-size: 10px;
+  /* Increase font size */
+  cursor: pointer;
+}
+
+.table1 .sort-button {
+  border: none;
+  background-color: transparent;
+  font-size: 14px;
+  /* Increase font size */
+  cursor: pointer;
+}
+
+.table1 .filter-button {
+  font-size: 10px;
+  /* Increase font size */
+  cursor: pointer;
+}
+
+.table1 .filter-button.active {
+  background-color: #3d77ce;
+  border-color: #000000;
+}
+
+.table1 td.intensity4 {
+  color: red;
+  text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+}
+
+.table1 td.intensity3 {
+  color: rgb(255, 166, 0);
+  text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+}
+
+.table1 td.intensity2 {
+  color:limegreen;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+}
+
+.table1 td.intensity1 {
+  color: green;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+}
+
+.table1 td input[type="checkbox"] {
+  transform: scale(1.5);
+  /* Scale up the checkbox by 1.5 times */
+  margin: 10px;
+  /* Adjust margin if needed */
+}
+
+
+.table1 {
+  font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
+  border-collapse: collapse;
+  width: 99%;
+  table-layout: fixed;
+  box-shadow: 0px -4px 15px rgba(0, 0, 0, 0.5);
+  margin: auto;
+  border: 1px solid #000000;
+}
+
+.table1 td,
+.table1 th {
+  border-top: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  padding: 8px;
+  text-align: center;
+}
+
+.table1 tr:nth-child(even) {
+  background-color: #f0f1ff
+}
+/*
+#data-table tr:hover {
+  background-color: rgba(242, 244, 255, 0.123)
+}
+*/
+.table1 th {
+  /*background: rgb(0,0,158);
+  background: linear-gradient(0deg, rgba(0,0,158,1) 0%, rgba(87,87,255,1) 100%);*/
+  background-color: #c4c4c4;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+}
+
+.table1 th input {
+  max-width: 70px;
+  height: 15px;
+}
+
+
+
 /*Overlays*/
 .overlay {
   position: fixed;
@@ -280,7 +435,7 @@ td input[type="checkbox"] {
   left: 0;
   right: 0;
   background: rgba(0, 0, 0, 0.7);
-  transition: opacity 500ms;
+  transition: 500ms;
   visibility: hidden;
   opacity: 0;
   display: flex;
@@ -293,39 +448,63 @@ td input[type="checkbox"] {
   opacity: 1;
 }
 
-#commentPopup {
-  height: 400px;
-  width: 900px;
-  background-color: #5c5c5c;
-  margin-top: 200px;
+.overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+#historyPopup {
+  height: 300px;
+  width: 1200px;
+  background-color: #dddddd;
+  margin-top: 100px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   border: 1px solid grey;
+  border-radius: 3px;
 }
 
-#commentPopup .content {
+.selectionPopup {
+  height: 300px;
+  width: 700px;
+  background-color: #dddddd;
+  margin-top: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border: 1px solid grey;
+  border-radius: 3px;
+}
+
+.selectionPopup .content {
   display: flex;
   justify-content: center;
 }
 
-#commentPopup .content button{
+.selectionPopup .content button{
   margin-top: 20px;
   margin-left: 20px;
   margin-right: 20px;
   cursor: pointer;
 }
 
-#commentPopup textarea{
+.selectionPopup textarea{
   font-size: 26px;
 }
 
-#commentPopup button{
+.selectionPopup button{
   font-size: 26px;
 }
 
-#historyPopup{
+.cancelBar{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cancelButton{
   background-color: red;
+  cursor: pointer;
 }
 
 

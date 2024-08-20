@@ -1,36 +1,39 @@
 
 #newCommentPopup.overlay
-    #commentPopup
+    #commentPopup.selectionPopup
         .content
-            h1 Add a comment
+            h1 Comment
         .content
-            textarea#comment(placeholder="Comment" rows="6" cols="50") 
+            textarea#comment(placeholder="Comment" rows="6" cols="30") 
         .content
-            a#cancel-comment(href="#") cancel
-            button#submit-comment submit
+            button#cancel-comment Cancel
+            button#submit-comment Submit
 
 #addForcePopup.overlay
-    #forcePopup
+    #forcePopup.selectionPopup
         .content
-            h1 Manually Select a supplier
+            h1 Force selection/deselection
         .content
-            textarea#force-comment(placeholder="Comment" rows="6" cols="50") 
+            textarea#force-comment(placeholder="Comment" rows="6" cols="30") 
         .content
-            button#cancel-force cancel
-            button#submit-force submit
+            button#cancel-force Cancel
+            button#submit-force Submit
 
 #checkReasonPopup.overlay
-    #checkReason
+    #checkReason.selectionPopup
         .content
             h1 Check reason
         .content
-            textarea#reason-comment(placeholder="Comment" rows="6" cols="50") 
+            textarea#reason-comment(placeholder="Comment" rows="6" cols="30") 
         .content
-            button#cancel-reason cancel
-            button#submit-reason submit            
+            button#cancel-reason Cancel
+            button#submit-reason Submit            
 #viewHistoryPopup.overlay
     #historyPopup
-        table#history-table
+        .cancelBar
+            button#cancel-history.cancelButton <i class="fa-solid fa-xmark"></i>
+        h1 History
+        table#history-table.table1
             thead
                 tr
                     th Year
@@ -43,7 +46,7 @@
                     th Reason4
                     th Comment
             tbody
-table#data-table
+table#data-table.table1
     thead
         tr
             th Selected
@@ -54,7 +57,7 @@ table#data-table
                 button#sort-supplier.sort-button(data-sort="asc") <i class="fas fa-sort"></i>
                 br
                 input#search-supplier(type="text" placeholder="Search")
-            th Revenue
+            th Revenue €
                 button#sort-revenue.sort-button(data-sort="asc") <i class="fas fa-sort"></i>
                     //br
                     //input#revenue-slider(type="range" min="0" max="10000000" step="100000" value="0")

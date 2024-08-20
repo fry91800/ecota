@@ -83,13 +83,13 @@ $(document).ready(function () {
                 $('#history-table tbody').append(`
                  <tr>
                     <td>${entry.year}</td>
-                    <td>${entry.selected}</td>
+                    <td><input type="checkbox" ${entry.selected ? 'checked' : ''} disabled ></td>
                     <td>${entry.name}</td>
                     <td>${entry.intensity}</td>
-                    <td>${entry.reason1}</td>
-                    <td>${entry.reason2}</td>
-                    <td>${entry.reason3}</td>
-                    <td>${entry.reason4}</td>
+                    <td><input type="checkbox" ${entry.reason1 ? 'checked' : ''} disabled ></td>
+                    <td><input type="checkbox" ${entry.reason2 ? 'checked' : ''} disabled ></td>
+                    <td><input type="checkbox" ${entry.reason3 ? 'checked' : ''} disabled ></td>
+                    <td><input type="checkbox" ${entry.reason4 ? 'checked' : ''} disabled ></td>
                     <td>${entry.comment}</td>
                 </tr>
                 `)
@@ -112,8 +112,8 @@ $(document).ready(function () {
             <td><input id="reason2-${entry.erp}" type="checkbox" ${entry.reason2 ? 'checked' : ''}></td>
             <td><input id="reason3-${entry.erp}" type="checkbox" ${entry.reason3 ? 'checked' : ''}></td>
             <td><input id="reason4-${entry.erp}" type="checkbox" ${entry.reason4 ? 'checked' : ''}></td>
-            <td id="comment-${entry.erp}" title="${entry.comment ? entry.comment : ''}">${entry.comment ? entry.comment : ''}</td>
-            <td><span id="history-${entry.erp}">...</td>
+            <td id="comment-${entry.erp}" class="cursorPointer" title="${entry.comment ? entry.comment : ''}">${entry.comment ? entry.comment : ''}</td>
+            <td id="history-${entry.erp}"><span>...</td>
             </tr>`);
                 for (let i = 1; i <= 4; i++) {
                     $(`#reason${i}-${entry.erp}`).on('change', function () {
@@ -125,18 +125,20 @@ $(document).ready(function () {
                         } else {
                             action = "uncheck"
                         }
-                        location.hash = '#checkReasonPopup';
+                        //location.hash = '#checkReasonPopup';
+                        $(`#checkReasonPopup`).toggleClass("active");
                         //reasonAction()
                     });
 
                 }
                 $(`#comment-${entry.erp}`).click(function () {
-                    location.hash = '#newCommentPopup';
+                    $(`#newCommentPopup`).toggleClass("active");
                     $(`#comment`).val($(`#comment-${entry.erp}`).text());
                     currentErp = entry.erp;
                 });
                 $(`#selected-${entry.erp}`).click(function () {
-                    location.hash = '#addForcePopup';
+                    //location.hash = '#addForcePopup';
+                    $(`#addForcePopup`).toggleClass("active");
                     forceBool = false;
                     if ($(`#selected-${entry.erp}`).is(':checked')) {
                         forceBool = true;
@@ -147,7 +149,8 @@ $(document).ready(function () {
                 $(`#history-${entry.erp}`).click(function () {
                     currentErp = entry.erp;
                     loadHistory();
-                    location.hash = '#viewHistoryPopup';
+                    //location.hash = '#viewHistoryPopup';
+                    $(`#viewHistoryPopup`).toggleClass("active");
                 });
             });
         });
@@ -448,34 +451,40 @@ $(document).ready(function () {
     });
     */
 
-
-    $('#cancel-comment').click(function (event) {
-        location.hash = '#test';
+    $('#cancel-history').click(function () {
+        $(`#viewHistoryPopup`).toggleClass("active");
+    });
+    $('#cancel-comment').click(function () {
+        $(`#newCommentPopup`).toggleClass("active");
     });
     $('#submit-comment').click(function () {
         comment = $('#comment').val();
         sendComment();
-        location.hash = '#';
+        $(`#newCommentPopup`).toggleClass("active");
     });
     $('#cancel-force').click(function () {
         const checkbox = $(`#selected-${currentErp}`);
         checkbox.prop('checked', !checkbox.prop('checked'));
-        location.hash = '#';
+        //location.hash = '#';
+        $(`#addForcePopup`).toggleClass("active");
     });
     $('#submit-force').click(function () {
         comment = $('#force-comment').val();
         forceSelection();
-        location.hash = '#';
+        $(`#addForcePopup`).toggleClass("active");
+        //location.hash = '#';
     });
     $('#cancel-reason').click(function () {
         const checkbox = $(`#${reason}-${currentErp}`);
         checkbox.prop('checked', !checkbox.prop('checked'));
-        location.hash = '#';
+        //location.hash = '#';
+        $(`#checkReasonPopup`).toggleClass("active");
     });
     $('#submit-reason').click(function () {
         comment = $('#reason-comment').val();
         reasonAction();
-        location.hash = '#';
+        //location.hash = '#';
+        $(`#checkReasonPopup`).toggleClass("active");
     });
 
     loadData();
