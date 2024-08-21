@@ -1,22 +1,23 @@
 * {
   font-family: Arial, Helvetica, sans-serif;
-  margin:0;
+  margin: 0;
 }
+
 body {
   font: 20px "Lucida Grande", Helvetica, Arial, sans-serif;
   margin: 0;
 }
 
-body h1{
+body h1 {
   text-align: center;
-  
+
 }
 
 a {
   color: #00B7FF;
 }
 
-#mainBar{
+#mainBar {
   background-color: #070e1d;
   height: 30px;
   display: flex;
@@ -24,26 +25,27 @@ a {
   justify-content: flex-end;
   font-size: 35px;
 }
-#mainBar .item{
-margin-left: 5px;
-margin-right: 5px;
+
+#mainBar .item {
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
-#mainBar img
-{
+#mainBar img {
   border: 1.4px solid transparent;
   border-radius: 2px;
   transition: 0.3s;
 }
-#mainBar img.active
-{
+
+#mainBar img.active {
   border: 1.4px solid #0080ff;
 }
-#mainBar img:hover
-{
+
+#mainBar img:hover {
   border: 1.4px solid #0080ff;
 }
-#mainBar a{
+
+#mainBar a {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,47 +54,53 @@ margin-right: 5px;
   color: #0080ff;
   transition: 0.3s;
 }
-#mainBar a:hover{
+
+#mainBar a:hover {
   color: #0052a5;
 }
-#secondBar{
-  background: linear-gradient(90deg, rgba(177,120,0,1) 0%, rgba(235,175,54,1) 100%);
+
+#secondBar {
+  background: linear-gradient(90deg, rgba(177, 120, 0, 1) 0%, rgba(235, 175, 54, 1) 100%);
   height: 30px;
   border: 1px solid black;
   display: flex;
 
 }
-#secondBar .item button{
+
+#secondBar .item button {
   height: 100%;
   width: fit-content;
   font-size: 20px;
   font-family: Arial, Helvetica, sans-serif;
   cursor: pointer;
   background-color: transparent;
-  border-top:hidden;
-  border-bottom:hidden;
-  border-left:hidden;
+  border-top: hidden;
+  border-bottom: hidden;
+  border-left: hidden;
   border-right: 1px solid;
   font-weight: bold;
   transition: 0.3s;
 }
-#secondBar .item button:hover{
+
+#secondBar .item button:hover {
   background-color: #00000011;
 }
-#secondBar .item .noborder{
-  border-right:hidden;
+
+#secondBar .item .noborder {
+  border-right: hidden;
 }
-#secondBar .item button p{
-  margin:0;
-  color: rgb(0, 0, 0,0.7)
-  }
+
+#secondBar .item button p {
+  margin: 0;
+  color: rgb(0, 0, 0, 0.7)
+}
 
 
 
 
 
-#adminZone{
-  margin-top:50px;
+#adminZone {
+  margin-top: 50px;
   width: 100%;
   height: 140px;
   display: flex;
@@ -100,7 +108,7 @@ margin-right: 5px;
   margin-bottom: 50px;
 }
 
-#adminPanel{
+#adminPanel {
   width: 140px;
   height: 100%;
   background-color: #ececec;
@@ -113,7 +121,7 @@ margin-right: 5px;
   text-align: left;
 }
 
-#adminPanel .item{
+#adminPanel .item {
   display: flex;
   align-items: left;
   justify-content: left;
@@ -121,16 +129,19 @@ margin-right: 5px;
   text-align: left;
   margin-left: 5px;
 }
-#adminPanel p{
+
+#adminPanel p {
   width: 100%;
   font-size: 15px;
 }
-#adminPanel h1{
+
+#adminPanel h1 {
   height: 30%;
   font-size: 20px;
   text-align: center;
 }
-#revenuePanel{
+
+#revenuePanel {
   height: 35%;
   width: 100%;
 }
@@ -142,16 +153,16 @@ margin-right: 5px;
   border: 1px solid black!important;
 }*/
 
-#intensity-input{
-  width: 85px!important;
-  height: 19px!important;
+#intensity-input {
+  width: 85px !important;
+  height: 19px !important;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
 
 
-#intensityPanel{
+#intensityPanel {
   height: 40%;
   width: 100%;
 }
@@ -182,6 +193,7 @@ margin-right: 5px;
 #data-table tr:nth-child(even) {
   background-color: #f0f1ff
 }
+
 /*
 #data-table tr:hover {
   background-color: rgba(242, 244, 255, 0.123)
@@ -205,7 +217,7 @@ margin-right: 5px;
 
 
 
-.cursorPointer{
+.cursorPointer {
   cursor: pointer;
 }
 
@@ -256,7 +268,7 @@ td.intensity3 {
 }
 
 td.intensity2 {
-  color:limegreen;
+  color: limegreen;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
   font-weight: bold;
 }
@@ -296,6 +308,7 @@ td input[type="checkbox"] {
 #data-table tr:nth-child(even) {
   background-color: #f0f1ff
 }
+
 /*
 #data-table tr:hover {
   background-color: rgba(242, 244, 255, 0.123)
@@ -366,7 +379,7 @@ td input[type="checkbox"] {
 }
 
 .table1 td.intensity2 {
-  color:limegreen;
+  color: limegreen;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
   font-weight: bold;
 }
@@ -406,6 +419,7 @@ td input[type="checkbox"] {
 .table1 tr:nth-child(even) {
   background-color: #f0f1ff
 }
+
 /*
 #data-table tr:hover {
   background-color: rgba(242, 244, 255, 0.123)
@@ -482,27 +496,27 @@ td input[type="checkbox"] {
   justify-content: center;
 }
 
-.selectionPopup .content button{
+.selectionPopup .content button {
   margin-top: 20px;
   margin-left: 20px;
   margin-right: 20px;
   cursor: pointer;
 }
 
-.selectionPopup textarea{
+.selectionPopup textarea {
   font-size: 26px;
 }
 
-.selectionPopup button{
+.selectionPopup button {
   font-size: 26px;
 }
 
-.cancelBar{
+.cancelBar {
   display: flex;
   justify-content: flex-end;
 }
 
-.cancelButton{
+.cancelButton {
   background-color: red;
   cursor: pointer;
 }
@@ -513,14 +527,16 @@ td input[type="checkbox"] {
 .input-wrapper {
   position: relative;
   display: inline-block;
-  width: 100%; /* Adjust width as needed */
+  width: 100%;
+  /* Adjust width as needed */
 }
 
 /* Style the input field */
 .input-wrapper input {
   height: 20px;
   width: 85px;
-  padding-right: 30px; /* Space for the suffix */
+  padding-right: 30px;
+  /* Space for the suffix */
   padding: 2px 4px;
   font-size: 16px;
   border: 1px solid #ccc;
@@ -537,7 +553,8 @@ td input[type="checkbox"] {
   transform: translateY(-50%);
   font-size: 16px;
   color: #555;
-  pointer-events: none; /* Prevent interaction with the suffix */
+  pointer-events: none;
+  /* Prevent interaction with the suffix */
 }
 
 
@@ -567,7 +584,8 @@ input[type="number"]::-ms-reveal {
   justify-content: space-between;
   align-items: center;
   background-color: #070e1d;
-  height: 30px; /* Background color for visibility */
+  height: 30px;
+  /* Background color for visibility */
   position: relative;
 }
 
@@ -582,10 +600,176 @@ input[type="number"]::-ms-reveal {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  margin: 0; /* Remove default margin */
+  margin: 0;
+  /* Remove default margin */
 }
 
 .right-items {
   display: flex;
-  gap: 0px; /* Space between right items */
+  gap: 0px;
+  /* Space between right items */
 }
+
+/*#cotaDashboardZone {
+  height: 200px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+#cotaDashboard {
+  height: 200px;
+  width: 50%;
+  display: flex;
+}
+*/
+
+#supplierDashboard {
+  height: 100px;
+  width: 100%;
+}
+
+#supplierDashboardZone {
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#supplierDashboard {
+  background-color: rgb(150, 150, 150);
+  width: 70%;
+  height: fit-content;
+  display: flex;
+}
+
+#dataviz {
+  height: fit-content;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+}
+
+#scoreGauge {
+  background-color: #dddddd;
+  height: 100px;
+  width: 200px;
+  margin-bottom: 3px;
+}
+
+#radarInfo {
+  background-color: #dddddd;
+  height: 30px;
+  width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#supplierCaption {
+  height: 70%;
+  width: fit-content;
+  background-color: rgba(70, 131, 180, 0.333);
+  border: solid 3px steelblue;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+#supplierCaption span{
+  padding: 10px;
+  font-weight: bold;
+}
+#comparisonCaption {
+  height: 70%;
+  width: fit-content;
+  background-color: rgba(255, 166, 0, 0.333);
+  border: solid 3px orange;
+  margin-left: 5px;
+}
+
+#comparisonCaption span{
+  padding: 10px;
+  font-weight: bold;
+}
+
+#scoreRadar {
+  background-color: #dddddd;
+  height: 230px;
+  width: 200px;
+}
+
+#scoreTableZone {
+  flex:1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#scoreTable{
+  background-color: #e7e7e7;
+  height: 99%;
+  width: 99%;
+}
+
+#intensityZone {
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#intensityDashboard {
+  background-color: rgb(216, 216, 216);
+  height: fit-content;
+  width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+#scoreZone {
+  background-color: #00B7FF;
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#scoreDashboard {
+  background-color: darkgrey;
+  height: 100%;
+  width: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#cotaCardList{
+  height: 150px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.cotaCard{
+  width: 130px;
+  height: 100%;
+  margin-left: 20px;
+  margin-right: 20px;
+  text-align: center;
+  border: 1px solid black;
+  border-radius: 2px;
+}
+
+
+
+.perfCard{
+background-color: rgba(70, 131, 180, 0.333);
+}
+.riskCard{
+  background-color: rgba(255, 166, 0, 0.333)
+  }
+

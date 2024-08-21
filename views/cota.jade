@@ -1,0 +1,47 @@
+extends layout
+block content
+    script(src="/javascripts/cota.js")
+    include subviews/mainBar.jade
+    include subviews/secondBar.jade
+    #formPopup.overlay
+        .selectionPopup
+            .cancelBar
+                button#cancel-cota-form.cancelButton <i class="fa-solid fa-xmark"></i>
+            p On Quality Delivery
+            span Yes
+            input(type="checkbox")
+            span No
+            input(type="checkbox")   
+            brbr
+            p Competitive
+            span Yes
+            input(type="checkbox")
+            span No
+            input(type="checkbox")               
+    h1 My actions
+    br
+    #cotaCardList
+        #cotaCard1.perfCard.cotaCard
+            a(href="/#{lang}/supplier/o") Aerostar
+            #cotaCardBody1
+                br
+                br
+                span Perf
+        #cotaCard2.riskCard.cotaCard
+            a(href="") Aerostar
+            br
+            br
+            br
+            span risk
+        #cotaCard3.perfCard.cotaCard
+            a(href="") Sunlight
+            br
+            br
+            br
+            span Perf        
+        #cotaCard4.riskCard.cotaCard
+            a(href="") Sunlight
+            br
+            br
+            br
+            span risk        

@@ -5,7 +5,7 @@ const statsService = require("../service/statsService");
 /* Redirection*/
 router.get('/:orgaid', async function (req, res, next) {
     try {
-        res.send("Cota");
+        res.render("cota");
     }
     catch (e) {
         next(e);

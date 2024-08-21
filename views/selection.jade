@@ -1,7 +1,5 @@
 extends layout
 block content
-    script.
-        var currentLang = !{JSON.stringify(lang)};
     include subviews/mainBar.jade
     include subviews/secondBar.jade
     if (session && session.role == 1)

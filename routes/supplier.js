@@ -5,7 +5,7 @@ const statsService = require("../service/statsService");
 /* Redirection*/
 router.get('/:erp', async function (req, res, next) {
     try {
-        res.send("Supplier page");
+        res.render("supplier");
     }
     catch (e) {
         next(e);
