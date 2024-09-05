@@ -161,6 +161,11 @@ $(document).ready(function () {
         loadData();
     }
 
+    $('#load-more').click(function () {
+        page++;
+        loadData();
+    });
+
     function handlePreselectionChange() {
         clearTimeout(timeout); // Clear the previous timeout
 
@@ -172,11 +177,6 @@ $(document).ready(function () {
             // You can put your custom logic here
         }, 1000); // 1000ms = 1 second
     }
-
-    $('#load-more').click(function () {
-        page++;
-        loadData();
-    });
 
     $('#revenue-input').on('input', function () {
         handlePreselectionChange();

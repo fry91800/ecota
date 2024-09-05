@@ -1,9 +1,14 @@
 $(document).ready(function () {
-    console.log("lol");
     $('#cotaCardBody1').click(function () {
-        $(`#formPopup`).toggleClass("active");
+        $(`#perfPopup`).toggleClass("active");
     });
-    $('#cancel-cota-form').click(function () {
-        $(`#formPopup`).toggleClass("active");
+    $('#cancel-cota-perf-form').click(function () {
+        $(`#perfPopup`).toggleClass("active");
+    });
+    $('#cotaCardBody2').click(function () {
+        $(`#riskPopup`).toggleClass("active");
+    });
+    $('#cancel-cota-risk-form').click(function () {
+        $(`#riskPopup`).toggleClass("active");
     });
 })

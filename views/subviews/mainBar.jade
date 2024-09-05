@@ -10,6 +10,6 @@
                 img(class= lang=="fr" ? 'active' : '' src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg", alt="French Flag", width="30", height="20")
         
         if session
-            .item
+            .item.logoutElement
                 a(href="/#{lang}/user/logout")
                     i.fas.fa-sign-out-alt.2
