@@ -19,9 +19,10 @@ async function endSession(sessionid)
 
 async function getSessionData(sessionId) {
   const [results, metadata] = await db.sequelize.query(
-    `SELECT session.id as sessionid, orga.id as orgaid, orga.mail as mail, orga.role as role
+    `SELECT session.id as id, orga.id as orgaid, position.cotarole as role
     FROM session
     JOIN orga on session.orgaid = orga.id
+    JOIN position on orga.position = position.id    
     WHERE session.id = :var
     AND session.endtime IS NULL`,
     {

@@ -2,6 +2,9 @@
     .left-space
         h1 e-Cotation
     .right-items
+        script(src="/javascripts/themeswitch.js")
+        #theme-toggle.item.themeElement
+                i.fa-regular.fa-moon.1
         .item
             a(href="/#{lang}/langswitch/en")
                 img(class= lang=="en" ? 'active' : '' src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/800px-Flag_of_the_United_Kingdom_%283-5%29.svg.png?20230715230526", alt="British Flag", width="30", height="20")
@@ -12,4 +15,4 @@
         if session
             .item.logoutElement
                 a(href="/#{lang}/user/logout")
-                    i.fas.fa-sign-out-alt.2
+                    i.fas.fa-sign-out-alt

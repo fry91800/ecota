@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const sql = require('sql');
-const sequelize = new Sequelize('ecota', 'postgres', 'posert', {
+const sequelize = new Sequelize('ecota2', 'postgres', 'posert', {
   host: 'localhost',
   dialect: 'postgres',  // Change this according to your database
   logging: process.env.SEQUELIZE_LOGGING === 'true' ? console.log : false
@@ -9,8 +9,173 @@ const { logger, logEnter, logExit } = require('../config/logger');
 
 
 const { DataTypes } = require('sequelize');
-//const sequelize = require('../database');
 
+const Orga = sequelize.define('orga', {
+  // Define attributes
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  number: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  firstname: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  lastname: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  mail: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  phone: {
+    type: DataTypes.STRING,
+  },
+  team: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'team',
+      key: 'id',
+    }
+  },
+  position: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'position',
+      key: 'id',
+    }
+  },
+  plant: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'plant',
+      key: 'id',
+    }
+  },
+  manager: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'orga',
+      key: 'id',
+    }
+  },
+  arrivaldate: {
+    type: DataTypes.DATE,
+  },
+  leavingdate: {
+    type: DataTypes.DATE,
+  },
+  pass: {
+    type: DataTypes.STRING,
+  },
+  resettoken: {
+    type: DataTypes.UUID,
+  },
+  resetdeadline: {
+    type: DataTypes.DATE,
+  }
+}, {
+  freezeTableName: true,
+  //timestamps: false,   // Disable timestamps if your table doesn't have `createdAt` and `updatedAt`
+});
+
+const Session = sequelize.define('session',
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+
+    orgaid: {
+      type: Sequelize.INTEGER,
+      references: {
+        model: 'orga',
+        key: 'id',
+      }
+    },
+    starttime: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    },
+    endtime: {
+      type: DataTypes.DATE
+    }
+  },
+
+  {
+    freezeTableName: true,
+  }
+);
+
+const Team = sequelize.define('team',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    shorttext: {
+      type: DataTypes.STRING,
+    },
+    longtext: {
+      type: DataTypes.STRING,
+    },
+    parent: {
+      type: Sequelize.INTEGER,
+      references: {
+        model: 'team',
+        key: 'id',
+      }
+    },
+  },
+  {
+    freezeTableName: true
+  }
+);
+
+const Position = sequelize.define('position',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    text: {
+      type: DataTypes.STRING,
+    },
+  },
+  {
+    freezeTableName: true
+  }
+);
+const Plant = sequelize.define('plant',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    shorttext: {
+      type: DataTypes.STRING,
+    },
+    longtext: {
+      type: DataTypes.STRING,
+    },
+  },
+  {
+    freezeTableName: true
+  }
+);
+
+//const sequelize = require('../database');
+/*
 const Orga = sequelize.define('Orga', {
   // Define attributes
   id: {
@@ -303,6 +468,7 @@ const SupplierCotaData = sequelize.define('suppliercotadata',
 
 Orga.hasMany(Session, { foreignKey: 'orgaid' });
 Session.belongsTo(Orga, { foreignKey: 'orgaid' });
+*/
 
 sequelize.sync()
   .then(() => {
@@ -316,12 +482,15 @@ module.exports = {
   sequelize,
   Orga,
   Session,
-  Country,
   Team,
+  Position,
+  Plant,
+/*  Country,
   Intensity,
   Supplier1,
   Supplier2,
   Campaign,
   SupplierSelection,
   SupplierCotaData
+*/
 }

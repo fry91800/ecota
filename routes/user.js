@@ -41,7 +41,7 @@ router.get('/logout', async function (req, res, next) {
       return res.redirect("/");
     }
     // Step 1: End the session, server side
-    var sessionid = res.locals.session.sessionid
+    var sessionid = res.locals.session.id
     await sessionRepository.endSession(sessionid);
     // Step 2: End the session, client side
     res.clearCookie('session');

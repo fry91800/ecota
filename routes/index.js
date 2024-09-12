@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 // Redirection depuis la racine
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
+  /*
   if (res.locals.session && res.locals.session.orgaid < 3)
   {
     res.redirect("/en/selection");
@@ -11,7 +12,11 @@ router.get('/', function(req, res, next) {
   {
     res.redirect(`/${res.currentLang}/cota/${res.locals.session.orgaid}`);
   }
-  else{
+    */
+  if (res.locals.session) {
+    res.render("welcome");
+  }
+  else {
     res.redirect("/en/user/login");
   }
 });

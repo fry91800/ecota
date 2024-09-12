@@ -10,14 +10,14 @@ const logFormat = printf(({ level, message, timestamp }) => {
 });
 
 const logger = createLogger({
-  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+  level: process.env.NODE_ENV === 'dev' ? 'debug' : 'info',
   format: combine(
     timestamp(),
     logFormat
   ),
   transports: [
     new transports.Console({
-      format: process.env.NODE_ENV === 'development' ? combine(colorize(), logFormat) : logFormat
+      format: process.env.NODE_ENV === 'dev' ? combine(colorize(), logFormat) : logFormat
     })
   ]
 });

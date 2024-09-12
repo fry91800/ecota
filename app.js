@@ -1,4 +1,4 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -9,8 +9,26 @@ const db = require("./data/database.js");
 const sessionRepository = require("./data/sessionRepository");
 const i18n = require('i18n');
 const accepts = require('accepts');
+const cron = require('node-cron');
 
-//Getting the routers
+console.log(process.env.NODE_ENV)
+// Charge les variables d'environnement
+if (process.env.NODE_ENV === 'prod') {
+  console.log("app detect prod")
+  dotenv.config({ path: './.env.prod' });
+} else {
+  console.log("app detect dev")
+  dotenv.config();
+}
+
+// Setup des tâches automatiques
+// Création de la campagne de l'année courante
+const cronjobs = require("./cronjobs/cronjobs");
+cron.schedule('* * * * *', () => {
+  cronjobs.createCampaign();
+});
+
+// Getting the routers
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const selectionRouter = require('./routes/selection');
@@ -76,7 +94,7 @@ app.use('/:lang', function (req, res, next) {
 });
 
 //Auth middleware
-app.use(async function (req, res, next) {
+/*app.use(async function (req, res, next) {
   try {
     const sessionid = req.cookies.session
     if (sessionid) {
@@ -95,7 +113,33 @@ app.use(async function (req, res, next) {
     logger.error("test: "+e.message);
   }
 }
-)
+)*/
+// Auth middleware
+app.use(async function (req, res, next) {
+  try {
+    const sessionid = req.cookies.session;
+    
+    if (!sessionid) {
+      logger.debug("Auth Middleware: No current session");
+      return next();
+    }
+    
+    const session = await sessionRepository.getSessionData(sessionid);
+    
+    if (!session) {
+      logger.debug("Auth Middleware: Session not found");
+      return next();
+    }
+
+    logger.debug("Auth Middleware: Current session: " + JSON.stringify(session));
+    res.locals.session = session;
+
+    next();
+  } catch (e) {
+    logger.error("Auth Middleware: " + e.message);
+    next(e); // Pass the error to the next middleware
+  }
+});
 
 app.use('/', indexRouter);
 app.use('/:lang/user', userRouter);

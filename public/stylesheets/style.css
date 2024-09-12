@@ -6,6 +6,11 @@
 body {
   font: 20px "Lucida Grande", Helvetica, Arial, sans-serif;
   margin: 0;
+  transition: 0.3s;
+}
+body.dark {
+  background-color: black;
+  color: white;
 }
 
 body h1 {
@@ -27,16 +32,14 @@ a {
 }
 
 #mainBar .item {
-  margin-left: 2px;
-  margin-right: 2px;
-}
-
-#mainBar .logoutElement {
   margin-left: 10px;
   margin-right: 5px;
   display: flex;
   align-items: center;
+  margin-left: 2px;
+  margin-right: 2px;
 }
+
 
 #mainBar img {
   border: 1.4px solid transparent;
@@ -55,6 +58,13 @@ a {
 #mainBar a {
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  text-decoration: none;
+  color: #e5a930;
+  transition: 0.3s;
+}
+#theme-toggle {
   justify-content: center;
   font-size: 20px;
   text-decoration: none;
