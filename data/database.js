@@ -192,6 +192,7 @@ const Country = sequelize.define('country',
     code: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true
     },
     text: {
       type: DataTypes.STRING,
@@ -324,16 +325,20 @@ const Perfo = sequelize.define('td_perfo_synthesis',
   },
 
   {
+    timestamps: false,  // Disable createdAt and updatedAt columns
     freezeTableName: true
   }
 );
 
-const SupplierCotaData = sequelize.define('suppliercotadata',
+const YearlySupplierSnapShot = sequelize.define('yearly_supplier_snapshot',
   {
     year: {
       type: Sequelize.INTEGER,
     },
     vendorcode: {
+      type: DataTypes.STRING,
+    },
+    vendorname: {
       type: DataTypes.STRING,
     },
     mdmcode: {
@@ -349,6 +354,28 @@ const SupplierCotaData = sequelize.define('suppliercotadata',
       type: DataTypes.STRING,
     },
     source: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+    /*
+    indexes: [
+      {
+        unique: true,
+        fields: ['year', 'vendorcode']
+      }
+    ],
+    */
+    freezeTableName: true
+  }
+);
+const YearlyTeamCotaData = sequelize.define('yearly_team_cota_data',
+  {
+    year: {
+      type: Sequelize.INTEGER,
+    },
+    vendorcode: {
       type: DataTypes.STRING,
     },
     purchasingorganisationcode: {
@@ -402,6 +429,14 @@ const SupplierCotaData = sequelize.define('suppliercotadata',
   },
 
   {
+    /*
+    indexes: [
+      {
+        unique: true,
+        fields: ['year', 'vendorcode', 'purchasingorganisationcode']
+      }
+    ],
+    */
     freezeTableName: true
   }
 );
@@ -701,7 +736,8 @@ Orga.hasMany(Session, { foreignKey: 'orgaid' });
 Session.belongsTo(Orga, { foreignKey: 'orgaid' });
 */
 
-sequelize.sync()
+
+sequelize.sync({ alter: true })
   .then(() => {
     logger.info('Database synchronized');
     const cronjobs = require("../cronjobs/cronjobs");
@@ -725,5 +761,6 @@ module.exports = {
   VendorStl,
   VendorSyt,
   Perfo,
-  SupplierCotaData,
+  YearlySupplierSnapShot,
+  YearlyTeamCotaData,
 }

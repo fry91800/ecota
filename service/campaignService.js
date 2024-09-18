@@ -69,25 +69,28 @@ function splitWithTeams(suppliers) {
     }
     return result
 }
+async function addPerfoValues(teamData){
+    const mostRecentCampaign = await getMostRecentCampaign();
+    const currentCampaignYear = mostRecentCampaign.year;
+    const perfo = await supplierRepository.getPerfoGroupByTeam();
+    for (const elt of perfo) {
+        await supplierRepository.updatePerfoValues(currentCampaignYear, elt);
+    }
+}
 async function syncSuppliers() {
     // Step 1: Obtention des data à jour
     const suppliers = await getMasterSuppliers();
     // Step 2: Ajout de l'année et la source de la données
     await addYearAndSource(suppliers)
-    //Step 3: Concaténation des 3 table en 1
-    const allSuppliers = [...suppliers.sap, ...suppliers.syt, ...suppliers.stl];
-    const split = splitWithTeams(allSuppliers)
-    console.log(split);
-    return
-    const sap = [];
-    const stl = [];
-    const syt = [];
-    // Step 2: Transformation en map
-    const sapMap = datastruct.dictionarize(sap, "vendorcode");
-    const stlMap = datastruct.dictionarize(stl, "vendorcode");
-    const sytMap = datastruct.dictionarize(syt, "vendorcode");
-    const cotaMap = new Map();
-    // Step 3: A
+    // Step 3: Concaténation des 3 table en 1
+    const supplierSnapShot = [...suppliers.sap, ...suppliers.syt, ...suppliers.stl];
+    console.log(supplierSnapShot);
+    // Step 4: Split en 3 pour chaque division
+    const teamData = splitWithTeams(supplierSnapShot);
+    await addPerfoValues(teamData)
+    // Step 5: Ajout des données non-existante
+    await supplierRepository.addSupplierSnapShot(supplierSnapShot);
+    await supplierRepository.addTeamData(teamData);
 }
 
 module.exports = {

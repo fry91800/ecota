@@ -3,10 +3,48 @@ const commonRepository = require("../data/commonRepository");
 const { Op } = require('sequelize');
 const { logger, logEnter, logExit } = require('../config/logger');
 
-async function getProdSuppliers(table)
-{
-    const query = { where: { vendortype: { [Op.like]: 'M%'}} }
+async function getProdSuppliers(table) {
+    const query = { where: { vendortype: { [Op.like]: 'M%' } } }
     return commonRepository.getAll(table, query)
+}
+
+async function getPerfoGroupByTeam() {
+    const [results, metadata] = await db.sequelize.query(
+        `SELECT "VendorCode", purchasingorganisationcode, SUM("Value(EUR)") AS "Value(EUR)"
+        FROM td_perfo_synthesis
+        GROUP BY "VendorCode", purchasingorganisationcode;`,
+        {
+            type: db.sequelize.QueryTypes.RAW
+        }
+    );
+    for (const result of results)
+    {
+        result["Value(EUR)"] = Number( result["Value(EUR)"])
+    }
+    return results
+}
+async function addSupplierSnapShot(suppliers) {
+    try {
+        await commonRepository.insertMany("YearlySupplierSnapShot", suppliers)
+    }
+    catch(e)
+    {
+
+    }
+}
+async function addTeamData(teamData) {
+    try {
+        await commonRepository.insertMany("YearlyTeamCotaData", teamData)
+    } catch (error) {
+        
+    }
+}
+async function updatePerfoValues(year, perfo){
+    const update = {"Value(EUR)": perfo["Value(EUR)"]}
+    const where = { where: {year: year, vendorcode: perfo["VendorCode"], purchasingorganisationcode: perfo["purchasingorganisationcode"]}}
+    console.log(update)
+    console.log(where)
+    await commonRepository.update("YearlyTeamCotaData", update, where)
 }
 /*async function getRevenueData() {
     const query = { attributes: ["erp", "revenue", "team"], order: [['revenue', 'DESC']] };
@@ -174,6 +212,10 @@ async function getSelectionSupplierIntensities() {
 }*/
 module.exports = {
     getProdSuppliers,
+    getPerfoGroupByTeam,
+    addSupplierSnapShot,
+    addTeamData,
+    updatePerfoValues
     /*getRevenueData,
     getIntensitiesByYear,
     getSupplierIntensity,
