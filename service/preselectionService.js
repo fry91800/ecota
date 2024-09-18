@@ -1,7 +1,7 @@
 const CustomError = require('../error/CustomError.js');
 const sessionRepository = require("../data/sessionRepository.js");
 const db = require('../data/database.js');
-const datastruct = require("../utility/datastruct.js");
+const datastruct = require("../utils/datastruct.js");
 const { Op } = require('sequelize');
 const { logger, logEnter, logExit } = require('../config/logger');
 const campaignRepository = require("../data/campaignRepository.js");

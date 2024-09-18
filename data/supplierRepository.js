@@ -3,7 +3,12 @@ const commonRepository = require("../data/commonRepository");
 const { Op } = require('sequelize');
 const { logger, logEnter, logExit } = require('../config/logger');
 
-async function getRevenueData() {
+async function getProdSuppliers(table)
+{
+    const query = { where: { vendortype: { [Op.like]: 'M%'}} }
+    return commonRepository.getAll(table, query)
+}
+/*async function getRevenueData() {
     const query = { attributes: ["erp", "revenue", "team"], order: [['revenue', 'DESC']] };
     return commonRepository.getAll("Supplier1", query)
 }
@@ -166,9 +171,10 @@ async function getSelectionSupplierIntensities() {
             }
         );
         return results
-}
+}*/
 module.exports = {
-    getRevenueData,
+    getProdSuppliers,
+    /*getRevenueData,
     getIntensitiesByYear,
     getSupplierIntensity,
     updateSelection,
@@ -189,5 +195,5 @@ module.exports = {
     removeSuppliers,
     updateName,
     getAllRevenueDataByTeam,
-    getTeamFromErp,
+    getTeamFromErp,*/
 }

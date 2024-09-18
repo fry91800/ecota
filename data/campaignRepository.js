@@ -12,10 +12,11 @@ async function updateParams(campaignYear, revenue, intensity) {
   await commonRepository.update("Campaign", update, where)
 }
 
-async function addCurrentCampaign() {
+async function startCampaign() {
   const currentYear = new Date().getFullYear();
   await db.Campaign.create({
-    year: currentYear
+    year: currentYear,
+    revenue: 80
   })
 }
 
@@ -23,5 +24,5 @@ module.exports =
 {
   getMostRecentCampaign,
   updateParams,
-  addCurrentCampaign,
+  startCampaign,
 }

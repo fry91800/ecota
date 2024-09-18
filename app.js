@@ -10,6 +10,7 @@ const sessionRepository = require("./data/sessionRepository");
 const i18n = require('i18n');
 const accepts = require('accepts');
 const cron = require('node-cron');
+const cronjobs = require("./cronjobs/cronjobs");
 
 console.log(process.env.NODE_ENV)
 // Charge les variables d'environnement
@@ -22,10 +23,9 @@ if (process.env.NODE_ENV === 'prod') {
 }
 
 // Setup des tâches automatiques
-// Création de la campagne de l'année courante
-const cronjobs = require("./cronjobs/cronjobs");
-cron.schedule('* * * * *', () => {
-  cronjobs.createCampaign();
+// Création de la campagne de l'année courante, chaque 1er du mois de Juillet à Novembre
+cron.schedule('0 9 1 7-11 *', () => {
+  cronjobs.startCampaign();
 });
 
 // Getting the routers

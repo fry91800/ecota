@@ -11,12 +11,6 @@ const { logger, logEnter, logExit } = require('../config/logger');
 const { DataTypes } = require('sequelize');
 
 const Orga = sequelize.define('orga', {
-  // Define attributes
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
   number: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -116,10 +110,8 @@ const Session = sequelize.define('session',
 
 const Team = sequelize.define('team',
   {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+    code: {
+      type: DataTypes.STRING,
     },
     shorttext: {
       type: DataTypes.STRING,
@@ -142,11 +134,6 @@ const Team = sequelize.define('team',
 
 const Position = sequelize.define('position',
   {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
     text: {
       type: DataTypes.STRING,
     },
@@ -157,10 +144,8 @@ const Position = sequelize.define('position',
 );
 const Plant = sequelize.define('plant',
   {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+    code: {
+      type: DataTypes.STRING,
     },
     shorttext: {
       type: DataTypes.STRING,
@@ -174,6 +159,252 @@ const Plant = sequelize.define('plant',
   }
 );
 
+const Intensity = sequelize.define('intensity',
+  {
+    text: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+    freezeTableName: true
+  }
+);
+const Campaign = sequelize.define('campaign',
+  {
+    year: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      unique: true
+    },
+    revenue: {
+      type: Sequelize.INTEGER,
+    },
+  },
+
+  {
+    freezeTableName: true
+  }
+);
+
+const Country = sequelize.define('country',
+  {
+    code: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    text: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+    freezeTableName: true
+  }
+);
+const VendorSap = sequelize.define('rd_vendor_master_data_sap',
+  {
+    vendorcode: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+    },
+    vendorname: {
+      type: DataTypes.STRING,
+    },
+    country: {
+      type: DataTypes.STRING,
+    },
+    city: {
+      type: DataTypes.STRING,
+    },
+    address: {
+      type: DataTypes.STRING,
+    },
+    mdmcode: {
+      type: DataTypes.STRING,
+    },
+    vendortype: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+    timestamps: false,  // Disable createdAt and updatedAt columns
+    createdAt: false,    // No createdAt column
+    updatedAt: false,    // No updatedAt column
+    freezeTableName: true
+  }
+);
+const VendorStl = sequelize.define('rd_vendor_master_data_stl',
+  {
+    vendorcode: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+    },
+    vendorname: {
+      type: DataTypes.STRING,
+    },
+    country: {
+      type: DataTypes.STRING,
+      references: {
+        model: 'country',
+        key: 'code',
+      }
+    },
+    city: {
+      type: DataTypes.STRING,
+    },
+    address: {
+      type: DataTypes.STRING,
+    },
+    mdmcode: {
+      type: DataTypes.STRING,
+    },
+    vendortype: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+    timestamps: false,  // Disable createdAt and updatedAt columns
+    createdAt: false,    // No createdAt column
+    updatedAt: false,    // No updatedAt column
+    freezeTableName: true
+  }
+);
+const VendorSyt = sequelize.define('rd_vendor_master_data_syt',
+  {
+    vendorcode: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+    },
+    vendorname: {
+      type: DataTypes.STRING,
+    },
+    country: {
+      type: DataTypes.STRING,
+      references: {
+        model: 'country',
+        key: 'code',
+      }
+    },
+    city: {
+      type: DataTypes.STRING,
+    },
+    address: {
+      type: DataTypes.STRING,
+    },
+    mdmcode: {
+      type: DataTypes.STRING,
+    },
+    vendortype: {
+      type: DataTypes.STRING,
+    },
+  },
+
+  {
+    timestamps: false,  // Disable createdAt and updatedAt columns
+    createdAt: false,    // No createdAt column
+    updatedAt: false,    // No updatedAt column
+    freezeTableName: true
+  }
+);
+
+const Perfo = sequelize.define('td_perfo_synthesis',
+  {
+    VendorCode: {
+      type: DataTypes.STRING,
+    },
+    purchasingorganisationcode: {
+      type: DataTypes.STRING,
+    },
+    "Value(EUR)": {
+      type: Sequelize.INTEGER,
+    },
+  },
+
+  {
+    freezeTableName: true
+  }
+);
+
+const SupplierCotaData = sequelize.define('suppliercotadata',
+  {
+    year: {
+      type: Sequelize.INTEGER,
+    },
+    vendorcode: {
+      type: DataTypes.STRING,
+    },
+    mdmcode: {
+      type: DataTypes.STRING,
+    },
+    country: {
+      type: DataTypes.STRING,
+    },
+    city: {
+      type: DataTypes.STRING,
+    },
+    address: {
+      type: DataTypes.STRING,
+    },
+    source: {
+      type: DataTypes.STRING,
+    },
+    purchasingorganisationcode: {
+      type: DataTypes.STRING,
+    },
+    "Value(EUR)": {
+      type: Sequelize.INTEGER,
+    },
+    reason1:
+    {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    reason2:
+    {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    reason3:
+    {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    reason4:
+    {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    forceperfcota:
+    {
+      type: DataTypes.BOOLEAN
+    },
+    forceriskcota:
+    {
+      type: DataTypes.BOOLEAN
+    },
+    comment:
+    {
+      type: Sequelize.TEXT
+    },
+    commenter:
+    {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'orga',
+        key: 'id',
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
+    }
+  },
+
+  {
+    freezeTableName: true
+  }
+);
 //const sequelize = require('../database');
 /*
 const Orga = sequelize.define('Orga', {
@@ -428,9 +659,9 @@ const SupplierSelection = sequelize.define('supplierselection',
       references: {
         model: 'orga',
         key: 'id',
-    },
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE'
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
     }
   },
 
@@ -473,6 +704,8 @@ Session.belongsTo(Orga, { foreignKey: 'orgaid' });
 sequelize.sync()
   .then(() => {
     logger.info('Database synchronized');
+    const cronjobs = require("../cronjobs/cronjobs");
+    cronjobs.startCampaign();
   })
   .catch(err => {
     console.error('Error synchronizing database:', err);
@@ -485,12 +718,12 @@ module.exports = {
   Team,
   Position,
   Plant,
-/*  Country,
   Intensity,
-  Supplier1,
-  Supplier2,
   Campaign,
-  SupplierSelection,
-  SupplierCotaData
-*/
+  Country,
+  VendorSap,
+  VendorStl,
+  VendorSyt,
+  Perfo,
+  SupplierCotaData,
 }
