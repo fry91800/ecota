@@ -42,8 +42,8 @@ $(document).ready(function () {
     //var $slider = $('#revenue-slider');
     var $filterRevenue = $('#filter-revenue');
 
-    function preselect() {
-        $.post(`/${currentLang}/selection/preselection`, { revenue: revenuePreselection, intensity: intensityPreselection }, function (data) {
+    function updateRevenue() {
+        $.post(`/${currentLang}/selection/updaterevenue`, { revenue: revenuePreselection }, function (data) {
             resetAndLoad();
         });
     }
@@ -172,8 +172,7 @@ $(document).ready(function () {
         // Set a new timeout
         timeout = setTimeout(() => {
             revenuePreselection = $('#revenue-input').val();
-            intensityPreselection = $('#intensity-input option:selected').data('code');
-            preselect();
+            updateRevenue();
             // You can put your custom logic here
         }, 1000); // 1000ms = 1 second
     }
@@ -182,11 +181,13 @@ $(document).ready(function () {
         handlePreselectionChange();
     });
 
+    /*
     $('#intensity-input').on('input', function () {
         revenuePreselection = $('#revenue-input').val();
         intensityPreselection = $('#intensity-input option:selected').data('code');
         preselect();
     });
+    */
 
     $('#filter-selected').click(function () {
         selected = !selected

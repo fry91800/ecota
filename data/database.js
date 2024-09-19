@@ -137,6 +137,9 @@ const Position = sequelize.define('position',
     text: {
       type: DataTypes.STRING,
     },
+    cotarole: {
+      type: DataTypes.STRING,
+    },
   },
   {
     freezeTableName: true
@@ -741,7 +744,7 @@ sequelize.sync({ alter: true })
   .then(() => {
     logger.info('Database synchronized');
     const cronjobs = require("../cronjobs/cronjobs");
-    cronjobs.startCampaign();
+    cronjobs.syncSuppliers();
   })
   .catch(err => {
     console.error('Error synchronizing database:', err);

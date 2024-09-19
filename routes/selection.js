@@ -18,13 +18,13 @@ router.get('/', async function (req, res, next) {
     // Step 2: Ajoute les paramètres de la campagne à disposition du pug
     res.locals.campaignRevenue = campaign.revenue;
     res.locals.campaignIntensity = campaign.intensity;
-    logger.debug("Campaign Revenue: " + campaign.revenue + ", Campaign Intensity: " + campaign.intensity);
+    logger.debug("Campaign Revenue: " + campaign.revenue);
     res.render("selection");
   } catch (error) {
     next(error);
   }
 });
-
+/*
 router.post('/preselection', async function (req, res, next) {
   try {
     // Step 1: Vérification des paramètres saisies
@@ -37,6 +37,22 @@ router.post('/preselection', async function (req, res, next) {
     logger.debug("Calling Selection service preselect: revenue: " + revenue + ", intensity: " + intensity);
     await preselectionService.preselect(revenue, intensity);
     res.redirect("/en/selection")
+  }
+  catch (e) {
+    next(e)
+  }
+});
+*/
+router.post('/updaterevenue', async function (req, res, next) {
+  try {
+    // Step 1: Vérification du pourcentage saisie
+    const revenue = Number(req.body.revenue);
+    if (isNaN(revenue)) {
+      CustomError.wrongParam();
+    }
+    // Step 2: Ajouts du pourcentage dans la base
+    await campaignService.updateRevenue(revenue);
+    //res.redirect("/en/selection")
   }
   catch (e) {
     next(e)
@@ -107,6 +123,7 @@ router.post('/force', async function (req, res, next) {
 });
 
 router.get('/data', async (req, res) => {
+  return
   res.locals.formatNumber = (number) => {
     return new Intl.NumberFormat().format(number);
   };

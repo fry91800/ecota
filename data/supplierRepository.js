@@ -42,8 +42,6 @@ async function addTeamData(teamData) {
 async function updatePerfoValues(year, perfo){
     const update = {"Value(EUR)": perfo["Value(EUR)"]}
     const where = { where: {year: year, vendorcode: perfo["VendorCode"], purchasingorganisationcode: perfo["purchasingorganisationcode"]}}
-    console.log(update)
-    console.log(where)
     await commonRepository.update("YearlyTeamCotaData", update, where)
 }
 /*async function getRevenueData() {

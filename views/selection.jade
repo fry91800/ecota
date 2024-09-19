@@ -1,7 +1,8 @@
 extends layout
 block content
+    script(src="/javascripts/selection.js")
     include subviews/mainBar.jade
     include subviews/secondBar.jade
-    if (session && session.role == 1)
+    if (session && session.role == "admin")
         include adminSelection.jade
     include test.jade

@@ -6,8 +6,8 @@ async function getMostRecentCampaign() {
   return commonRepository.getOne("Campaign", query);
 }
 
-async function updateParams(campaignYear, revenue, intensity) {
-  const update = { revenue: revenue, intensity: intensity }
+async function updateRevenue(campaignYear, revenue) {
+  const update = { revenue: revenue }
   const where = { where: { year: campaignYear } }
   await commonRepository.update("Campaign", update, where)
 }
@@ -23,6 +23,6 @@ async function startCampaign() {
 module.exports =
 {
   getMostRecentCampaign,
-  updateParams,
+  updateRevenue,
   startCampaign,
 }

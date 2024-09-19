@@ -3,7 +3,7 @@ const db = require('./database.js');
 async function getOne(table, query = {}) {
     query["raw"] = true;
     //return db[table].findOne(query);
-    return db.Campaign.findOne(query);
+    return db[table].findOne(query);
 }
 async function getAll(table, query = {}) {
     query["raw"] = true;
