@@ -22,5 +22,14 @@
 	"selectionPhase": "Selection phase",
 	"scoringPhase": "Scoring phase",
 	"spendCoverage": "Spend coverage",
-	"previousMonitoringLevel": "Previous monitoring level"
+	"previousMonitoringLevel": "Previous monitoring level",
+	"mailNoExistError": "Mail not found",
+	"missingFieldError": "Missing Field",
+	"mailsent": "Mail sent",
+	"success": "Success",
+	"submit": "Submit",
+	"wrongPassError": "Wrong password",
+	"sign_up": "Sign up",
+	"recovery_text": "A mail will be sent to you with a link to reset your password",
+	"sign_up_text": "A mail will be sent to you with a link to create your password"
 }

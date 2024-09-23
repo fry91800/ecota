@@ -1,13 +1,24 @@
 extends layout
 block content
-  include subviews/mainBar.jade
-  h1 #{__("new_pass")}
-  form(action="/#{lang}/user/passreset?token=#{token}" method="POST")
-    div
-      label(for="pass") #{__("new_pass")}:
-      input(type="text" id="pass" name="pass" required)
-    div
-      label(for="confirmpass") #{__("confirm_new_pass")}:
-      input(type="text" id="confirmpass" name="confirmpass" required)
-    div
-      button(type="submit") Submit
+  include bars/mainBar.jade
+  //- h1 #{__("new_pass")}
+  //- form(action="/#{lang}/user/passreset?token=#{token}" method="POST")
+  //-   div
+  //-     label(for="pass") #{__("new_pass")}:
+  //-     input(type="text" id="pass" name="pass" required)
+  //-   div
+  //-     label(for="confirmpass") #{__("confirm_new_pass")}:
+  //-     input(type="text" id="confirmpass" name="confirmpass" required)
+  //-   div
+  //-     button(type="submit") Submit
+  #pass-reset-zone.form-zone
+      #pass-reset-form.form
+          #pass-reset-header.form-header
+              h1 #{__("new_pass")}
+          .form-item
+              input(type="text" id="mail" name="mail" placeholder=__('new_pass') required)
+          .form-item
+              input(type="text" id="pass" name="pass" placeholder=__('confirm_new_pass') required)
+          #pass-reset-message.message.not-visible Empty
+          #pass-reset-submit.submit
+              #pass-reset-submit-button.submit-button #{__("submit")}

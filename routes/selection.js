@@ -3,6 +3,7 @@ const CustomError = require('../error/CustomError');
 const { logger, logEnter, logExit } = require('../config/logger');
 const preselectionService = require('../service/preselectionService');
 const selectionService = require('../service/selectionService');
+const selectionDataService = require('../service/selectionDataService');
 const commentService = require('../service/commentService');
 const forceSelectionService = require('../service/forceSelectionService');
 const campaignService = require('../service/campaignService');
@@ -24,25 +25,6 @@ router.get('/', async function (req, res, next) {
     next(error);
   }
 });
-/*
-router.post('/preselection', async function (req, res, next) {
-  try {
-    // Step 1: Vérification des paramètres saisies
-    const revenue = Number(req.body.revenue);
-    const intensity = Number(req.body.intensity);
-    if (isNaN(revenue) || isNaN(intensity)) {
-      CustomError.wrongParam();
-    }
-    // Step 2: Ajouts ds paramètres dans la base
-    logger.debug("Calling Selection service preselect: revenue: " + revenue + ", intensity: " + intensity);
-    await preselectionService.preselect(revenue, intensity);
-    res.redirect("/en/selection")
-  }
-  catch (e) {
-    next(e)
-  }
-});
-*/
 router.post('/updaterevenue', async function (req, res, next) {
   try {
     // Step 1: Vérification du pourcentage saisie
@@ -53,32 +35,6 @@ router.post('/updaterevenue', async function (req, res, next) {
     // Step 2: Ajouts du pourcentage dans la base
     await campaignService.updateRevenue(revenue);
     //res.redirect("/en/selection")
-  }
-  catch (e) {
-    next(e)
-  }
-});
-
-router.post('/reason/:action', async function (req, res, next) {
-  if (!req.body.erp || !req.body.reason || !req.body.comment) {
-    CustomError.missingFieldError();
-  }
-  try {
-    let response = { selected: false };
-    var orgaid = 1;
-    if (res.locals.session) {
-      orgaid = res.locals.session.orgaid
-    }
-    if (req.params.action === "check") {
-      response = await selectionService.checkReason(true, orgaid, req.body.erp, req.body.reason, req.body.comment);
-    }
-    else if (req.params.action === "uncheck") {
-      response = await selectionService.checkReason(false, orgaid, req.body.erp, req.body.reason, req.body.comment);
-    }
-    else {
-      CustomError.defaultError();
-    }
-    res.json(response);
   }
   catch (e) {
     next(e)
@@ -104,24 +60,38 @@ router.post('/comment', async function (req, res, next) {
   }
 });
 
-router.post('/force', async function (req, res, next) {
-  if (!req.body.forceBool || !req.body.erp || !req.body.comment) {
+router.post('/check/:action', async function (req, res, next) {
+  if (!req.body.vendorcode || !req.body.purchasingorganisationcode || !req.body.field || !req.body.comment) {
     CustomError.missingFieldError();
   }
-  var orgaid = 1;
-  if (res.locals.session) {
-    orgaid = res.locals.session.orgaid
-  }
   try {
-    const response = await forceSelectionService.forceSelect(orgaid, req.body.forceBool, req.body.erp, req.body.comment);
-    res.json(response);
-    //res.redirect("/en/selection")
+    //let response = { selected: false };
+    var orgaid = 1;
+    if (res.locals.session) {
+      orgaid = res.locals.session.orgaid
+    }
+    const campaign = await campaignService.getMostRecentCampaign();
+    const year = campaign.year;
+    if (req.params.action === "check") {
+      await selectionService.selectionCheck(year, req.body.vendorcode, req.body.purchasingorganisationcode, req.body.field, true, req.body.comment, orgaid);
+    }
+    else if (req.params.action === "uncheck") {
+      await selectionService.selectionCheck(year, req.body.vendorcode, req.body.purchasingorganisationcode, req.body.field, false, req.body.comment, orgaid);
+    }
+    else {
+      CustomError.defaultError();
+    }
+    res.send();
+    //res.json(response);
   }
   catch (e) {
     next(e)
   }
 });
 
+
+
+/*
 router.get('/data', async (req, res) => {
   return
   res.locals.formatNumber = (number) => {
@@ -218,6 +188,22 @@ router.get('/data', async (req, res) => {
 
   const paginatedData = filteredData.slice(offset, offset + limit);
 
+  res.json(paginatedData);
+});
+*/
+
+router.get('/getselectiondata', async (req, res) => {
+  await selectionService.updateAllSelectionData();
+  const limit = 20;
+  const page = req.query.page
+  const offset = (page  - 1) * limit;
+  // Step 1: Obtention des données
+  const data = await selectionService.getSelectionData();
+  let filteredData = data
+  // Step 2: Application des filtres
+  // Step 3: Pagination
+  const paginatedData = filteredData.slice(offset, offset + limit);
+  //console.log(paginatedData)
   res.json(paginatedData);
 });
 

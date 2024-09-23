@@ -1,0 +1,16 @@
+#signup-overlay.overlay
+    #signup-popup.popup
+        .popup-bar
+            .popup-title #{__("sign_up")}
+            #signup-overlay-close.popup-close
+                i.fa-solid.fa-circle-xmark
+        #signup-popup-body-wrapper
+            #signup-popup-body
+                #signup-text.form-text #{__("sign_up_text")}
+                #signup-form.form
+                    .form-item
+                        input(type="text" id="signup-mail" name="mail" placeholder=__('mail') required)
+                    #signup-message.message.not-visible
+                    #signup-submit.submit
+                        #signup-submit-button.submit-button #{__("submit")}
+           

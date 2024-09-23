@@ -1,5 +1,6 @@
 const db = require('../data/database.js');
 const commonRepository = require("../data/commonRepository");
+const campaignRepository = require("../data/campaignRepository");
 const { Op } = require('sequelize');
 const { logger, logEnter, logExit } = require('../config/logger');
 
@@ -17,32 +18,134 @@ async function getPerfoGroupByTeam() {
             type: db.sequelize.QueryTypes.RAW
         }
     );
-    for (const result of results)
-    {
-        result["Value(EUR)"] = Number( result["Value(EUR)"])
+    for (const result of results) {
+        result["Value(EUR)"] = Number(result["Value(EUR)"])
     }
     return results
 }
-async function addSupplierSnapShot(suppliers) {
+async function syncSupplierSnapShot(suppliers) {
     try {
-        await commonRepository.insertMany("YearlySupplierSnapShot", suppliers)
+        // Step 1: Ajout des suppliers non-existants
+        //await commonRepository.insertMany("YearlySupplierSnapShot", suppliers);
+        for (const supplier of suppliers) {
+            // Tentative d'ajout du supplier
+            try {
+                await commonRepository.insert("YearlySupplierSnapShot", supplier);
+            }
+            // Si erreur, la clé est possiblement déjà présente, tentative de changement de nom
+            catch (e) {
+                const update = { vendorname: supplier.vendorname }
+                const where = { where: { year: supplier.year, vendorcode: supplier.vendorcode } }
+                await commonRepository.update("YearlySupplierSnapShot", update, where)
+            }
+
+        }
     }
-    catch(e)
-    {
+    catch (e) {
+        console.log(e)
+    }
+}
+async function syncTeamData(teamData) {
+    try {
+        await commonRepository.insertMany("YearlyTeamCotaData", teamData);
+    } catch (error) {
 
     }
 }
-async function addTeamData(teamData) {
+async function updatePerfoValues(year, perfo) {
+    const update = { "Value(EUR)": perfo["Value(EUR)"] }
+    const where = { where: { year: year, vendorcode: perfo["VendorCode"], purchasingorganisationcode: perfo["purchasingorganisationcode"] } }
+    await commonRepository.update("YearlyTeamCotaData", update, where)
+}
+async function getCurrentCampaignTeamData() {
+    const campaign = await campaignRepository.getMostRecentCampaign();
+    const currentYear = campaign.year
+    //const query = { where: { year: currentYear } };
+    //return commonRepository.getAll("YearlyTeamCotaData", query);
+    const [results, metadata] = await db.sequelize.query(
+        `SELECT teamdata.*, teamdata.id AS teamdataid, snapshot.*
+        FROM yearly_team_cota_data as teamdata
+        LEFT JOIN yearly_supplier_snapshot as snapshot
+        ON teamdata.vendorcode = snapshot.vendorcode
+        WHERE teamdata.year = ${currentYear}
+        AND snapshot.year = ${currentYear}`,
+        {
+            type: db.sequelize.QueryTypes.RAW
+        }
+    );
+    return results
+}
+async function getCurrentCampaignTeamDataNoId() {
+    const results = await getCurrentCampaignTeamData()
+    results.forEach(obj => {
+        delete obj.id;
+    });
+    return results
+}
+
+async function getPreviousCampaignResults() {
+    const campaign = await campaignRepository.getMostRecentCampaign();
+    const previousYear = campaign.year - 1
+    const query = { where: { year: previousYear } };
+    //return commonRepository.getAll("YearlyTeamCotaData", query);
+    //Peut etre simplifié la jointure ne sert à rien
     try {
-        await commonRepository.insertMany("YearlyTeamCotaData", teamData)
-    } catch (error) {
-        
+        const [results, metadata] = await db.sequelize.query(
+            `SELECT teamdata.vendorcode, teamdata.purchasingorganisationcode, teamdata.intensity
+        FROM yearly_team_cota_data as teamdata
+        LEFT JOIN yearly_supplier_snapshot ON teamdata.vendorcode = yearly_supplier_snapshot.vendorcode
+        WHERE teamdata.year = ${previousYear}`,
+            {
+                type: db.sequelize.QueryTypes.RAW
+            }
+        );
+        return results
+    }
+    catch (e) {
+        console.log(e)
     }
 }
-async function updatePerfoValues(year, perfo){
-    const update = {"Value(EUR)": perfo["Value(EUR)"]}
-    const where = { where: {year: year, vendorcode: perfo["VendorCode"], purchasingorganisationcode: perfo["purchasingorganisationcode"]}}
-    await commonRepository.update("YearlyTeamCotaData", update, where)
+
+async function getSupplierSnapShotByYear(year) {
+    query = { where: { year: year } }
+    return commonRepository.getAll("YearlySupplierSnapShot", query)
+}
+
+async function updateAllSelectionData(data) {
+    for (supplier of data) {
+        const update = {
+            perfscope: supplier.perfscope,
+            riskscope: supplier.riskscope,
+            lastsurveillance: supplier.lastsurveillance,
+            spendscope: supplier.spendscope,
+            status: supplier.status,
+            hasnewname: supplier.hasnewname
+        }
+        const where = { where: { year: supplier.year, vendorcode: supplier.vendorcode, purchasingorganisationcode: supplier.purchasingorganisationcode } }
+        await commonRepository.update("YearlyTeamCotaData", update, where);
+    }
+}
+async function updateOneSelectionData(row) {
+    const update = {
+        perfscope: row.perfscope,
+        riskscope: row.riskscope,
+        status: row.status,
+    }
+    logger.debug(`Supplier: ${row.vendorcode} Team: ${row.purchasingorganisationcode} update: ${JSON.stringify(update)}`);
+    const where = { where: { year: row.year, vendorcode: row.vendorcode, purchasingorganisationcode: row.purchasingorganisationcode } }
+    await commonRepository.update("YearlyTeamCotaData", update, where);
+}
+async function getOneTeamData(year, vendorcode, purchasingorganisationcode){
+    const where = { where: { year: year, vendorcode: vendorcode, purchasingorganisationcode: purchasingorganisationcode } };
+    return commonRepository.getOne("YearlyTeamCotaData", where)
+}
+
+//TODO reunir les 2 fonctions
+async function selectionCheck(year, vendorcode, purchasingorganisationcode, field, bool, comment, orgaid) {
+    const updateData = { commenter: orgaid, comment: comment };
+    updateData[field] = bool;
+    const where = { where: { year: year, vendorcode: vendorcode, purchasingorganisationcode: purchasingorganisationcode } }
+    await commonRepository.update("YearlyTeamCotaData", updateData, where)
 }
 /*async function getRevenueData() {
     const query = { attributes: ["erp", "revenue", "team"], order: [['revenue', 'DESC']] };
@@ -211,9 +314,17 @@ async function getSelectionSupplierIntensities() {
 module.exports = {
     getProdSuppliers,
     getPerfoGroupByTeam,
-    addSupplierSnapShot,
-    addTeamData,
-    updatePerfoValues
+    syncSupplierSnapShot,
+    syncTeamData,
+    updatePerfoValues,
+    getCurrentCampaignTeamData,
+    getCurrentCampaignTeamDataNoId,
+    getPreviousCampaignResults,
+    getSupplierSnapShotByYear,
+    updateAllSelectionData,
+    updateOneSelectionData,
+    getOneTeamData,
+    selectionCheck,
     /*getRevenueData,
     getIntensitiesByYear,
     getSupplierIntensity,

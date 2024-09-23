@@ -22,5 +22,17 @@
 	"selectionPhase": "Phase de sélection",
 	"scoringPhase": "Phase de cotation",
 	"spendCoverage": "Chiffre d'affaire",
-	"previousMonitoringLevel": "Niveau de surveillance (N-1)"
+	"previousMonitoringLevel": "Niveau de surveillance (N-1)",
+	"mailNoExistError": "Mail inexistant",
+	"missingFieldError": "Champ manquant",
+	"e is not defined": "e is not defined",
+	"mailsent": "Mail envoyé",
+	"submit": "OK",
+	"wrongPassError": "Mauvais mot de passe",
+	"success": "success",
+	"login": "login",
+	"forgotpass": "forgotpass",
+	"sign_up": "Inscription",
+	"recovery_text": "Un mail vous sera envoyé avec un lien pour réinitialiser votre mot de passe",
+	"sign_up_text": "Un mail vous sera envoyé avec un lien pour créer votre mot de passe"
 }

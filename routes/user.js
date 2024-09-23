@@ -27,9 +27,10 @@ router.post('/login', async function (req, res, next) {
     // Step 3: Set le cookie de session
     sessionTime = 10 * 365 * 24 * 60 * 60 * 1000 // 10 years
     res.cookie('session', session.id, { maxAge: sessionTime, httpOnly: true });
-    res.redirect("/");
+    //res.redirect("/");
+    res.json({ status: 200, message: req.__("success") })
   } catch (e) {
-    next(e);
+    res.json({ status: e.status, message: req.__(e.message) })
   }
 });
 
@@ -68,9 +69,9 @@ router.post('/recovery', async function (req, res, next) {
     var resetToken = await userService.startResetPassSession(req.body.mail);
     // Step 2: Envoie du lien de récupération à l'utilisateur
     logger.info("http://localhost:3000/fr/user/passreset?token=" + resetToken)
-    res.redirect("/");
+    res.json({ status: 200, message: req.__("mailsent") })
   } catch (e) {
-    next(e);
+    res.json({ status: e.status, message: req.__(e.message) })
   }
 });
 
@@ -98,8 +99,8 @@ router.post('/passreset', async function (req, res, next) {
     if (req.body.pass !== req.body.confirmpass) {
       CustomError.differentPassError();
     }
-      await userService.resetPass(req.query.token, req.body.pass);
-      res.redirect("/");
+    await userService.resetPass(req.query.token, req.body.pass);
+    res.redirect("/");
   } catch (e) {
     next(e);
   }

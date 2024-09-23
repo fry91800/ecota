@@ -10,22 +10,19 @@ const sessionRepository = require("./data/sessionRepository");
 const i18n = require('i18n');
 const accepts = require('accepts');
 const cron = require('node-cron');
-const cronjobs = require("./cronjobs/cronjobs");
+const campaignService = require("./service/campaignService");
 
-console.log(process.env.NODE_ENV)
 // Charge les variables d'environnement
 if (process.env.NODE_ENV === 'prod') {
-  console.log("app detect prod")
   dotenv.config({ path: './.env.prod' });
 } else {
-  console.log("app detect dev")
   dotenv.config();
 }
 
 // Setup des tâches automatiques
 // Création de la campagne de l'année courante, chaque 1er du mois de Juillet à Novembre
 cron.schedule('0 9 1 7-11 *', () => {
-  cronjobs.startCampaign();
+  campaignService.startCampaign();
 });
 
 // Getting the routers
@@ -85,7 +82,7 @@ app.use('/:lang', function (req, res, next) {
   }
   const lang = req.params.lang;
   if (supportedLanguages.includes(lang)) {
-    res.setLocale(lang);
+    req.setLocale(lang);
     res.locals.lang = lang;
   } else {
     return res.status(404).send('Language not supported');

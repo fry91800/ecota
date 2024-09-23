@@ -1,0 +1,13 @@
+#log-in-zone.form-zone
+    #log-in-form.form.shadow
+        #log-in-header.form-header
+            h1 #{__("log_in")}
+        .form-item
+            input(type="text" id="mail" name="mail" placeholder=__('mail') required)
+        .form-item
+            input(type="text" id="pass" name="pass" placeholder=__('password') required)
+            #recovery-overlay-open.popup-open.link #{__("forgot_pass")}
+        #log-in-message.message.not-visible
+        #log-in-submit.submit
+            #log-in-submit-button.submit-button #{__("log_in")}
+        #signup-overlay-open.popup-open.link #{__("sign_up")}

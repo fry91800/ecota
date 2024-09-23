@@ -386,6 +386,7 @@ const YearlyTeamCotaData = sequelize.define('yearly_team_cota_data',
     },
     "Value(EUR)": {
       type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     reason1:
     {
@@ -428,7 +429,33 @@ const YearlyTeamCotaData = sequelize.define('yearly_team_cota_data',
       },
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE'
-    }
+    },
+    intensity: {
+      type: Sequelize.INTEGER,
+    },
+    // Selection Table Data
+    perfscope: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    riskscope: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    lastsurveillance: {
+      type: DataTypes.STRING,
+    },
+    spendscope: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    status: {
+      type: DataTypes.STRING,
+    },
+    hasnewname: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
   },
 
   {
@@ -443,6 +470,118 @@ const YearlyTeamCotaData = sequelize.define('yearly_team_cota_data',
     freezeTableName: true
   }
 );
+const CachedSelectionData = sequelize.define('cached_selection_data',
+  {
+    teamdataid: {
+      type: Sequelize.INTEGER,
+    },
+    vendorcode: {
+      type: DataTypes.STRING,
+    },
+    vendorname: {
+      type: DataTypes.STRING,
+    },
+    purchasingorganisationcode: {
+      type: DataTypes.STRING,
+    },
+    spend: {
+      type: Sequelize.INTEGER,
+    },
+    city: {
+      type: DataTypes.STRING,
+    },
+    country: {
+      type: DataTypes.STRING,
+    },
+    mdmcode: {
+      type: DataTypes.STRING,
+    },
+    perfscope: {
+      type: DataTypes.BOOLEAN,
+    },
+    riskscope: {
+      type: DataTypes.BOOLEAN,
+    },
+    lastsurveillance: {
+      type: DataTypes.STRING,
+    },
+    spendscope: {
+      type: DataTypes.BOOLEAN,
+    },
+    reason1: {
+      type: DataTypes.BOOLEAN,
+    },
+    reason2: {
+      type: DataTypes.BOOLEAN,
+    },
+    reason3: {
+      type: DataTypes.BOOLEAN,
+    },
+    reason4: {
+      type: DataTypes.BOOLEAN,
+    },
+    comment:
+    { 
+      type: Sequelize.TEXT
+    },
+    commenter:
+    { 
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'orga',
+        key: 'id',
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
+    },
+    status: {
+      type: DataTypes.STRING,
+    },
+    hasnewname: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+  },
+
+  {
+    freezeTableName: true
+  }
+);
+
+
+logger.info('Synchronisation avec la base de données...');
+sequelize.sync({ alter: true })
+  .then(() => {
+    logger.info("\x1b[32mSynchonisation réussie\x1b[0m");
+    const campaignService = require("../service/campaignService");
+    const selectionService = require("../service/selectionService");
+    campaignService.syncSuppliers().then(() => {
+      selectionService.updateAllSelectionData();
+    })
+  })
+  .catch(err => {
+    console.error('Erreur lors de la synchronisation:', err);
+  });
+
+module.exports = {
+  sequelize,
+  Orga,
+  Session,
+  Team,
+  Position,
+  Plant,
+  Intensity,
+  Campaign,
+  Country,
+  VendorSap,
+  VendorStl,
+  VendorSyt,
+  Perfo,
+  YearlySupplierSnapShot,
+  YearlyTeamCotaData,
+  CachedSelectionData,
+}
+
 //const sequelize = require('../database');
 /*
 const Orga = sequelize.define('Orga', {
@@ -738,32 +877,3 @@ const SupplierCotaData = sequelize.define('suppliercotadata',
 Orga.hasMany(Session, { foreignKey: 'orgaid' });
 Session.belongsTo(Orga, { foreignKey: 'orgaid' });
 */
-
-
-sequelize.sync({ alter: true })
-  .then(() => {
-    logger.info('Database synchronized');
-    const cronjobs = require("../cronjobs/cronjobs");
-    cronjobs.syncSuppliers();
-  })
-  .catch(err => {
-    console.error('Error synchronizing database:', err);
-  });
-
-module.exports = {
-  sequelize,
-  Orga,
-  Session,
-  Team,
-  Position,
-  Plant,
-  Intensity,
-  Campaign,
-  Country,
-  VendorSap,
-  VendorStl,
-  VendorSyt,
-  Perfo,
-  YearlySupplierSnapShot,
-  YearlyTeamCotaData,
-}
