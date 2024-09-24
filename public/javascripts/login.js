@@ -4,8 +4,9 @@ $(document).ready(function () {
     let pass = "";
 
     function login(){
+        mail = $('#mail').val();
+        pass = $('#pass').val();
         $.post(`/${currentLang}/user/login`, { mail, pass }, function (response) {
-            console.log("attemps")
             if (response.status !== 200) {
                 $(`#log-in-message`).text(response.message);
                 $(`#log-in-message`).removeClass("success");
@@ -23,6 +24,7 @@ $(document).ready(function () {
     }
 
     function recovery(string) {
+        mail = $(`#${string}-mail`).val();
         $.post(`/${currentLang}/user/recovery`, { mail }, function (response) {
             if (response.status !== 200) {
                 $(`#${string}-message`).text(response.message);
@@ -61,18 +63,30 @@ $(document).ready(function () {
     });
 
     $("#recovery-submit-button").on('click', function () {
-        mail = $('#recovery-mail').val();
         recovery("recovery");
     });
 
     $("#signup-submit-button").on('click', function () {
-        mail = $('#signup-mail').val();
         recovery("signup");
     });
     $("#log-in-submit-button").on('click', function () {
-        mail = $('#mail').val();
-        pass = $('#pass').val();
         login();
     });
+
+    $('#mail, #pass').on('keypress', function(event) {
+        if (event.key === 'Enter') {
+          login();
+        }
+      });
+      $('#recovery-mail').on('keypress', function(event) {
+        if (event.key === 'Enter') {
+            recovery("recovery");
+        }
+      });
+      $('#signup-mail').on('keypress', function(event) {
+        if (event.key === 'Enter') {
+            recovery("signup");
+        }
+      });
 
 })

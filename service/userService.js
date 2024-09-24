@@ -16,12 +16,16 @@ async function login(mail, pass) {
   if (!record) {
     CustomError.mailNoExistError();
   }
-  // Step 3: Vérification du mot de passe
+  // Step 3: Vérification si mot de pass null
+  if (!record.pass){
+    CustomError.pleaseSignInError();
+  }
+  // Step 4: Vérification du mot de passe
   const match = await bcrypt.compare(pass, record.pass);
   if (!match) {
     CustomError.wrongPassError();
   }
-  // Step 4: Création de la session
+  // Step 5: Création de la session
   const orgaid = record.id
   return sessionRepository.startSession(orgaid);
 }

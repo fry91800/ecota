@@ -31,5 +31,10 @@
 	"wrongPassError": "Wrong password",
 	"sign_up": "Sign up",
 	"recovery_text": "A mail will be sent to you with a link to reset your password",
-	"sign_up_text": "A mail will be sent to you with a link to create your password"
+	"sign_up_text": "A mail will be sent to you with a link to create your password",
+	"data and hash arguments required": "data and hash arguments required",
+	"pleaseSignInError": "Please sign up",
+	"differentPassError": "Different passwords",
+	"tokenExpiredError": "The password reset token expired",
+	"shortPassError": "6 characters minimum"
 }

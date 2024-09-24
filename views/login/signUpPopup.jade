@@ -7,10 +7,11 @@
         #signup-popup-body-wrapper
             #signup-popup-body
                 #signup-text.form-text #{__("sign_up_text")}
-                #signup-form.form
-                    .form-item
-                        input(type="text" id="signup-mail" name="mail" placeholder=__('mail') required)
-                    #signup-message.message.not-visible
-                    #signup-submit.submit
-                        #signup-submit-button.submit-button #{__("submit")}
+                .form-flex-wrapper
+                    #signup-form.form
+                        .form-item
+                            input(type="text" id="signup-mail" name="mail" placeholder=__('mail') required)
+                        #signup-message.message.not-visible None
+                        #signup-submit.submit
+                            #signup-submit-button.submit-button #{__("submit")}
            

@@ -27,9 +27,17 @@ function wrongPassError()
 {
     throw new CustomError("wrongPassError", 400);
 }
+function pleaseSignInError()
+{
+    throw new CustomError("pleaseSignInError", 400);
+}
 function differentPassError()
 {
     throw new CustomError("differentPassError", 400);
+}
+function shortPassError()
+{
+    throw new CustomError("shortPassError", 400);
 }
 function tokenExpiredError()
 {
@@ -47,7 +55,9 @@ module.exports = {
     missingFieldError,
     mailNoExistError,
     wrongPassError,
+    shortPassError,
+    pleaseSignInError,
     tokenExpiredError,
     differentPassError,
-    wrongParam
+    wrongParam,
 }

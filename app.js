@@ -150,10 +150,11 @@ app.use('/:lang/supplier', supplierRouter);
 app.use(function (err, req, res, next) {
   console.error(err);
   if (err instanceof CustomError) {
-    res.status(err.status).json({ error: err.message });
+    //res.status(err.status).json({ error: err.message });
+    res.send(req.__(err.message))
   } else {
-    logger.error(err.message)
-    res.status(500).json({ error: 'Internal Server Error' });
+    //res.status(500).json({ error: 'Internal Server Error' });
+    res.send(req.__(err.message))
   }
 });
 

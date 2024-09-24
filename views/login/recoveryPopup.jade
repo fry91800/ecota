@@ -7,10 +7,11 @@
         #recovery-popup-body-wrapper
             #recovery-popup-body
                 #recovery-text.form-text #{__("recovery_text")}
-                #recovery-form.form
-                    .form-item
-                        input(type="text" id="recovery-mail" name="mail" placeholder=__('mail') required)
-                    #recovery-message.message.not-visible
-                    #recovery-submit.submit
-                        #recovery-submit-button.submit-button #{__("submit")}
+                .form-flex-wrapper
+                    #recovery-form.form
+                        .form-item
+                            input(type="text" id="recovery-mail" name="mail" placeholder=__('mail') required)
+                        #recovery-message.message.not-visible None
+                        #recovery-submit.submit
+                            #recovery-submit-button.submit-button #{__("submit")}
            

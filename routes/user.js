@@ -83,7 +83,7 @@ router.get('/passreset', async function (req, res, next) {
     }
     await userService.checkResetToken(req.query.token);
     res.locals.token = req.query.token;
-    return res.render('passreset');
+    return res.render('passReset');
   }
   catch (e) {
     next(e);
@@ -99,10 +99,14 @@ router.post('/passreset', async function (req, res, next) {
     if (req.body.pass !== req.body.confirmpass) {
       CustomError.differentPassError();
     }
-    await userService.resetPass(req.query.token, req.body.pass);
-    res.redirect("/");
+    if (req.body.pass.length < 6) {
+      CustomError.shortPassError();
+    }
+    await userService.resetPass(req.body.token, req.body.pass);
+    res.json({ status: 200, message: req.__("success") })
   } catch (e) {
-    next(e);
+    console.log(e)
+    res.json({ status: e.status, message: req.__(e.message) })
   }
 });
 module.exports = router;

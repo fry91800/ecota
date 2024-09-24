@@ -1,20 +1,17 @@
-#secondBar
-    #secondBarLeftSide
-        if session && (session.role === 1 || session.role === 2)
-            .item
+#second-bar
+    #second-bar-left-side
+        if session && (session.role === "admin" || session.role === "manager")
+            .second-bar-item.right-border
                 a(href="/#{lang}/selection")
-                    button#selectionButton
-                        p #{__("selectionPhase")}
+                        #selection-link.second-bar-text #{__("selectionPhase")}
 
-        if session && (session.role > 1)
-            .item.cotaTab
-                span 2
+        if session
+            #scoring-tab.second-bar-item.right-border
+                #cota-badge 2
                 a(href="/#{lang}/cota/#{session.orgaid}")
-                    button#cotaButton
-                        p #{__("scoringPhase")}
-    #secondBarRightSide
-        if session && (session.role === 1 || session.role === 2)
-            .item
+                    #scoring-link.second-bar-text #{__("scoringPhase")}
+    #second-bar-right-side
+        if session && (session.role === "admin" || session.role === "manager")
+            .second-bar-item.left-border
                 a(href="/#{lang}/stats")
-                    button#statsButton
-                        p #{__("stats")}    
+                    #stats-link.second-bar-text #{__("stats")}

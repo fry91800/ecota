@@ -1,0 +1,16 @@
+extends layout
+block content
+    script(src="/javascripts/passReset.js")
+    include bars/mainBar.jade
+    include bars/secondBar.jade
+    input(type="hidden", id="token", value=token)
+    #pass-reset-zone.form-zone
+        #pass-reset-form.form.shadow
+            #pass-reset-header.form-header #{__("new_pass")}
+            .form-item
+                input(type="text" id="pass" name="pass" placeholder=__('new_pass') required)
+            .form-item
+                input(type="text" id="confirmpass" name="confirmpass" placeholder=__('confirm_new_pass') required)
+            #pass-reset-message.message.not-visible Empty
+            #pass-reset-submit.submit
+                #pass-reset-submit-button.submit-button #{__("submit")}

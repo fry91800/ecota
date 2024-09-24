@@ -1,21 +1,25 @@
-#mainBar
-    .left-space
-        h1 e-Cotation
+#main-bar
+    #app-title e-Cotation
     .right-items
         script(src="/javascripts/themeswitch.js")
-        #theme-toggle.item.themeElement
-                #sun.theme-switch
-                    i.fa-solid.fa-sun.1
-                #moon.theme-switch
-                    i.fa-solid.fa-moon.1
-        .item
-            a(href="/#{lang}/langswitch/en")
-                img(class= lang=="en" ? 'active' : '' src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/800px-Flag_of_the_United_Kingdom_%283-5%29.svg.png?20230715230526", alt="British Flag", width="30", height="20")
-        .item
-            a(href="/#{lang}/langswitch/fr")
-                img(class= lang=="fr" ? 'active' : '' src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg", alt="French Flag", width="30", height="20")
+        #main-bar-theme-switches.main-bar-group
+            #sun.main-bar-item.theme-switch
+                i.fa-solid.fa-sun.1
+            #moon.main-bar-item.theme-switch
+                i.fa-solid.fa-moon.1
+        #main-bar-flags.main-bar-group
+            .main-bar-item
+                a(href="/#{lang}/langswitch/en")
+                        img(class= lang=="en" ? 'active' : '' src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/800px-Flag_of_the_United_Kingdom_%283-5%29.svg.png?20230715230526", alt="British Flag", width="30", height="20")
+            .main-bar-item
+                a(href="/#{lang}/langswitch/fr")
+                        img(class= lang=="fr" ? 'active' : '' src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg", alt="French Flag", width="30", height="20")
         
         if session
-            .item.logoutElement
-                a(href="/#{lang}/user/logout")
-                    i.fas.fa-sign-out-alt
+            .main-bar-group
+                .main-bar-item
+                    a(href="/#{lang}/user/logout") #{__("log_out")}
+        else
+            .main-bar-group
+                .main-bar-item
+                    a(href="/#{lang}/user/login") #{__("log_in")}               

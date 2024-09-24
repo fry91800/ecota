@@ -1,5 +1,6 @@
 const db = require('../data/database.js');
 const commonRepository = require("../data/commonRepository");
+const CustomError = require('../error/CustomError');
 const { logger, logEnter, logExit } = require('../config/logger');
 
 async function getLoginInfo(mail) {

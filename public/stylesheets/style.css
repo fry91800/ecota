@@ -10,17 +10,13 @@ body {
 }
 
 body.dark {
-  background-color: black;
+  background-color: #070e1d;
   color: white;
 }
 
 body h1 {
   text-align: center;
 
-}
-
-a {
-  color: #00B7FF;
 }
 
 .not-visible {
@@ -36,34 +32,35 @@ a {
   /* Matches the same timing for fade-out */
 }
 
-.message{
+.message {
   padding: 5px;
   font-size: 14px;
   border-radius: 2px;
   text-align: center;
   font-weight: bold;
-  transition: 0.3;
   background-color: rgb(207, 207, 207);
   border: 1px solid black;
   color: black;
 }
 
-.error{
+.error {
   background-color: rgb(255, 178, 178);
   border: 1px solid red;
   color: red;
-  transition: 0.3s;
 }
 
-.success{
+.success {
   background-color: rgb(143, 255, 143);
   border: 1px solid green;
   color: green;
-  transition: 0.3s;
 }
 
-.shadow{
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+.shadow {
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.274);
+  transition: 0.3s;
+}
+body.dark .shadow {
+  box-shadow: 4px 4px 8px #afcff01c;
 }
 
 
@@ -86,7 +83,7 @@ a {
 }
 
 .overlay.active {
-  pointer-events:all;
+  pointer-events: all;
   visibility: visible;
   opacity: 1;
 }
@@ -102,6 +99,12 @@ a {
   overflow-y: auto;
   border-radius: 5px;
   padding: 5px;
+  transition: 0.3s;
+}
+
+body.dark .popup{
+  background-color: #2a3959;
+  /*color: white;*/
 }
 
 .popup-bar {
@@ -130,156 +133,152 @@ a {
 }
 
 /* Bars */
-#mainBar {
+
+#main-bar {
   background-color: #070e1d;
   height: 30px;
   display: flex;
   align-items: center;
   font-size: 35px;
-  justify-content: space-between;
+  justify-content: end;
   position: relative;
 }
 
-#mainBar h1 {
+#app-title {
   top: 0;
   color: white;
   font-size: 25px;
+  font-weight: bold;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
 }
 
-.left-space {
-  flex: 1;
+.main-bar-group {
+  margin: 0px 4px;
+  display: flex;
 }
 
-#mainBar .item {
-  margin-left: 10px;
-  margin-right: 5px;
+.main-bar-item {
   display: flex;
   align-items: center;
-  margin-left: 2px;
-  margin-right: 2px;
+  margin: 0px 2px;
+  font-weight: bold;
+}
+.main-bar-item a{
+  transition: 0.2s;
 }
 
 
-#mainBar img {
+#main-bar img {
   border: 1.4px solid transparent;
   border-radius: 2px;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
-#mainBar img.active {
+#main-bar img.active {
   border: 1.4px solid #afd0f0
 }
 
-#mainBar img:hover {
+#main-bar img:hover {
   border: 1.4px solid #afd0f0
 }
 
-#mainBar a {
+#main-bar a {
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
   text-decoration: none;
   color: #afd0f0;
-  transition: 0.3s;
 }
 
-.theme-switch{
+.theme-switch {
   cursor: pointer;
+  display: flex;
   justify-content: center;
+  align-items: center;
   font-size: 20px;
   text-decoration: none;
   color: #4d6275;
-  transition: 0.3s;
-
 }
-.theme-switch.active{
+
+.theme-switch.active {
   color: #afd0f0
 }
 
-#mainBar a:hover {
-  color: #91b3d6
+#main-bar a:hover {
+  color: #829fbd
 }
 
 
 
 .right-items {
   display: flex;
-  gap: 0px;
-  /* Space between right items */
 }
 
-#secondBar {
+#second-bar {
   background: linear-gradient(90deg, rgba(177, 120, 0, 1) 0%, rgba(235, 175, 54, 1) 100%);
   height: 30px;
-  border: 1px solid black;
+  border-bottom: 1px solid black;
   display: flex;
   box-shadow: 0 3px 6px 0 rgba(32, 33, 36, 0.28);
+  transition: 0.3s;
+}
+body.dark #second-bar{
+  border-bottom: 1px solid #839ebb;
+  box-shadow: 0 3px 15px 0 #afcff06e;
 }
 
-#secondBarLeftSide {
+#second-bar-left-side {
   height: 100%;
   width: 50%;
   display: flex;
   justify-content: left;
 }
 
-#secondBarRightSide {
+#second-bar-right-side {
   height: 100%;
   width: 50%;
   display: flex;
   justify-content: end;
 }
 
-#secondBar .item button {
+.second-bar-item {
+  display: flex;
+  align-items: center;
+}
+
+.second-bar-item a {
+  text-decoration: none;
   height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.second-bar-text {
   width: fit-content;
   font-size: 20px;
   font-family: Arial, Helvetica, sans-serif;
   cursor: pointer;
   background-color: transparent;
   font-weight: bold;
-  transition: 0.3s;
   padding-left: 12px;
   padding-right: 12px;
 }
 
-#secondBarLeftSide .item button {
-  border-top: hidden;
-  border-bottom: hidden;
-  border-left: hidden;
-  border-right: 1px solid;
-}
-
-#secondBarRightSide .item button {
-  border-top: hidden;
-  border-bottom: hidden;
-  border-left: 1px solid;
-  border-right: hidden;
-}
-
-#secondBar .item button:hover {
-  background-color: #00000011;
-}
-
-#secondBar .item .noborder {
-  border-right: hidden;
-}
-
-#secondBar .item button p {
+.second-bar-text {
   margin: 0;
   color: rgb(0, 0, 0, 0.7)
 }
 
-.cotaTab {
+#scoring-tab {
   position: relative;
 }
 
-.cotaTab span {
+#cota-badge {
   font-size: 11px;
   top: 1px;
   left: 1px;
@@ -295,17 +294,27 @@ a {
   padding: 1px
 }
 
+.second-bar-item.right-border {
+  border-right: 1px solid black
+}
 
+.second-bar-item.left-border {
+  border-left: 1px solid black
+}
 
 /* Log in */
 
-
-#recovery-popup-body-wrapper, #signup-popup-body-wrapper {
+#log-in-zone, #pass-reset-zone{
+  margin-top: 50px;
+}
+#recovery-popup-body-wrapper,
+#signup-popup-body-wrapper {
   display: flex;
   justify-content: center;
 }
 
-#recovery-popup-body, #signup-popup-body {
+#recovery-popup-body,
+#signup-popup-body {
   height: fit-content;
   width: fit-content;
   padding: 10px;
@@ -323,18 +332,26 @@ a {
   justify-content: center;
 }
 
-#log-in-form{
+#log-in-form, #pass-reset-form {
   background-color: rgb(223, 223, 223);
+  transition: 0.3s;
+}
+body.dark #log-in-form, body.dark #pass-reset-form {
+  background-color: #2a3959
+}
+.form-header {
+  text-align: center;
+  font-weight: bold;
+}
+
+.form-flex-wrapper{
+  display: flex;
+  justify-content: center;
 }
 .form {
   border-radius: 2px;
   padding: 10px;
   width: fit-content;
-}
-
-.form-header h1 {
-  text-align: center;
-  font-size: 20px;
 }
 
 .form-item {
@@ -345,6 +362,19 @@ a {
 .form-item input {
   width: 200px;
   height: 25px;
+  border: none;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+body.dark .form-item input {
+  background-color: rgb(52 73 117);
+  color: white;
+  /*color: white*/
+}
+
+body.dark .form-item input::placeholder {
+  color: rgb(160, 160, 160);
 }
 
 .link {
@@ -372,13 +402,15 @@ a {
   font-weight: bold;
   cursor: pointer;
   border-radius: 2px;
-  transition: 0.3s;
 }
 
 #log-in-submit-button:hover {
   background-color: #0068cf;
 }
-
+#sign-up-zone{
+  display: flex;
+  justify-content: center;
+}
 #log-in-sign-up {
   width: 100%;
   display: flex;
