@@ -52,6 +52,6 @@ $(document).ready(function () {
         page = 1;
         loadData();
     }
-    loadData()
+    //loadData()
 });
 

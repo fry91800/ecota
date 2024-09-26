@@ -1,0 +1,67 @@
+#newCommentPopup.overlay
+    #commentPopup.selectionPopup
+        .content
+            h1 Comment
+        .content
+            textarea#comment(placeholder="Comment" rows="6" cols="30") 
+        .content
+            button#cancel-comment Cancel
+            button#submit-comment Submit
+
+#addForcePopup.overlay
+    #forcePopup.selectionPopup
+        .content
+            h1 Force selection/deselection
+        .content
+            textarea#force-comment(placeholder="Comment" rows="6" cols="30") 
+        .content
+            button#cancel-force Cancel
+            button#submit-force Submit
+
+#checkReasonPopup.overlay
+    #checkReason.selectionPopup
+        .content
+            h1 Check reason
+        .content
+            textarea#reason-comment(placeholder="Comment" rows="6" cols="30") 
+        .content
+            button#cancel-reason Cancel
+            button#submit-reason Submit            
+#viewHistoryPopup.overlay
+    #historyPopup
+        .cancelBar
+            button#cancel-history.cancelButton <i class="fa-solid fa-xmark"></i>
+        h1 History
+        table#history-table.table1
+            thead
+                tr
+                    th Year
+                    th Selected
+                    th Name
+                    th Intensity
+                    th Reason1
+                    th Reason2
+                    th Reason3
+                    th Reason4
+                    th Comment
+            tbody
+
+table#data-table.table1.selectionTable
+    thead
+        tr
+            th Supplier
+            th MDM Code
+            th Team
+            th Performance scope
+            th Risk Scope
+            th Yearly spend €
+            th Previous monitoring level
+            th NPI / Critical product 1 / Reach impact
+            th HIE / SE / Weak signal
+            th New / Change of organization / Agree
+            th Involved in targeted strategy
+            th Comment            
+            th History
+    tbody
+        // Data will be loaded here
+div#load-more Load More

@@ -3,8 +3,8 @@
         #log-in-header.form-header #{__("log_in")}
         .form-item
             input(type="text" id="mail" name="mail" placeholder=__('mail') required)
-        .form-item
-            input(type="text" id="pass" name="pass" placeholder=__('password') required)
+        #log-in-pass-item.form-item
+            input(type="password" id="pass" name="pass" placeholder=__('password') required)
             #recovery-overlay-open.popup-open.link #{__("forgot_pass")}
         #log-in-message.message.not-visible None
         #log-in-submit.submit

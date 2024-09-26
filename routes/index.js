@@ -14,10 +14,10 @@ router.get('/', function (req, res, next) {
   }
     */
   if (res.locals.session) {
-    res.render("welcome");
+    res.redirect(`/${res.currentLang}/selection`);
   }
   else {
-    res.redirect("/en/user/login");
+    res.redirect(`/${res.currentLang}/user/login`);
   }
 });
 module.exports = router;

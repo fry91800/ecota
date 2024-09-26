@@ -1,3 +1,4 @@
+const CustomError = require('../error/CustomError.js');
 const campaignRepository = require("../data/campaignRepository");
 const supplierRepository = require("../data/supplierRepository");
 const datastruct = require("../utils/datastruct.js");
@@ -100,6 +101,7 @@ async function updatePerfoValues() {
 
 
 async function updateRevenue(revenue) {
+    logger.debug("Modification du pourcentage du spend de la campagne courante...")
     // Step 1: Check validité revenue
     if (revenue < 0 || revenue > 100) {
         CustomError.wrongParam();
@@ -109,6 +111,7 @@ async function updateRevenue(revenue) {
     const campaignYear = mostRecentCampaign.year
     // Step 3: Ajout dans la base de données
     await campaignRepository.updateRevenue(campaignYear, revenue)
+    logger.debug("\x1b[32mModification réussie, nouvelle valeur: "+revenue+"\x1b[0m");
 }
 
 module.exports = {

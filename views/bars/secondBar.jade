@@ -3,13 +3,13 @@
         if session && (session.role === "admin" || session.role === "manager")
             .second-bar-item.right-border
                 a(href="/#{lang}/selection")
-                        #selection-link.second-bar-text #{__("selectionPhase")}
+                        #selection-link.second-bar-text #{__("selection")}
 
         if session
             #scoring-tab.second-bar-item.right-border
                 #cota-badge 2
                 a(href="/#{lang}/cota/#{session.orgaid}")
-                    #scoring-link.second-bar-text #{__("scoringPhase")}
+                    #scoring-link.second-bar-text #{__("scoring")}
     #second-bar-right-side
         if session && (session.role === "admin" || session.role === "manager")
             .second-bar-item.left-border

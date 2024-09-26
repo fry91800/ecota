@@ -21,7 +21,8 @@
 	"results": "Resultats",
 	"selectionPhase": "Phase de sélection",
 	"scoringPhase": "Phase de cotation",
-	"spendCoverage": "Chiffre d'affaire",
+	"spend-coverage": "Couverture chiffre d'affaire",
+	"spend-coverage-text": "Les fournisseurs compris dans ce pourcentage (calculé par division) seront automatiquement assigné à une évaluation sur la performance",
 	"previousMonitoringLevel": "Niveau de surveillance (N-1)",
 	"mailNoExistError": "Mail inexistant",
 	"missingFieldError": "Champ manquant",
@@ -36,5 +37,9 @@
 	"pleaseSignInError": "Veuillez vous inscrire",
 	"differentPassError": "Mots de passe différents",
 	"tokenExpiredError": "Le token à expiré",
-	"shortPassError": "6 caractères minimum"
+	"shortPassError": "6 caractères minimum",
+	"scoring": "Cotation",
+	"CustomError is not defined": "CustomError is not defined",
+	"wrongParam": "wrongParam",
+	"/home/francois/Documents/work/cota/ecota/views/cota.jade:4\n    2| block content\n    3|     script(src=\"/javascripts/cota.js\")\n  > 4|     include subviews/mainBar.jade\n    5|     include subviews/secondBar.jade\n    6|     #perfPopup.overlay\n    7|         .formPopup\n\nENOENT: no such file or directory, open '/home/francois/Documents/work/cota/ecota/views/subviews/mainBar.jade'": "/home/francois/Documents/work/cota/ecota/views/cota.jade:4\n    2| block content\n    3|     script(src=\"/javascripts/cota.js\")\n  > 4|     include subviews/mainBar.jade\n    5|     include subviews/secondBar.jade\n    6|     #perfPopup.overlay\n    7|         .formPopup\n\nENOENT: no such file or directory, open '/home/francois/Documents/work/cota/ecota/views/subviews/mainBar.jade'"
 }
