@@ -5,9 +5,9 @@
             input(type="text" id="mail" name="mail" placeholder=__('mail') required)
         #log-in-pass-item.form-item
             input(type="password" id="pass" name="pass" placeholder=__('password') required)
-            #recovery-overlay-open.popup-open.link #{__("forgot_pass")}
+            .popup-open.link(data-target-id="recovery-overlay") #{__("forgot_pass")}
         #log-in-message.message.not-visible None
         #log-in-submit.submit
             #log-in-submit-button.submit-button #{__("log_in")}
         #sign-up-zone
-            #signup-overlay-open.popup-open.link #{__("sign_up")}
+            .popup-open.link(data-target-id="signup-overlay") #{__("sign_up")}

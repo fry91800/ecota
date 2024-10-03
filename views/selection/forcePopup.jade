@@ -1,0 +1,17 @@
+#check-overlay.overlay
+    #check-popup.popup
+        .popup-bar
+            .popup-title Add to performance scope
+            .popup-close(data-target-id="check-overlay")
+                i.fa-solid.fa-circle-xmark
+        #check-popup-body-wrapper
+            #check-popup-body
+                #check-text.form-text You have to add a comment to explain your decision
+                .form-flex-wrapper
+                    #check-form.form
+                        .form-item
+                            textarea#check-comment(placeholder="Comment" rows="6" cols="30") 
+                        #check-message.message.not-visible None
+                        #check-submit.submit
+                            #check-submit-button.submit-button Add
+           

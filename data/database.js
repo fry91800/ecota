@@ -431,7 +431,7 @@ const YearlyTeamCotaData = sequelize.define('yearly_team_cota_data',
       onUpdate: 'CASCADE'
     },
     intensity: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
     },
     // Selection Table Data
     perfscope: {
@@ -443,7 +443,7 @@ const YearlyTeamCotaData = sequelize.define('yearly_team_cota_data',
       defaultValue: false
     },
     lastsurveillance: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
     },
     spendscope: {
       type: DataTypes.BOOLEAN,

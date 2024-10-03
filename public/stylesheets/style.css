@@ -11,14 +11,16 @@ body {
 
 body.dark {
   background-color: #070e1d;
-  color: white;
+  color: rgb(255, 255, 255);
 }
 
 body h1 {
   text-align: center;
 
 }
-
+input{
+  transition: 0.3s;
+}
 .not-visible {
   visibility: hidden;
   opacity: 0;
@@ -364,21 +366,21 @@ body.dark #log-in-form, body.dark #pass-reset-form, body.dark #spend-form {
   padding: 10px 5px;
 }
 
+
 .form-item input {
   width: 200px;
   height: 25px;
   border: none;
   border-radius: 2px;
-  transition: 0.3s;
 }
 
-body.dark .form-item input {
+body.dark input {
   background-color: rgb(52 73 117);
   color: white;
   /*color: white*/
 }
 
-body.dark .form-item input::placeholder {
+body.dark input::placeholder {
   color: rgb(160, 160, 160);
 }
 
@@ -556,44 +558,157 @@ width: 40px;
   table-layout: fixed;
   box-shadow: 0px -4px 15px rgba(0, 0, 0, 0.5);
   border: 1px solid #000000;
-  margin: auto;
+  margin: 50px auto;
+}
+
+body.dark .table2{
+  box-shadow: 0px -4px 15px #afcff01c
+}
+.table2 thead{
+  background-color: rgb(223, 223, 223);
+  transition: 0.3s;
+}
+body.dark .table2 thead {
+  background-color: #2a3959
 }
 .table2 th{
-  background-color: #0068cf;
+  padding: 0px;
+}
+.table2 td{
+  height: 50px;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
 }
 .header2 {
-  height:40px;
+  height:70px;
   display: flex;
   width: 100%;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: bolder;
 }
 
 .header2-order {
   height: 100%;
-  width: 20px;
-  background-color: gray;
+  width: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .header2-text {
   height: 100%;
   width: fit-content;
   text-align: center; /* Optional: centers the text inside */
-  background-color: lightblue; /* Just for visibility, adjust as needed */
   display: flex;
   align-items: center;
 }
 
 .filters2{
   height: 20px;
-  background-color: blue;
+  padding-bottom: 5px;
+}
+.filters2-input{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.filters2-input .search-button{
+  height: 100%;
+  width: 20px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: grey;
+  font-size: 12px;
+  cursor: pointer;
 }
 
+body.dark .search-button{
+    background-color: rgb(52 73 117);
+    color: white;
+}
 
+.filters2-input input{
+  height: 100%;
+  width: 65px;
+  padding: 0px;
+  border: none;
+}
+.filters2-input input:focus{
+  outline: none;
+}
+.filters2-input .delete-button{
+  height: 100%;
+  width: 20px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: grey;
+  font-size: 14px;
+  border-left: 1px solid rgb(214, 214, 214);
+  cursor: pointer;
+}
+
+body.dark .delete-button{
+  background-color: rgb(52 73 117);
+  color: white;
+  border-color: rgb(42 57 89);
+}
+
+.filters2-buttons{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.filters2-button{
+  height:fit-content;
+  width: fit-content;
+  border: 2px outset rgb(179, 179, 179);
+  padding: 1px 3px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+body.dark .filters2-button{
+  border-color: rgb(211, 211, 211);
+}
+#history-header {
+  width: 70px;
+}
+#team-header {
+  width: 100px;
+}
+#perf-header {
+  width: 55px;
+}
+#risk-header {
+  width: 55px;
+}
+#spend-header{
+  width: 120px;
+}
+#previous-surveillance-header{
+  width: 75px;
+}
+#reason1-header, #reason2-header,#reason3-header, #reason4-header {
+  width: 50px;
+}
+#reason1-header .header2-text, #reason2-header .header2-text, #reason3-header .header2-text, #reason4-header .header2-text{
+  font-size: 8px !important;
+}
+
+/* Obsolete */
 
 #data-table {
   font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;

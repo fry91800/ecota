@@ -106,6 +106,31 @@ async function getPreviousCampaignResults() {
     }
 }
 
+async function getSelectionTableData() {
+    const campaign = await campaignRepository.getMostRecentCampaign();
+    const currentYear = campaign.year
+    //const query = { where: { year: currentYear } };
+    //return commonRepository.getAll("YearlyTeamCotaData", query);
+    const [results, metadata] = await db.sequelize.query(
+        `SELECT teamdata.*, teamdata.id AS teamdataid, snapshot.*,
+        intensity.text as lastsurveillancetext, team.shorttext as teamshorttext
+        FROM yearly_team_cota_data as teamdata
+        LEFT JOIN yearly_supplier_snapshot as snapshot
+        ON teamdata.vendorcode = snapshot.vendorcode
+        LEFT JOIN intensity
+        ON teamdata.lastsurveillance = intensity.id
+        LEFT JOIN team
+        ON teamdata.purchasingorganisationcode = team.code        
+        WHERE teamdata.year = ${currentYear}
+        AND snapshot.year = ${currentYear}`,
+        {
+            type: db.sequelize.QueryTypes.RAW
+        }
+    );
+    console.log(results)
+    return results
+}
+
 async function getSupplierSnapShotByYear(year) {
     query = { where: { year: year } }
     return commonRepository.getAll("YearlySupplierSnapShot", query)
@@ -319,6 +344,7 @@ module.exports = {
     updatePerfoValues,
     getCurrentCampaignTeamData,
     getCurrentCampaignTeamDataNoId,
+    getSelectionTableData,
     getPreviousCampaignResults,
     getSupplierSnapShotByYear,
     updateAllSelectionData,

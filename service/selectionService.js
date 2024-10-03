@@ -9,7 +9,7 @@ const db = require('../data/database.js');
 const { Op } = require('sequelize');
 
 async function getSelectionData() {
-
+    return supplierRepository.getSelectionTableData();
     return [
         {
             vendorcode: "1234",
@@ -164,10 +164,10 @@ function addScopes(data) {
 }
 
 function isForcedPerf(obj) {
-    return obj.forceperfcota === true;
+    return obj.forceperfcota === true || obj.forceperfcota === false;
 }
 function isForcedRisk(obj) {
-    return obj.forceriskcota === true;
+    return obj.forceriskcota === true || obj.forceriskcota === false;
 }
 
 function hasReason(obj) {

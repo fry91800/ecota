@@ -44,20 +44,17 @@ $(document).ready(function () {
     $('.popup-close').each(function () {
         $(this).on('click', function () {
             // Get the id of the current element, then remove '-close' from the end
-            const closeId = $(this).attr('id');
-            const targetId = closeId.replace('-close', '');
-
+            const targetId = $(this).data('target-id');
             // Remove 'active' class from the target element
             $('#' + targetId).removeClass('active');
         });
     });
     $('.popup-open').each(function () {
         $(this).on('click', function () {
-            // Get the id of the current element, then remove '-close' from the end
-            const closeId = $(this).attr('id');
-            const targetId = closeId.replace('-open', '');
+            // Get the id of the current element, then remove '-open' from the end
+            const targetId = $(this).data('target-id');
 
-            // Remove 'active' class from the target element
+            // Add 'active' class from the target element
             $('#' + targetId).addClass('active');
         });
     });

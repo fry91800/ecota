@@ -61,7 +61,9 @@ router.post('/comment', async function (req, res, next) {
 });
 
 router.post('/check/:action', async function (req, res, next) {
-  if (!req.body.vendorcode || !req.body.purchasingorganisationcode || !req.body.field || !req.body.comment) {
+  const checkData = req.body;
+  console.log(checkData)
+  if (!checkData.vendorcode || !checkData.purchasingorganisationcode || !checkData.field || !checkData.comment) {
     CustomError.missingFieldError();
   }
   try {
@@ -192,19 +194,45 @@ router.get('/data', async (req, res) => {
 });
 */
 
+
+// Function to filter data based on searches
+function search(data, searches) {
+  return data.filter(item => {
+      return Object.keys(searches).every(key => {
+          if (searches[key] === "") {
+              // If the search term is an empty string, don't filter by this field
+              return true;
+          }
+          // If the field exists in the data and matches the search term, filter it
+          return item[key] && item[key].toLowerCase().includes(searches[key].toLowerCase());
+      });
+  });
+}
 router.get('/getselectiondata', async (req, res) => {
+  try{
   await selectionService.updateAllSelectionData();
   const limit = 20;
   const page = req.query.page
   const offset = (page  - 1) * limit;
   // Step 1: Obtention des données
   const data = await selectionService.getSelectionData();
-  let filteredData = data
-  // Step 2: Application des filtres
-  // Step 3: Pagination
+  // Step 2: Application des recherches
+  const searches = req.query.searches
+  let filteredData = data;
+  if(searches)
+  {
+    filteredData = search(data, searches);
+  }
+  // Step 3: Application des filtres
+  // Step 4: Pagination
   const paginatedData = filteredData.slice(offset, offset + limit);
   //console.log(paginatedData)
   res.json(paginatedData);
+  }
+  catch(e)
+  {
+   console.log(e)
+  }
 });
 
 router.get('/history', async (req, res, next) => {
