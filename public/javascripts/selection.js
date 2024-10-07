@@ -32,8 +32,8 @@ $(document).ready(function () {
             }
             data.forEach(entry => {
                 $('#selection-table tbody').append(`
-            <tr>
-            <td>${entry.vendorname} - ${entry.city}(${entry.country})</td>
+            <tr class="${entry.status ? entry.status : ''}">
+            <td ${entry.hasnewname ? 'class="new-name"' : ''}>${entry.vendorname} - ${entry.city}(${entry.country})</td>
             <td>${entry.mdmcode}</td>
             <td>${entry.teamshorttext}</td>
             <td><input id="force-perf-${entry.vendorcode}" class="popup-open" data-target-id="check-overlay" data-vendorcode="${entry.vendorcode}" data-purchasingorganisationcode="${entry.purchasingorganisationcode}" data-field="forceperfcota" type="checkbox" ${entry.perfscope ? 'checked' : ''}></td>

@@ -548,6 +548,44 @@ const CachedSelectionData = sequelize.define('cached_selection_data',
   }
 );
 
+const Answer = sequelize.define('answer',
+  {
+    year: {
+      type: Sequelize.INTEGER,
+    },
+    vendorcode: {
+      type: DataTypes.STRING,
+    },
+    purchasingorganisationcode: {
+      type: DataTypes.STRING,
+    },
+    questioncode: {
+      type: DataTypes.STRING,
+    },
+    answer: {
+      type: DataTypes.STRING,
+    },
+    comment:
+    { 
+      type: Sequelize.TEXT
+    },
+    commenter:
+    { 
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'orga',
+        key: 'id',
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
+    },
+  },
+
+  {
+    freezeTableName: true
+  }
+);
+
 
 logger.info('Synchronisation avec la base de données...');
 sequelize.sync({ alter: true })
@@ -580,6 +618,7 @@ module.exports = {
   YearlySupplierSnapShot,
   YearlyTeamCotaData,
   CachedSelectionData,
+  Answer
 }
 
 //const sequelize = require('../database');

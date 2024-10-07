@@ -127,7 +127,31 @@ async function getSelectionTableData() {
             type: db.sequelize.QueryTypes.RAW
         }
     );
-    console.log(results)
+    return results
+}
+
+async function getAllCotaTableData() {
+    const campaign = await campaignRepository.getMostRecentCampaign();
+    const currentYear = campaign.year
+    //const query = { where: { year: currentYear } };
+    //return commonRepository.getAll("YearlyTeamCotaData", query);
+    const [results, metadata] = await db.sequelize.query(
+        `SELECT teamdata.*, teamdata.id AS teamdataid, snapshot.*,
+        intensity.text as lastsurveillancetext, team.shorttext as teamshorttext
+        FROM yearly_team_cota_data as teamdata
+        LEFT JOIN yearly_supplier_snapshot as snapshot
+        ON teamdata.vendorcode = snapshot.vendorcode
+        LEFT JOIN intensity
+        ON teamdata.lastsurveillance = intensity.id
+        LEFT JOIN team
+        ON teamdata.purchasingorganisationcode = team.code        
+        WHERE teamdata.year = ${currentYear}
+        AND snapshot.year = ${currentYear}
+        AND (teamdata.perfscope = TRUE OR teamdata.riskscope = TRUE)`,
+        {
+            type: db.sequelize.QueryTypes.RAW
+        }
+    );
     return results
 }
 
@@ -160,7 +184,7 @@ async function updateOneSelectionData(row) {
     const where = { where: { year: row.year, vendorcode: row.vendorcode, purchasingorganisationcode: row.purchasingorganisationcode } }
     await commonRepository.update("YearlyTeamCotaData", update, where);
 }
-async function getOneTeamData(year, vendorcode, purchasingorganisationcode){
+async function getOneTeamData(year, vendorcode, purchasingorganisationcode) {
     const where = { where: { year: year, vendorcode: vendorcode, purchasingorganisationcode: purchasingorganisationcode } };
     return commonRepository.getOne("YearlyTeamCotaData", where)
 }
@@ -172,170 +196,53 @@ async function selectionCheck(year, vendorcode, purchasingorganisationcode, fiel
     const where = { where: { year: year, vendorcode: vendorcode, purchasingorganisationcode: purchasingorganisationcode } }
     await commonRepository.update("YearlyTeamCotaData", updateData, where)
 }
-/*async function getRevenueData() {
-    const query = { attributes: ["erp", "revenue", "team"], order: [['revenue', 'DESC']] };
-    return commonRepository.getAll("Supplier1", query)
-}
 
-async function getIntensitiesByYear(year) {
-    const query = { attributes: ["erp", "intensity"], where: { year: year } }
-    return commonRepository.getAll("SupplierCotaData", query)
-}
-async function getSupplierIntensity(erp, year) {
-    const query = {
-        attributes: ["erp", "intensity"],
-        where: { erp: erp, year: year }
-    };
-    const record = await commonRepository.getOne("SupplierCotaData", query);
-    if (!record)
-    {
-        return null;
+async function answer(vendorcode, purchasingorganisationcode, questioncode, answer) {
+    const campaign = await campaignRepository.getMostRecentCampaign();
+    const currentYear = campaign.year
+    // Step 1: Check if an answer already exists
+    const query = { where: { year: currentYear, vendorcode, purchasingorganisationcode, questioncode } };
+    const record = await commonRepository.getOne("Answer", query)
+    // Step 2: If that's the case change it
+    if (record) {
+        const updateData = { answer };
+        const where = { where: { year: currentYear, vendorcode, purchasingorganisationcode, questioncode } }
+        await commonRepository.update("Answer", updateData, where)
     }
-    return record.intensity
-}
-async function updateSelection(bool, erp, year){
-    const updateSelect = { selected: bool };
-    const whereSelect = { where: { erp: erp, year: year } };
-    await commonRepository.update("SupplierSelection", updateSelect, whereSelect);
-}
-async function getSupplierForceByErpAndYear(erp, year)
-{
-    const query = {
-        attributes: ["force"],
-        where: { erp: erp, year: year}
+    // Step 3: if not create it
+    else{
+        await commonRepository.insertOne("Answer",{year: currentYear, vendorcode, purchasingorganisationcode, questioncode, answer})
     }
-    const supplierRecord = await commonRepository.getOne("SupplierSelection", query);
-    return supplierRecord.force
 }
-async function getRecordByErpAndYear(erp, year)
-{
-    const query = {
-        attributes: ["reason1", "reason2", "reason3", "reason4", "reason5"],
-        where: { erp: erp, year: year }
+async function comment(vendorcode, purchasingorganisationcode, questioncode, comment) {
+    const campaign = await campaignRepository.getMostRecentCampaign();
+    const currentYear = campaign.year
+    // Step 1: Check if an answer already exists
+    const query = { where: { year: currentYear, vendorcode, purchasingorganisationcode, questioncode } };
+    const record = await commonRepository.getOne("Answer", query)
+    // Step 2: If that's the case change it
+    if (record) {
+        const updateData = { comment };
+        const where = { where: { year: currentYear, vendorcode, purchasingorganisationcode, questioncode } }
+        await commonRepository.update("Answer", updateData, where)
     }
-    return await commonRepository.getOne("SupplierSelection", query);
-}
-async function getAllRevenueDataByTeam(teamCode)
-{
-    const query = {
-        attributes: ["erp", "revenue"],
-        where: { team: teamCode },
-        order: [['revenue', 'DESC']]
+    // Step 3: if not create it
+    else{
+        await commonRepository.insertOne("Answer",{year: currentYear, vendorcode, purchasingorganisationcode, questioncode, comment})
     }
-    return commonRepository.getAll("Supplier1", query);
 }
-async function getTeamFromErp(erp)
-{
-    const query = { attributes: ["team"], where: { erp: erp } }
-    const record = await commonRepository.getOne("Supplier1", query);
-    return record.team;
+async function getTeamAnswers(vendorcode, purchasingorganisationcode){
+    const campaign = await campaignRepository.getMostRecentCampaign();
+    const currentYear = campaign.year
+    const query = { where: { year: currentYear,  vendorcode, purchasingorganisationcode} };
+    return commonRepository.getAll("Answer", query)
 }
-async function updateName(erp, year, name){
-    const updateName = { name: name }
-    const where = { where: { erp: erp, year: year } }
-    await commonRepository.update("SupplierSelection", updateName, where);
+async function getAllCurrentCampaignAnswers(){
+    const campaign = await campaignRepository.getMostRecentCampaign();
+    const currentYear = campaign.year
+    const query = { where: { year: currentYear} };
+    return commonRepository.getAll("Answer", query)
 }
-async function removeSuppliers(suppliersToDelete, year)
-{
-    await commonRepository.destroy("SupplierSelection", { erp: suppliersToDelete, year: year })
-}
-async function insertSuppliers(newSuppliers)
-{
-    await commonRepository.insertMany("SupplierSelection", newSuppliers);
-}
-async function getCampaignSuppliers(year)
-{
-    const querySuppliers = { attributes: ["erp", "name"], where: { year: year } };
-    return commonRepository.getAll("SupplierSelection", querySuppliers);
-}
-async function getHasReasonCheckedByYear(year) {
-    const query = {
-        attributes: ['erp'], where: {
-            year: year,
-            [Op.or]: [
-                { reason1: true },
-                { reason2: true },
-                { reason3: true },
-                { reason4: true },
-                { reason5: true },
-            ]
-        }
-    }
-    const rows = await commonRepository.getAll("SupplierSelection", query);
-    return rows.map(row => row.erp);
-}
-async function getSelectedErpsByYear(year) {
-    const querySelected = { attributes: ['erp'], where: { selected: true, year: year } }
-    const currentRows = await commonRepository.getAll("SupplierSelection", querySelected)
-    return currentRows.map(obj => obj.erp)
-}
-async function select(erpsToSelect, year) {
-    const updateSelect = { selected: true }
-    const whereErpToSelect = { where: { erp: { [Op.in]: erpsToSelect }, year: year } }
-    await commonRepository.update("SupplierSelection", updateSelect, whereErpToSelect);
-}
-async function deselect(erpsToSelect, year) {
-    const updateSelect = { selected: false }
-    const whereErpToSelect = { where: { erp: { [Op.in]: erpsToSelect }, year: year } }
-    await commonRepository.update("SupplierSelection", updateSelect, whereErpToSelect);
-}
-async function checkReason(bool, orgaid, erp, reason, comment, year) {
-        const updateData = { commenter: orgaid, comment: comment };
-        updateData[reason] = bool;
-        const where = {where: { erp: erp, year: year }}
-        await commonRepository.update("SupplierSelection", updateData, where)
-}
-
-async function getAllMasterSupplier(){
-    const queryMaster = { attributes: ["erp", "name"] };
-    return await commonRepository.getAll("Supplier1", queryMaster);
-}
-
-async function addComment(orgaid, year, erp, comment) {
-        const update = { comment: comment, commenter: orgaid };
-        const where = { where: { erp: erp, year: year } };
-        await commonRepository.update("SupplierSelection", update, where);
-        return { status: 200 };
-}
-async function forceSelect(orgaid, bool, erp, comment) {
-        const update = { force: bool, comment: comment, commenter: orgaid };
-        const where = { where: { erp: erp } };
-        await commonRepository.update("SupplierSelection", update, where);
-        return { status: 200 };
-}
-
-async function getSelectionSupplierData(currentCampaignYear, userTeam) {
-        let whereString = `WHERE supplierselection.year = '${currentCampaignYear}'`;
-        if (userTeam) {
-            whereString = whereString + ` AND supplier1.team = '${userTeam}'`;
-        }
-        const [results, metadata] = await db.sequelize.query(
-            `SELECT supplierselection.force as force, supplierselection.selected as selected, supplierselection.erp as erp,
-            supplierselection.name as supplier, supplier1.revenue as revenue, supplierselection.reason1 as reason1,
-            supplierselection.reason2 as reason2, supplierselection.reason3 as reason3, supplierselection.reason4 as reason4,
-            supplierselection.comment as comment
-            FROM supplierselection
-            LEFT JOIN supplier1 on supplierselection.erp = supplier1.erp
-            ${whereString}`,
-            {
-                type: db.sequelize.QueryTypes.RAW
-            }
-        );
-        
-        return results
-}
-
-async function getSelectionSupplierIntensities() {
-        const [results, metadata] = await db.sequelize.query(
-            `SELECT suppliercotadata.erp as erp, intensity.id as "intensityCode", intensity.desc as intensity
-            FROM suppliercotadata
-            JOIN intensity on suppliercotadata.intensity = intensity.id`,
-            {
-                type: db.sequelize.QueryTypes.RAW
-            }
-        );
-        return results
-}*/
 module.exports = {
     getProdSuppliers,
     getPerfoGroupByTeam,
@@ -351,6 +258,11 @@ module.exports = {
     updateOneSelectionData,
     getOneTeamData,
     selectionCheck,
+    getAllCotaTableData,
+    answer,
+    comment,
+    getTeamAnswers,
+    getAllCurrentCampaignAnswers
     /*getRevenueData,
     getIntensitiesByYear,
     getSupplierIntensity,

@@ -1,0 +1,47 @@
+table#cota-table.table2
+    thead
+        tr
+            th#perf-cota-header
+                .header2
+                    .header2-text Perf
+                    .header2-order
+                        i.fa-solid.fa-sort
+                .filters2
+                    .filters2-input        
+            th#risk-cota-header
+                .header2
+                    .header2-text Risk
+                    .header2-order
+                        i.fa-solid.fa-sort
+                .filters2
+                    .filters2-input                    
+            th#supplier-cota-header
+                .header2
+                    .header2-text Supplier
+                    .header2-order
+                        i.fa-solid.fa-sort
+                .filters2
+                    .filters2-input
+                        .search-button(id="vendorname-search-button" class="search-button") <i class="fa-solid fa-magnifying-glass"></i>
+                        input(type="text" id="vendorname-search" class="search" placeholder="Search")
+                        .delete-button <i class="fa-solid fa-xmark"></i>
+            th#mdm-cota-header
+                .header2
+                    .header2-text MDM Code
+                    .header2-order
+                        i.fa-solid.fa-sort
+                .filters2
+                    .filters2-input
+                        .search-button(id="mdmcode-search-button" class="search-button") <i class="fa-solid fa-magnifying-glass"></i>
+                        input(type="text" id="mdmcode-search" class="search" placeholder="Search")
+                        .delete-button <i class="fa-solid fa-xmark"></i>
+
+            th#team-cota-header
+                .header2
+                    .header2-text Division
+                .filters2
+                    .filters2-buttons
+                        .filters2-button WB
+                        .filters2-button SE
+                        .filters2-button LGI
+    tbody

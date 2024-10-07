@@ -96,9 +96,10 @@ body.dark .shadow {
   background-color: #e7e7e7;
   height: fit-content;
   width: fit-content;
-  max-width: 80%;
-  max-height: 500px;
+  max-width: 100%;
+  max-height: 450px;
   overflow-y: auto;
+  overflow-x: hidden;
   border-radius: 5px;
   padding: 5px;
   transition: 0.3s;
@@ -111,7 +112,7 @@ body.dark .popup{
 
 .popup-bar {
   height: fit-content;
-  width: 300px;
+  width: 100%;
   display: flex;
   justify-content: center;
   position: relative;
@@ -580,6 +581,12 @@ body.dark .table2 thead {
   font-weight: bold;
   text-align: center;
 }
+.table2 td.new-name{
+  color: rgb(68, 141, 252);
+}
+.table2 tr.new{
+  background-color: rgba(89, 248, 89, 0.253);
+}
 .header2 {
   height:70px;
   display: flex;
@@ -708,6 +715,24 @@ body.dark .filters2-button{
   font-size: 8px !important;
 }
 
+/* perf table */
+#perf-table{
+  border-collapse: collapse;
+  width:1000px;
+}
+#perf-table thead th {
+  background-color: #dddcdc; /* Ensure header background remains visible */
+  border-bottom: 2px solid #000; /* Optional: Add border for better visibility */
+}
+#perf-table tbody td {
+  background-color: #fff;
+  padding:5px;
+  max-width: 200px;
+  border: 1px solid #000;
+}
+#perf-table tbody td textarea{
+  resize: none;
+}
 /* Obsolete */
 
 #data-table {

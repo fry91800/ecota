@@ -1,0 +1,29 @@
+#perf-overlay.overlay
+    #perf-popup.popup
+        .popup-bar
+            .popup-title grf...
+            .popup-close(data-target-id="perf-overlay")
+                i.fa-solid.fa-circle-xmark
+        table#perf-table
+            thead
+                tr
+                    th Question
+                    th Answer
+                    th Comment
+                    th Last answer
+                    th Last comment
+            tbody
+                tr 
+                    td Les prix du fournisseur sont compétitifs par rapport aux prix des autres fournisseurs du panel / du marché ?
+                    td
+                        input(type="radio" class="answer" name="c1" id="c1-yes" value="yes")
+                        label(for="yes") Yes 
+                        span cd = 30
+                        br
+                        input(type="radio" class="answer" name="c1" id="c1-no" value="no")
+                        label(for="no") No 
+                        span cd = 0
+                    td 
+                        textarea(class="comment" name="c1" rows="4" cols="30" id="c1-comment")
+                    td
+                    td

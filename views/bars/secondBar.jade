@@ -8,7 +8,7 @@
         if session
             #scoring-tab.second-bar-item.right-border
                 #cota-badge 2
-                a(href="/#{lang}/cota/#{session.orgaid}")
+                a(href="/#{lang}/cota/list/#{session.orgaid}")
                     #scoring-link.second-bar-text #{__("scoring")}
     #second-bar-right-side
         if session && (session.role === "admin" || session.role === "manager")
